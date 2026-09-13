@@ -1,0 +1,8 @@
+# Product Plan Documentation
+Product-Plan Doc/
+
+# OS / IDE files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
