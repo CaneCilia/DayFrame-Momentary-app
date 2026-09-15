@@ -75,6 +75,15 @@ export const HomeScreen = () => {
           </View>
         </TouchableOpacity>
       )}
+
+      <View style={styles.navRow}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Timeline')}>
+          <Text style={styles.navButtonText}>Timeline</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Calendar')}>
+          <Text style={styles.navButtonText}>Calendar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -146,6 +155,26 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 14,
     color: '#666',
+    fontWeight: '500',
+  },
+  navRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 'auto',
+    paddingBottom: 20,
+  },
+  navButton: {
+    flex: 1,
+    paddingVertical: 15,
+    marginHorizontal: 10,
+    backgroundColor: '#eee',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  navButtonText: {
+    fontSize: 16,
+    color: '#333',
     fontWeight: '500',
   }
 });
