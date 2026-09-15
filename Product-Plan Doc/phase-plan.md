@@ -70,3 +70,19 @@ This document breaks down the development of DayFrame into manageable, chronolog
   * Refine animations, empty states, and error handling UI.
 * **Step 4.5: End-to-End Testing**
   * Test offline photo capture, delayed syncing, and edge cases (e.g., taking a photo at 11:59 PM).
+
+Version plans:
+
+V1.1 — Cloud & Backup
+Sign In / Create Account
+Cloud Sync Status
+Google Drive Backup
+Storage & Data
+Privacy
+🔵 V2 — The "Memory Product"
+Monthly Memories
+Yearly Timeline
+On This Day
+Search
+Yearly Recap
+Export / Share
