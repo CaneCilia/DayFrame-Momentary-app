@@ -2,11 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getMemoryByDate, Memory } from '../database/memories';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export const HomeScreen = () => {
   const db = useSQLiteContext();
   const isFocused = useIsFocused();
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const [todayMemory, setTodayMemory] = useState<Memory | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,8 +44,7 @@ export const HomeScreen = () => {
   }, [isFocused]);
 
   const handleCapturePress = () => {
-    // To be implemented in Step 2.3
-    console.log('Navigate to Capture screen or open camera');
+    navigation.navigate('Capture');
   };
 
   const todayStr = new Date().toLocaleDateString(undefined, {

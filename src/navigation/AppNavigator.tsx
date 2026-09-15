@@ -7,10 +7,13 @@ import { TimelineScreen } from '../screens/TimelineScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { MemoryDetailScreen } from '../screens/MemoryDetailScreen';
 
+import { CaptureScreen } from '../screens/CaptureScreen';
+
 // Define navigation types
 export type RootStackParamList = {
   Onboarding: undefined;
   Home: undefined;
+  Capture: undefined;
   Timeline: undefined;
   Calendar: undefined;
   MemoryDetail: { memoryId: string }; // Example parameter
@@ -31,6 +34,11 @@ export const AppNavigator = () => {
           name="Home" 
           component={HomeScreen} 
           options={{ title: 'Today' }}
+        />
+        <Stack.Screen 
+          name="Capture" 
+          component={CaptureScreen} 
+          options={{ title: 'Capture Moment', presentation: 'modal' }}
         />
         <Stack.Screen 
           name="Timeline" 
