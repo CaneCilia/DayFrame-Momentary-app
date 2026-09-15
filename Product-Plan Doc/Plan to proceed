@@ -1,0 +1,129 @@
+Area	Tool	Why
+Mobile app	React Native + Expo	Cross-platform, fast development
+Language	TypeScript	Type safety and maintainability
+Navigation	Expo Router	File-based navigation
+Local database	SQLite	Reliable offline-first database
+Local files	Expo FileSystem	Store photos on device
+Camera	Expo Camera	Capture daily photos
+Gallery	Expo ImagePicker	Select existing photos
+Backend	Supabase	PostgreSQL + Auth + Storage + APIs
+Cloud database	Supabase PostgreSQL	Store memory metadata
+Cloud images	Supabase Storage	Store original + thumbnail images
+Authentication	Supabase Auth	Google/email authentication
+Drive backup	Google Drive API	Optional user-controlled backup
+Background sync	Expo background tasks	Sync pending photos
+Notifications	Expo Notifications	Daily photo reminder
+Image processing	Expo ImageManipulator	Resize/compress/create thumbnails
+State management	Zustand	Lightweight app state
+Validation	Zod	Validate data
+Testing	Jest + React Native Testing Library	Unit/component tests
+Code quality	ESLint + Prettier	Consistent code
+Version control	Git + GitHub	Source control
+CI/CD	GitHub Actions + EAS	Automated builds
+
+
+The Architecture I'd Use
+
+DayFrame will follow a local-first architecture.
+
+The application should work normally even when the user has no internet connection.
+
+                         DayFrame App
+                              |
+                React Native + Expo + TypeScript
+                              |
+              ┌───────────────┴───────────────┐
+              |                               |
+        Local Layer                       Cloud Layer
+              |                               |
+       ┌──────┴──────┐                ┌───────┴────────┐
+       |             |                |                |
+    SQLite      FileSystem        Supabase DB    Supabase Storage
+       |             |                |                |
+   Metadata       Photos          Metadata          Images
+       |             |                |                |
+       └──────┬──────┘                └───────┬────────┘
+              |                               |
+              └────────── Sync Engine ─────────┘
+                              |
+                       Optional Backup
+                              |
+                       Google Drive API
+Storage Responsibilities
+SQLite
+    → Local memory metadata
+    → Sync state
+    → User settings
+
+FileSystem
+    → Local photo files
+    → Cached thumbnails
+
+Supabase PostgreSQL
+    → User data
+    → Memory metadata
+    → Photo references
+    → Sync information
+
+Supabase Storage
+    → Original photos
+    → Cloud thumbnails
+
+Google Drive
+    → Optional user-controlled personal backup
+
+The database should store references to images rather than storing image binaries directly.
+
+Why Supabase Over Firebase?
+
+For DayFrame, Supabase is the preferred backend.
+
+1. PostgreSQL
+
+DayFrame has naturally relational data:
+
+User
+ └── Memories
+      ├── Photo
+      ├── Metadata
+      ├── Sync State
+      └── Drive Backup
+
+PostgreSQL provides a strong relational model for this structure.
+
+2. Clear Separation
+
+Supabase gives us:
+
+PostgreSQL
+    → application data
+
+Storage
+    → image files
+
+Auth
+    → authentication
+
+This matches the DayFrame architecture naturally.
+
+3. Easier Data Queries
+
+Queries such as:
+
+Get all memories for a month
+Get the latest memories
+Find a memory by date
+Calculate timeline data
+Find unsynchronized memories
+
+fit naturally into PostgreSQL.
+
+4. Developer Experience
+
+Supabase provides database, authentication, storage, and APIs without requiring us to build a custom backend for the MVP.
+
+5. Future Flexibility
+
+Because the database is PostgreSQL, the application isn't tightly coupled to a proprietary database model.
+
+Firebase is still a strong option, especially for applications heavily centered around Google's ecosystem, but for DayFrame's relational, photo-journal architecture, Supabase is the preferred starting point.
