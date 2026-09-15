@@ -21,3 +21,15 @@ export const getMemoryByDate = async (db: SQLiteDatabase, date: string): Promise
   );
   return result || null;
 };
+
+/**
+ * Insert a new memory record into the database.
+ * @param db SQLiteDatabase instance
+ * @param memory The memory object to insert
+ */
+export const insertMemory = async (db: SQLiteDatabase, memory: Memory): Promise<void> => {
+  await db.runAsync(
+    'INSERT INTO memories (id, date, photoUri, caption, sync_status) VALUES (?, ?, ?, ?, ?)',
+    [memory.id, memory.date, memory.photoUri, memory.caption, memory.sync_status]
+  );
+};

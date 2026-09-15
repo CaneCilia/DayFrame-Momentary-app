@@ -1,18 +1,24 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Button } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Button, Alert } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { useSQLiteContext } from 'expo-sqlite';
+import * as Crypto from 'expo-crypto';
+import { saveImageToLocal } from '../utils/fileSystem';
+import { insertMemory, getMemoryByDate } from '../database/memories';
 
 type CaptureScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Capture'>;
 
 export const CaptureScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const navigation = useNavigation<CaptureScreenNavigationProp>();
+  const db = useSQLiteContext();
 
   if (!permission) {
     return <View style={styles.container} />;
@@ -56,15 +62,57 @@ export const CaptureScreen = () => {
     }
   };
 
-  const confirmPhoto = () => {
-    // We'll implement saving to DB and file system in Step 2.4
-    console.log('Confirmed photo:', photoUri);
-    // Go back to Home for now
-    navigation.goBack();
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDateString = () => {
+    const today = new Date();
+    const offset = today.getTimezoneOffset();
+    const localDate = new Date(today.getTime() - (offset * 60 * 1000));
+    return localDate.toISOString().split('T')[0];
+  };
+
+  const confirmPhoto = async () => {
+    if (!photoUri || isSaving) return;
+
+    try {
+      setIsSaving(true);
+      const todayDate = getTodayDateString();
+
+      // Enforce one memory per calendar day
+      const existingMemory = await getMemoryByDate(db, todayDate);
+      if (existingMemory) {
+        Alert.alert('Limit Reached', 'You have already captured your moment for today!');
+        setIsSaving(false);
+        return;
+      }
+
+      // Save to local file system
+      const filename = `memory_${todayDate}_${Date.now()}.jpg`;
+      const localUri = await saveImageToLocal(photoUri, filename);
+
+      // Save to database
+      const memoryId = Crypto.randomUUID();
+      await insertMemory(db, {
+        id: memoryId,
+        date: todayDate,
+        photoUri: localUri,
+        caption: null,
+        sync_status: 'PENDING',
+      });
+
+      // Navigate back to home (Home screen will refresh because of useIsFocused)
+      navigation.goBack();
+    } catch (error) {
+      console.error('Failed to save memory:', error);
+      Alert.alert('Error', 'Failed to save your moment. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const retakePhoto = () => {
-    setPhotoUri(null);
+    if (!isSaving) {
+      setPhotoUri(null);
+    }
   };
 
   if (photoUri) {
@@ -72,11 +120,11 @@ export const CaptureScreen = () => {
       <View style={styles.container}>
         <Image source={{ uri: photoUri }} style={styles.preview} />
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.button} onPress={retakePhoto}>
+          <TouchableOpacity style={styles.button} onPress={retakePhoto} disabled={isSaving}>
             <Text style={styles.buttonText}>Retake</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={confirmPhoto}>
-            <Text style={styles.buttonText}>Confirm</Text>
+          <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={confirmPhoto} disabled={isSaving}>
+            <Text style={styles.buttonText}>{isSaving ? 'Saving...' : 'Confirm'}</Text>
           </TouchableOpacity>
         </View>
       </View>
