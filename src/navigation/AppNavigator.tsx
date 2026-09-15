@@ -1,17 +1,25 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { OnboardingScreen } from '../screens/OnboardingScreen';
+
 import { HomeScreen } from '../screens/HomeScreen';
 import { TimelineScreen } from '../screens/TimelineScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { MemoryDetailScreen } from '../screens/MemoryDetailScreen';
-
+import { WelcomeScreen } from '../screens/WelcomeScreen';
+import { HowItWorksScreen } from '../screens/HowItWorksScreen';
+import { ReminderSetupScreen } from '../screens/ReminderSetupScreen';
+import { SetupCompleteScreen } from '../screens/SetupCompleteScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
 import { CaptureScreen } from '../screens/CaptureScreen';
 
 // Define navigation types
 export type RootStackParamList = {
-  Onboarding: undefined;
+  Welcome: undefined;
+  HowItWorks: undefined;
+  ReminderSetup: undefined;
+  SetupComplete: undefined;
+  Settings: undefined;
   Home: undefined;
   Capture: undefined;
   Timeline: undefined;
@@ -24,11 +32,31 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Onboarding">
+      <Stack.Navigator initialRouteName="Welcome">
         <Stack.Screen 
-          name="Onboarding" 
-          component={OnboardingScreen} 
+          name="Welcome" 
+          component={WelcomeScreen} 
           options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="HowItWorks" 
+          component={HowItWorksScreen} 
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="ReminderSetup" 
+          component={ReminderSetupScreen} 
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="SetupComplete" 
+          component={SetupCompleteScreen} 
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="Settings" 
+          component={SettingsScreen} 
+          options={{ title: 'Settings' }}
         />
         <Stack.Screen 
           name="Home" 

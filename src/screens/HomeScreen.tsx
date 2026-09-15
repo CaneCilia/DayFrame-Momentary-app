@@ -83,6 +83,9 @@ export const HomeScreen = () => {
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Calendar')}>
           <Text style={styles.navButtonText}>Calendar</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Settings')}>
+          <Text style={styles.navButtonText}>Settings</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -173,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#333',
     fontWeight: '500',
   }
