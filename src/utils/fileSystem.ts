@@ -1,16 +1,18 @@
-import * as FileSystem from 'expo-file-system';
+import { Paths, Directory, File } from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 
-const APP_DIR = `${FileSystem.documentDirectory}DayFrame/`;
-const PHOTOS_DIR = `${APP_DIR}photos/`;
+const APP_DIR = new Directory(Paths.document, 'DayFrame');
+const PHOTOS_DIR = new Directory(APP_DIR, 'photos');
 
 /**
  * Ensure that the necessary directories exist in the app's internal storage.
  */
 export const initFileSystem = async (): Promise<void> => {
-  const dirInfo = await FileSystem.getInfoAsync(PHOTOS_DIR);
-  if (!dirInfo.exists) {
-    await FileSystem.makeDirectoryAsync(PHOTOS_DIR, { intermediates: true });
+  if (!APP_DIR.exists) {
+    APP_DIR.create();
+  }
+  if (!PHOTOS_DIR.exists) {
+    PHOTOS_DIR.create();
   }
 };
 
@@ -22,12 +24,9 @@ export const initFileSystem = async (): Promise<void> => {
  */
 export const saveImageToLocal = async (sourceUri: string, filename: string): Promise<string> => {
   await initFileSystem();
-  const destUri = `${PHOTOS_DIR}${filename}`;
-  await FileSystem.copyAsync({
-    from: sourceUri,
-    to: destUri,
-  });
-  return destUri;
+  const destFile = new File(PHOTOS_DIR, filename);
+  await new File(sourceUri).copy(destFile);
+  return destFile.uri;
 };
 
 /**
@@ -36,7 +35,7 @@ export const saveImageToLocal = async (sourceUri: string, filename: string): Pro
  * @returns The full local URI.
  */
 export const getLocalImageUri = (filename: string): string => {
-  return `${PHOTOS_DIR}${filename}`;
+  return new File(PHOTOS_DIR, filename).uri;
 };
 
 /**
@@ -44,10 +43,9 @@ export const getLocalImageUri = (filename: string): string => {
  * @param filename The filename of the image to delete.
  */
 export const deleteImageFromLocal = async (filename: string): Promise<void> => {
-  const fileUri = getLocalImageUri(filename);
-  const fileInfo = await FileSystem.getInfoAsync(fileUri);
-  if (fileInfo.exists) {
-    await FileSystem.deleteAsync(fileUri);
+  const file = new File(PHOTOS_DIR, filename);
+  if (file.exists) {
+    file.delete();
   }
 };
 
