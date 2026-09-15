@@ -33,3 +33,15 @@ export const insertMemory = async (db: SQLiteDatabase, memory: Memory): Promise<
     [memory.id, memory.date, memory.photoUri, memory.caption, memory.sync_status]
   );
 };
+
+/**
+ * Fetch all memories ordered by date descending.
+ * @param db SQLiteDatabase instance
+ * @returns Array of memories
+ */
+export const getAllMemories = async (db: SQLiteDatabase): Promise<Memory[]> => {
+  const result = await db.getAllAsync<Memory>(
+    'SELECT * FROM memories ORDER BY date DESC'
+  );
+  return result;
+};
