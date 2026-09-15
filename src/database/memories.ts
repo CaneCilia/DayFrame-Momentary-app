@@ -45,3 +45,17 @@ export const getAllMemories = async (db: SQLiteDatabase): Promise<Memory[]> => {
   );
   return result;
 };
+
+/**
+ * Fetch a specific memory by its ID.
+ * @param db SQLiteDatabase instance
+ * @param id The memory ID
+ * @returns The memory object if found, otherwise null
+ */
+export const getMemoryById = async (db: SQLiteDatabase, id: string): Promise<Memory | null> => {
+  const result = await db.getFirstAsync<Memory>(
+    'SELECT * FROM memories WHERE id = ?',
+    [id]
+  );
+  return result || null;
+};
