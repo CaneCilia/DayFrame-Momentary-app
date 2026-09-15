@@ -133,17 +133,16 @@ export const CaptureScreen = () => {
 
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing="back" ref={cameraRef}>
-        <View style={styles.cameraControls}>
-          <TouchableOpacity style={styles.iconButton} onPress={pickImage}>
-            <Text style={styles.iconText}>Gallery</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-            <View style={styles.captureInner} />
-          </TouchableOpacity>
-          <View style={styles.placeholder} />
-        </View>
-      </CameraView>
+      <CameraView style={styles.camera} facing="back" ref={cameraRef} />
+      <View style={styles.cameraControls}>
+        <TouchableOpacity style={styles.iconButton} onPress={pickImage}>
+          <Text style={styles.iconText}>Gallery</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
+          <View style={styles.captureInner} />
+        </TouchableOpacity>
+        <View style={styles.placeholder} />
+      </View>
     </View>
   );
 };
