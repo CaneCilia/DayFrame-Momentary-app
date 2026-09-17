@@ -12,6 +12,7 @@ import { ReminderSetupScreen } from '../screens/ReminderSetupScreen';
 import { SetupCompleteScreen } from '../screens/SetupCompleteScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { CaptureScreen } from '../screens/CaptureScreen';
+import { AuthScreen } from '../screens/AuthScreen';
 
 // Define navigation types
 export type RootStackParamList = {
@@ -25,6 +26,7 @@ export type RootStackParamList = {
   Timeline: undefined;
   Calendar: undefined;
   MemoryDetail: { memoryId: string }; // Example parameter
+  Auth: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -82,6 +84,11 @@ export const AppNavigator = () => {
           name="MemoryDetail" 
           component={MemoryDetailScreen} 
           options={{ title: 'Memory' }}
+        />
+        <Stack.Screen 
+          name="Auth" 
+          component={AuthScreen} 
+          options={{ title: 'Cloud Sync', presentation: 'modal' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
