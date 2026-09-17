@@ -9,6 +9,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import * as Crypto from 'expo-crypto';
 import { saveImageToLocal } from '../utils/fileSystem';
 import { insertMemory, getMemoryByDate } from '../database/memories';
+import { enqueueSyncOperation } from '../database/syncQueue';
 
 type CaptureScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Capture'>;
 
@@ -98,6 +99,9 @@ export const CaptureScreen = () => {
         caption: null,
         sync_status: 'PENDING',
       });
+
+      // Queue background upload
+      await enqueueSyncOperation(db, 'UPLOAD_PHOTO', memoryId, 'MEMORY');
 
       // Navigate back to home (Home screen will refresh because of useIsFocused)
       navigation.goBack();
