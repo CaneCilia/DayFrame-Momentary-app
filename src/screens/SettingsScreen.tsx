@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../lib/auth';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { useSQLiteContext } from 'expo-sqlite';
+import { restoreFromCloud } from '../services/restore';
 
 type SettingsScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Settings'>;
@@ -11,6 +13,8 @@ type SettingsScreenProps = {
 
 export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
   const { user } = useAuth();
+  const db = useSQLiteContext();
+  const [isRestoring, setIsRestoring] = React.useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -18,6 +22,19 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
       Alert.alert('Signed out', 'You have been signed out successfully.');
     } catch (error: any) {
       Alert.alert('Error', error.message);
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!user) return;
+    try {
+      setIsRestoring(true);
+      await restoreFromCloud(db, user.id);
+      Alert.alert('Success', 'Restored memories from the cloud successfully!');
+    } catch (error: any) {
+      Alert.alert('Restore Failed', error.message);
+    } finally {
+      setIsRestoring(false);
     }
   };
 
@@ -30,7 +47,16 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
         {user ? (
           <View>
             <Text style={styles.userInfo}>Logged in as: {user.email}</Text>
-            <TouchableOpacity style={styles.button} onPress={handleSignOut}>
+            
+            <TouchableOpacity 
+              style={[styles.button, styles.restoreButton, isRestoring && styles.disabledButton]} 
+              onPress={handleRestore}
+              disabled={isRestoring}
+            >
+              <Text style={styles.buttonText}>{isRestoring ? 'Restoring...' : 'Restore from Cloud'}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={handleSignOut} disabled={isRestoring}>
               <Text style={styles.buttonText}>Sign Out</Text>
             </TouchableOpacity>
           </View>
@@ -57,5 +83,7 @@ const styles = StyleSheet.create({
   userInfo: { fontSize: 16, marginBottom: 15 },
   placeholder: { fontSize: 16, color: '#666', marginBottom: 15 },
   button: { backgroundColor: '#000', padding: 12, borderRadius: 8, alignItems: 'center' },
+  restoreButton: { backgroundColor: '#007AFF', marginBottom: 10 },
+  disabledButton: { opacity: 0.7 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
 });
