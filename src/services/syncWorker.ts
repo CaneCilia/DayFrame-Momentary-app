@@ -2,21 +2,19 @@ import * as Network from 'expo-network';
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 import * as SQLite from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system';
+import { File } from 'expo-file-system';
 import { supabase } from '../lib/supabase';
 import { getPendingSyncOperations, updateSyncOperationStatus, deleteSyncOperation } from '../database/syncQueue';
 import { getMemoryById } from '../database/memories';
-import { decode } from 'base64-arraybuffer';
 
 export const BACKGROUND_SYNC_TASK = 'BACKGROUND_SYNC_TASK';
 
 // Helper to upload to Supabase Storage
 const uploadPhotoToSupabase = async (userId: string, photoUri: string, filename: string) => {
-  const fileInfo = await FileSystem.getInfoAsync(photoUri);
-  if (!fileInfo.exists) throw new Error('File does not exist locally');
+  const file = new File(photoUri);
+  if (!file.exists) throw new Error('File does not exist locally');
 
-  const base64 = await FileSystem.readAsStringAsync(photoUri, { encoding: FileSystem.EncodingType.Base64 });
-  const arrayBuffer = decode(base64);
+  const arrayBuffer = await file.arrayBuffer();
 
   const filePath = `${userId}/${filename}`;
   const { data, error } = await supabase.storage

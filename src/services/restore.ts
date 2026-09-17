@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import { Paths, Directory, File } from 'expo-file-system';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { supabase } from '../lib/supabase';
 import { getMemoryById, insertMemory } from '../database/memories';
@@ -22,6 +22,13 @@ export const restoreFromCloud = async (db: SQLiteDatabase, userId: string) => {
     }
 
     console.log(`Found ${cloudMemories.length} memories in the cloud. Checking local...`);
+
+    // Ensure photos directory exists
+    const APP_DIR = new Directory(Paths.document, 'DayFrame');
+    if (!APP_DIR.exists) APP_DIR.create();
+    
+    const PHOTOS_DIR = new Directory(APP_DIR, 'photos');
+    if (!PHOTOS_DIR.exists) PHOTOS_DIR.create();
 
     // 2. Iterate and restore missing memories
     for (const cloudMemory of cloudMemories) {
@@ -47,18 +54,12 @@ export const restoreFromCloud = async (db: SQLiteDatabase, userId: string) => {
 
       // 4. Download directly to local filesystem
       const localFilename = `memory_${cloudMemory.date}_${Crypto.randomUUID()}.jpg`;
-      const localUri = `${FileSystem.documentDirectory}photos/${localFilename}`;
-      
-      // Ensure photos directory exists
-      const dirInfo = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}photos/`);
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}photos/`, { intermediates: true });
-      }
+      const destFile = new File(PHOTOS_DIR, localFilename);
 
-      const { uri, status } = await FileSystem.downloadAsync(signedUrlData.signedUrl, localUri);
-      
-      if (status !== 200) {
-        console.error(`Failed to download image from signed URL for memory ${cloudMemory.id}`);
+      try {
+        await File.downloadFileAsync(signedUrlData.signedUrl, destFile);
+      } catch (err) {
+        console.error(`Failed to download image for memory ${cloudMemory.id}:`, err);
         continue;
       }
 
@@ -66,7 +67,7 @@ export const restoreFromCloud = async (db: SQLiteDatabase, userId: string) => {
       await insertMemory(db, {
         id: cloudMemory.id,
         date: cloudMemory.date,
-        photoUri: uri,
+        photoUri: destFile.uri,
         caption: cloudMemory.caption,
         sync_status: 'SYNCED', // Already synced since it came from the cloud
       });
