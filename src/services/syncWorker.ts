@@ -1,7 +1,7 @@
 import * as Network from 'expo-network';
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
-import { SQLiteDatabase } from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '../lib/supabase';
 import { getPendingSyncOperations, updateSyncOperationStatus, deleteSyncOperation } from '../database/syncQueue';
@@ -31,7 +31,7 @@ const uploadPhotoToSupabase = async (userId: string, photoUri: string, filename:
 };
 
 // Process the sync queue
-export const processSyncQueue = async (db: SQLiteDatabase) => {
+export const processSyncQueue = async (db: SQLite.SQLiteDatabase) => {
   const networkState = await Network.getNetworkStateAsync();
   if (!networkState.isConnected || !networkState.isInternetReachable) {
     console.log('No internet connection. Skipping sync.');
@@ -93,3 +93,27 @@ export const processSyncQueue = async (db: SQLiteDatabase) => {
     }
   }
 };
+
+// You must use a stable SQLite connection inside the background task since context isn't available
+TaskManager.defineTask(BACKGROUND_SYNC_TASK, async () => {
+  try {
+    const db = await SQLite.openDatabaseAsync('dayframe.db');
+    await processSyncQueue(db);
+    return BackgroundFetch.BackgroundFetchResult.NewData;
+  } catch (error) {
+    console.error('Background task failed:', error);
+    return BackgroundFetch.BackgroundFetchResult.Failed;
+  }
+});
+
+export async function registerBackgroundSync() {
+  return BackgroundFetch.registerTaskAsync(BACKGROUND_SYNC_TASK, {
+    minimumInterval: 60 * 15, // 15 minutes
+    stopOnTerminate: false, // android only
+    startOnBoot: true, // android only
+  });
+}
+
+export async function unregisterBackgroundSync() {
+  return BackgroundFetch.unregisterTaskAsync(BACKGROUND_SYNC_TASK);
+}
