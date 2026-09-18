@@ -2,13 +2,13 @@ import { Platform } from 'react-native';
 
 // Helper to safely get Notifications module
 const getNotificationsModule = async () => {
-  try {
-    const Notifications = await import('expo-notifications');
-    return Notifications;
-  } catch (error) {
-    console.warn('expo-notifications is not available in this environment');
-    return null;
-  }
+  // CRITICAL FIX: Even dynamic imports of `expo-notifications` crash Expo Go
+  // due to `.fx.js` side-effect files throwing uncaught errors on evaluation.
+  // To allow the app to run in Expo Go, we must completely mock this out.
+  // When running a true EAS development build, you can restore the import:
+  // return await import('expo-notifications');
+  console.log('[Mock] Notifications module skipped to prevent Expo Go crash.');
+  return null;
 };
 
 // Configure how notifications appear when app is in foreground
