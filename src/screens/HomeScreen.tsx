@@ -6,6 +6,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
+import { SyncIndicator } from '../components/SyncIndicator';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -83,9 +84,12 @@ export const HomeScreen = () => {
           <Text style={styles.greetingText}>Today</Text>
           <Text style={styles.dateText}>{todayStr}</Text>
         </View>
-        <View style={styles.streakContainer}>
-          <Text style={styles.streakIcon}>🔥</Text>
-          <Text style={styles.streakText}>{streak}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={styles.streakContainer}>
+            <Text style={styles.streakIcon}>🔥</Text>
+            <Text style={styles.streakText}>{streak}</Text>
+          </View>
+          <SyncIndicator />
         </View>
       </View>
 

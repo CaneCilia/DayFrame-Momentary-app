@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { signUpWithEmail, signInWithEmail } from '../lib/auth';
+import { theme } from '../utils/theme';
 
 export const AuthScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ export const AuthScreen = ({ navigation }: any) => {
     try {
       if (isLogin) {
         await signInWithEmail(email, password);
-        Alert.alert('Success', 'Logged in successfully!');
+        // Alert.alert('Success', 'Logged in successfully!');
         navigation.goBack();
       } else {
         await signUpWithEmail(email, password);
@@ -31,61 +32,124 @@ export const AuthScreen = ({ navigation }: any) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{isLogin ? 'Sign In to Sync' : 'Create an Account'}</Text>
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={styles.content}>
+        <Text style={styles.title}>{isLogin ? 'Welcome Back' : 'Create Account'}</Text>
+        <Text style={styles.subtitle}>
+          {isLogin ? 'Sign in to securely sync your memories.' : 'Start backing up your daily moments.'}
+        </Text>
+        
+        <View style={styles.formContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={theme.colors.text.secondary}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            autoCorrect={false}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor={theme.colors.text.secondary}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
 
-      <TouchableOpacity style={styles.button} onPress={handleAuth} disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
-        )}
-      </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.button, loading && styles.buttonDisabled]} 
+            onPress={handleAuth} 
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator color={theme.colors.text.inverse} />
+            ) : (
+              <Text style={styles.buttonText}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
 
-      <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={styles.toggleContainer}>
+      <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={styles.toggleContainer} activeOpacity={0.7}>
         <Text style={styles.toggleText}>
-          {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
+          {isLogin ? "Don't have an account? " : 'Already have an account? '}
+          <Text style={styles.toggleTextBold}>{isLogin ? 'Sign Up' : 'Sign In'}</Text>
         </Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: 'center', backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 30, textAlign: 'center' },
+  container: { 
+    flex: 1, 
+    backgroundColor: theme.colors.background,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.xl,
+  },
+  title: { 
+    fontSize: 34, 
+    fontWeight: '800', 
+    marginBottom: theme.spacing.xs, 
+    color: theme.colors.text.primary,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.xxl,
+    lineHeight: 22,
+  },
+  formContainer: {
+    width: '100%',
+  },
   input: { 
+    backgroundColor: theme.colors.card,
     borderWidth: 1, 
-    borderColor: '#ccc', 
-    borderRadius: 8, 
-    padding: 15, 
-    marginBottom: 15,
-    fontSize: 16
+    borderColor: theme.colors.border, 
+    borderRadius: theme.borderRadius.md, 
+    padding: theme.spacing.md, 
+    marginBottom: theme.spacing.md,
+    fontSize: 16,
+    color: theme.colors.text.primary,
+    ...theme.shadows.sm,
   },
   button: {
-    backgroundColor: '#000',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.pill,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: theme.spacing.sm,
+    ...theme.shadows.md,
   },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  toggleContainer: { marginTop: 20, alignItems: 'center' },
-  toggleText: { color: '#666', fontSize: 14 },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
+  buttonText: { 
+    color: theme.colors.text.inverse, 
+    fontSize: 16, 
+    fontWeight: '700' 
+  },
+  toggleContainer: { 
+    paddingBottom: theme.spacing.xxl,
+    alignItems: 'center',
+  },
+  toggleText: { 
+    color: theme.colors.text.secondary, 
+    fontSize: 15,
+  },
+  toggleTextBold: {
+    color: theme.colors.text.primary,
+    fontWeight: '700',
+  }
 });

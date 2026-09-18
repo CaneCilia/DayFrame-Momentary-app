@@ -7,6 +7,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useSQLiteContext } from 'expo-sqlite';
 import { restoreFromCloud } from '../services/restore';
 import { theme } from '../utils/theme';
+import { SyncIndicator } from '../components/SyncIndicator';
 
 type SettingsScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Settings'>;
@@ -44,7 +45,10 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
       <Text style={styles.title}>Settings</Text>
       
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Cloud Sync</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Cloud Sync</Text>
+          {user && <SyncIndicator />}
+        </View>
         {user ? (
           <View>
             <View style={styles.infoRow}>
@@ -113,6 +117,12 @@ const styles = StyleSheet.create({
     fontWeight: '700', 
     marginBottom: theme.spacing.md,
     color: theme.colors.text.primary,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
   },
   infoRow: {
     flexDirection: 'row',
