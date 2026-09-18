@@ -80,6 +80,14 @@ export const processSyncQueue = async (db: SQLite.SQLiteDatabase) => {
         // Mark local memory as synced
         await db.runAsync('UPDATE memories SET sync_status = ? WHERE id = ?', ['SYNCED', memory.id]);
         
+        // Optional: Backup to Google Drive
+        import('./driveBackup').then(async ({ backupToGoogleDrive }) => {
+           const backupResult = await backupToGoogleDrive(memory.photoUri, memory.date);
+           if (backupResult.success) {
+               console.log(`Successfully backed up memory ${memory.date} to Drive`);
+           }
+        }).catch(err => console.error("Drive backup integration failed to load", err));
+
         // Remove from queue
         await deleteSyncOperation(db, op.id);
         console.log(`Successfully synced memory ${memory.date}`);
