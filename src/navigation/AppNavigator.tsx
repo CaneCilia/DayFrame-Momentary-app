@@ -14,6 +14,8 @@ import { SettingsScreen } from '../screens/SettingsScreen';
 import { CaptureScreen } from '../screens/CaptureScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { SearchScreen } from '../screens/SearchScreen';
+import { PrivacyScreen } from '../screens/PrivacyScreen';
+import { StorageScreen } from '../screens/StorageScreen';
 
 // Define navigation types
 export type RootStackParamList = {
@@ -29,6 +31,8 @@ export type RootStackParamList = {
   MemoryDetail: { memoryId: string }; // Example parameter
   Auth: undefined;
   Search: undefined;
+  Privacy: undefined;
+  Storage: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -96,6 +100,16 @@ export const AppNavigator = () => {
           name="Search" 
           component={SearchScreen} 
           options={{ title: 'Search Memories' }}
+        />
+        <Stack.Screen 
+          name="Privacy" 
+          component={PrivacyScreen} 
+          options={{ title: 'Privacy Hub' }}
+        />
+        <Stack.Screen 
+          name="Storage" 
+          component={StorageScreen} 
+          options={{ title: 'Storage & Data' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

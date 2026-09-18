@@ -122,6 +122,29 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>App & Data</Text>
+        </View>
+        <TouchableOpacity 
+          style={styles.menuRow}
+          onPress={() => navigation.navigate('Storage')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.menuRowText}>Storage & Data</Text>
+          <Text style={styles.menuRowArrow}>›</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.menuRow, { borderBottomWidth: 0 }]}
+          onPress={() => navigation.navigate('Privacy')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.menuRowText}>Privacy Hub</Text>
+          <Text style={styles.menuRowArrow}>›</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -197,6 +220,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.accent,
   },
-  disabledButton: { opacity: 0.5 },
-  buttonText: { color: theme.colors.text.inverse, fontSize: 16, fontWeight: '600' }
+  buttonText: { color: theme.colors.text.inverse, fontSize: 16, fontWeight: '600' },
+  menuRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  menuRowText: {
+    fontSize: 16,
+    color: theme.colors.text.primary,
+  },
+  menuRowArrow: {
+    fontSize: 20,
+    color: theme.colors.text.secondary,
+    lineHeight: 20,
+  }
 });
