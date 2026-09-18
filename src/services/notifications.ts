@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 // Helper to safely get Notifications module
-const getNotificationsModule = async () => {
+const getNotificationsModule = async (): Promise<any> => {
   // CRITICAL FIX: Even dynamic imports of `expo-notifications` crash Expo Go
   // due to `.fx.js` side-effect files throwing uncaught errors on evaluation.
   // To allow the app to run in Expo Go, we must completely mock this out.
