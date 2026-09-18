@@ -87,6 +87,23 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           </View>
         )}
       </View>
+
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Google Drive Backup</Text>
+        </View>
+        <Text style={styles.placeholder}>Back up your memories directly to your personal Google Drive for extra safety.</Text>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={async () => {
+             // In a real flow, you would call GoogleDriveService.signIn()
+             Alert.alert('Google Drive', 'Google Drive backup setup started. Please complete native configuration.');
+          }}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.buttonText}>Connect Google Drive</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

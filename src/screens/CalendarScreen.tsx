@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getAllMemories } from '../database/memories';
@@ -49,6 +49,7 @@ export const CalendarScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.pageTitle}>Calendar</Text>
       <Calendar
         markedDates={markedDates}
         onDayPress={onDayPress}
@@ -63,5 +64,14 @@ export const CalendarScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', paddingTop: 20 },
+  container: { flex: 1, backgroundColor: '#F8F9FA' },
+  pageTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#1C1C1E',
+    letterSpacing: -0.5,
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 16,
+  },
 });

@@ -111,6 +111,7 @@ export const TimelineScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.pageTitle}>Timeline</Text>
       {memories.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No memories yet</Text>
@@ -137,6 +138,15 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: theme.colors.background 
+  },
+  pageTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: theme.colors.text.primary,
+    letterSpacing: -0.5,
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
   },
   emptyContainer: {
     flex: 1,
