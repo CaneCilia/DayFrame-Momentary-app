@@ -87,3 +87,15 @@ On This Day
 Search
 Yearly Recap
 Export / Share
+
+
+
+Everything has been committed and pushed to main.
+
+  We have a few exciting options for what to tackle next:
+
+  1. Monthly Memories: Refactor the Timeline grid to group photos by Month (e.g., separating August from September).
+  2. Search Engine: Build the SQLite Full-Text Search (FTS5) to let users search their past captions.
+  3. Google Drive Integration (V1.1): Start the rigorous native setup for true Google Drive backup.
+
+  What would you like to focus on next?
