@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Animated } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getMemoryByDate, getCurrentStreak, Memory } from '../database/memories';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -15,6 +15,24 @@ export const HomeScreen = () => {
   const [todayMemory, setTodayMemory] = useState<Memory | null>(null);
   const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [pulseAnim]);
 
   // Get today's date in YYYY-MM-DD format
   const getTodayDateString = () => {
@@ -79,10 +97,10 @@ export const HomeScreen = () => {
         </View>
       ) : (
         <TouchableOpacity style={styles.emptyFrame} onPress={handleCapturePress}>
-          <View style={styles.emptyFrameInner}>
+          <Animated.View style={[styles.emptyFrameInner, { transform: [{ scale: pulseAnim }] }]}>
             <Text style={styles.plusIcon}>+</Text>
             <Text style={styles.emptyFrameText}>Tap to capture today's moment</Text>
-          </View>
+          </Animated.View>
         </TouchableOpacity>
       )}
 
