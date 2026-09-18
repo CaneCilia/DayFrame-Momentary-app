@@ -59,3 +59,54 @@ export const getMemoryById = async (db: SQLiteDatabase, id: string): Promise<Mem
   );
   return result || null;
 };
+
+/**
+ * Calculate the current daily photo streak.
+ * @param db SQLiteDatabase instance
+ * @returns The current streak count
+ */
+export const getCurrentStreak = async (db: SQLiteDatabase): Promise<number> => {
+  const result = await db.getAllAsync<{ date: string }>(
+    'SELECT date FROM memories ORDER BY date DESC'
+  );
+  
+  if (result.length === 0) return 0;
+  
+  // Get unique dates sorted descending
+  const dates = [...new Set(result.map(row => row.date))].sort().reverse();
+  
+  let streak = 0;
+  
+  const today = new Date();
+  const offset = today.getTimezoneOffset();
+  const localDate = new Date(today.getTime() - (offset * 60 * 1000));
+  const todayStr = localDate.toISOString().split('T')[0];
+  
+  const yesterday = new Date(localDate.getTime());
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  
+  let expectedDateStr = '';
+  
+  if (dates[0] === todayStr) {
+    expectedDateStr = todayStr;
+  } else if (dates[0] === yesterdayStr) {
+    expectedDateStr = yesterdayStr;
+  } else {
+    return 0; // Streak broken
+  }
+  
+  const currentCheckDate = new Date(expectedDateStr + "T00:00:00Z");
+  
+  for (let i = 0; i < dates.length; i++) {
+    const dStr = currentCheckDate.toISOString().split('T')[0];
+    if (dates.includes(dStr)) {
+      streak++;
+      currentCheckDate.setUTCDate(currentCheckDate.getUTCDate() - 1);
+    } else {
+      break;
+    }
+  }
+  
+  return streak;
+};

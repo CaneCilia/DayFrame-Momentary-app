@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
-import { getMemoryByDate, Memory } from '../database/memories';
+import { getMemoryByDate, getCurrentStreak, Memory } from '../database/memories';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -13,6 +13,7 @@ export const HomeScreen = () => {
   const isFocused = useIsFocused();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [todayMemory, setTodayMemory] = useState<Memory | null>(null);
+  const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Get today's date in YYYY-MM-DD format
@@ -30,8 +31,11 @@ export const HomeScreen = () => {
       const todayDate = getTodayDateString();
       const memory = await getMemoryByDate(db, todayDate);
       setTodayMemory(memory);
+      
+      const currentStreak = await getCurrentStreak(db);
+      setStreak(currentStreak);
     } catch (error) {
-      console.error('Failed to load today memory:', error);
+      console.error('Failed to load today memory or streak:', error);
     } finally {
       setLoading(false);
     }
@@ -55,7 +59,13 @@ export const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.dateText}>{todayStr}</Text>
+      <View style={styles.header}>
+        <Text style={styles.dateText}>{todayStr}</Text>
+        <View style={styles.streakContainer}>
+          <Text style={styles.streakIcon}>🔥</Text>
+          <Text style={styles.streakText}>{streak}</Text>
+        </View>
+      </View>
 
       {loading ? (
         <Text style={styles.loadingText}>Loading...</Text>
@@ -99,11 +109,39 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingHorizontal: 20,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 40,
+  },
   dateText: {
     fontSize: 24,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 40,
+  },
+  streakContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  streakIcon: {
+    fontSize: 16,
+    marginRight: 4,
+  },
+  streakText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ff9800',
   },
   loadingText: {
     fontSize: 16,
