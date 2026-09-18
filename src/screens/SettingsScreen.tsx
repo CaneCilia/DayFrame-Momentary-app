@@ -9,6 +9,8 @@ import { restoreFromCloud } from '../services/restore';
 import { theme } from '../utils/theme';
 import { SyncIndicator } from '../components/SyncIndicator';
 
+import { GoogleDriveService } from '../services/GoogleDriveService';
+
 type SettingsScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 };
@@ -17,6 +19,7 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
   const { user } = useAuth();
   const db = useSQLiteContext();
   const [isRestoring, setIsRestoring] = React.useState(false);
+  const [isDriveConnected, setIsDriveConnected] = React.useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -37,6 +40,22 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
       Alert.alert('Restore Failed', error.message);
     } finally {
       setIsRestoring(false);
+    }
+  };
+
+  const handleConnectDrive = async () => {
+    try {
+      if (isDriveConnected) {
+        await GoogleDriveService.signOut();
+        setIsDriveConnected(false);
+        Alert.alert('Google Drive', 'Disconnected successfully.');
+      } else {
+        const userInfo = await GoogleDriveService.signIn();
+        setIsDriveConnected(true);
+        Alert.alert('Google Drive', `Connected as ${userInfo.user.email}. Future memories will be backed up.`);
+      }
+    } catch (error: any) {
+      Alert.alert('Google Drive Error', error.message || 'Failed to connect to Google Drive.');
     }
   };
 
@@ -94,14 +113,13 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
         </View>
         <Text style={styles.placeholder}>Back up your memories directly to your personal Google Drive for extra safety.</Text>
         <TouchableOpacity 
-          style={styles.button} 
-          onPress={async () => {
-             // In a real flow, you would call GoogleDriveService.signIn()
-             Alert.alert('Google Drive', 'Google Drive backup setup started. Please complete native configuration.');
-          }}
+          style={[styles.button, isDriveConnected && styles.signOutButton]} 
+          onPress={handleConnectDrive}
           activeOpacity={0.8}
         >
-          <Text style={styles.buttonText}>Connect Google Drive</Text>
+          <Text style={isDriveConnected ? [styles.buttonText, { color: theme.colors.accent }] : styles.buttonText}>
+            {isDriveConnected ? 'Disconnect Google Drive' : 'Connect Google Drive'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

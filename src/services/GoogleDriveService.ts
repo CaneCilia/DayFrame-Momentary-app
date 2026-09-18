@@ -57,7 +57,36 @@ export class GoogleDriveService {
   }
 
   /**
-   * Placeholder: Upload a file to Google Drive.
+   * Gets or creates a "DayFrame" folder in the user's Google Drive.
+   */
+  private static async getOrCreateFolder(accessToken: string): Promise<string> {
+    const query = encodeURIComponent("mimeType='application/vnd.google-apps.folder' and name='DayFrame' and trashed=false");
+    const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&spaces=drive`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const searchData = await searchRes.json();
+
+    if (searchData.files && searchData.files.length > 0) {
+      return searchData.files[0].id;
+    }
+
+    const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: 'DayFrame',
+        mimeType: 'application/vnd.google-apps.folder',
+      }),
+    });
+    const createData = await createRes.json();
+    return createData.id;
+  }
+
+  /**
+   * Upload a file to Google Drive.
    * Uses standard REST fetch request since Google API Node client isn't React Native compatible natively.
    */
   static async uploadFile(fileUri: string, metadata: any) {
@@ -66,12 +95,52 @@ export class GoogleDriveService {
       throw new Error('No access token available');
     }
 
-    // TODO: Implement multipart fetch request to https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart
-    // including the file binary data and the JSON metadata.
-    console.log(`Starting upload for ${fileUri} with metadata`, metadata);
+    const folderId = await this.getOrCreateFolder(tokens.accessToken);
+    console.log(`Starting upload to folder ${folderId} for ${fileUri}`);
+
+    const fileMetadata = {
+      name: metadata.fileName || `DayFrame-${Date.now()}.jpg`,
+      parents: [folderId],
+      description: metadata.caption || 'A DayFrame memory',
+    };
+
+    // Step 1: Create the empty file with metadata
+    const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${tokens.accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(fileMetadata),
+    });
     
-    // Simulating upload delay
-    return new Promise((resolve) => setTimeout(resolve, 1000));
+    if (!createRes.ok) {
+      const err = await createRes.text();
+      throw new Error(`Failed to create drive file: ${err}`);
+    }
+    
+    const createData = await createRes.json();
+    const fileId = createData.id;
+
+    // Step 2: Upload content using Expo FileSystem (avoids RN FormData Blob bugs)
+    const FileSystem = await import('expo-file-system');
+    const uploadRes = await FileSystem.uploadAsync(
+      `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,
+      fileUri,
+      {
+        httpMethod: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${tokens.accessToken}`,
+          'Content-Type': 'image/jpeg',
+        },
+      }
+    );
+
+    if (uploadRes.status !== 200) {
+      throw new Error(`Google Drive media upload failed: ${uploadRes.body}`);
+    }
+
+    return JSON.parse(uploadRes.body);
   }
 
   /**
