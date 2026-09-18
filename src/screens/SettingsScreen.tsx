@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useSQLiteContext } from 'expo-sqlite';
 import { restoreFromCloud } from '../services/restore';
+import { theme } from '../utils/theme';
 
 type SettingsScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Settings'>;
@@ -46,44 +47,111 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
         <Text style={styles.sectionTitle}>Cloud Sync</Text>
         {user ? (
           <View>
-            <Text style={styles.userInfo}>Logged in as: {user.email}</Text>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Account</Text>
+              <Text style={styles.infoValue}>{user.email}</Text>
+            </View>
             
             <TouchableOpacity 
               style={[styles.button, styles.restoreButton, isRestoring && styles.disabledButton]} 
               onPress={handleRestore}
               disabled={isRestoring}
+              activeOpacity={0.8}
             >
               <Text style={styles.buttonText}>{isRestoring ? 'Restoring...' : 'Restore from Cloud'}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={handleSignOut} disabled={isRestoring}>
-              <Text style={styles.buttonText}>Sign Out</Text>
+            <TouchableOpacity 
+              style={[styles.button, styles.signOutButton]} 
+              onPress={handleSignOut} 
+              disabled={isRestoring}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.buttonText, { color: theme.colors.accent }]}>Sign Out</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View>
-            <Text style={styles.placeholder}>Sign in to sync your memories across devices.</Text>
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Auth')}>
+            <Text style={styles.placeholder}>Sign in to securely back up your daily moments and sync across devices.</Text>
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={() => navigation.navigate('Auth')}
+              activeOpacity={0.8}
+            >
               <Text style={styles.buttonText}>Sign In / Sign Up</Text>
             </TouchableOpacity>
           </View>
         )}
       </View>
-      
-      <Text style={styles.placeholder}>More settings coming soon in Phase 4!</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  section: { marginBottom: 30, padding: 15, backgroundColor: '#f9f9f9', borderRadius: 8 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  userInfo: { fontSize: 16, marginBottom: 15 },
-  placeholder: { fontSize: 16, color: '#666', marginBottom: 15 },
-  button: { backgroundColor: '#000', padding: 12, borderRadius: 8, alignItems: 'center' },
-  restoreButton: { backgroundColor: '#007AFF', marginBottom: 10 },
-  disabledButton: { opacity: 0.7 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  container: { 
+    flex: 1, 
+    backgroundColor: theme.colors.background, 
+    padding: theme.spacing.lg,
+    paddingTop: theme.spacing.xl,
+  },
+  title: { 
+    fontSize: 32, 
+    fontWeight: '800', 
+    marginBottom: theme.spacing.lg,
+    color: theme.colors.text.primary,
+    letterSpacing: -0.5,
+  },
+  section: { 
+    marginBottom: 30, 
+    padding: theme.spacing.lg, 
+    backgroundColor: theme.colors.card, 
+    borderRadius: theme.borderRadius.md,
+    ...theme.shadows.sm,
+  },
+  sectionTitle: { 
+    fontSize: 18, 
+    fontWeight: '700', 
+    marginBottom: theme.spacing.md,
+    color: theme.colors.text.primary,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    marginBottom: theme.spacing.lg,
+  },
+  infoLabel: {
+    fontSize: 16,
+    color: theme.colors.text.secondary,
+  },
+  infoValue: {
+    fontSize: 16,
+    color: theme.colors.text.primary,
+    fontWeight: '500',
+  },
+  placeholder: { 
+    fontSize: 16, 
+    color: theme.colors.text.secondary, 
+    marginBottom: theme.spacing.lg,
+    lineHeight: 22,
+  },
+  button: { 
+    backgroundColor: theme.colors.primary, 
+    paddingVertical: theme.spacing.md, 
+    borderRadius: theme.borderRadius.pill, 
+    alignItems: 'center',
+  },
+  restoreButton: { 
+    backgroundColor: '#007AFF', 
+    marginBottom: theme.spacing.md,
+  },
+  signOutButton: {
+    backgroundColor: theme.colors.background,
+    borderWidth: 1,
+    borderColor: theme.colors.accent,
+  },
+  disabledButton: { opacity: 0.5 },
+  buttonText: { color: theme.colors.text.inverse, fontSize: 16, fontWeight: '600' }
 });
