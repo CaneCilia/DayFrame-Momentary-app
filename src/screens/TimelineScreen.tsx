@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { View, Text, StyleSheet, SectionList, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getAllMemories, Memory } from '../database/memories';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -8,6 +8,16 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
 
 type TimelineScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Timeline'>;
+
+interface MemoryRow {
+  id: string;
+  items: Memory[];
+}
+
+interface MonthSection {
+  title: string;
+  data: MemoryRow[];
+}
 
 export const TimelineScreen = () => {
   const db = useSQLiteContext();
@@ -30,21 +40,74 @@ export const TimelineScreen = () => {
     }
   }, [isFocused]);
 
-  const renderItem = ({ item }: { item: Memory }) => {
+  const sections = useMemo(() => {
+    const result: MonthSection[] = [];
+    let currentMonth = '';
+    let currentGroup: Memory[] = [];
+
+    const flushGroup = () => {
+      if (currentGroup.length > 0) {
+        const rows: MemoryRow[] = [];
+        for (let i = 0; i < currentGroup.length; i += 3) {
+          rows.push({
+            id: currentGroup[i].id + '-row',
+            items: currentGroup.slice(i, i + 3)
+          });
+        }
+        result.push({ title: currentMonth, data: rows });
+      }
+    };
+
+    memories.forEach(m => {
+      // Extract YYYY and MM from YYYY-MM-DD
+      const [yearStr, monthStr] = m.date.split('-');
+      const dateObj = new Date(parseInt(yearStr), parseInt(monthStr) - 1, 1);
+      
+      const monthYear = dateObj.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+
+      if (monthYear !== currentMonth) {
+        flushGroup();
+        currentMonth = monthYear;
+        currentGroup = [m];
+      } else {
+        currentGroup.push(m);
+      }
+    });
+
+    flushGroup();
+    return result;
+  }, [memories]);
+
+  const renderItem = ({ item }: { item: MemoryRow }) => {
     return (
-      <TouchableOpacity 
-        style={styles.itemContainer} 
-        onPress={() => navigation.navigate('MemoryDetail', { memoryId: item.id })}
-        activeOpacity={0.8}
-      >
-        <Image source={{ uri: item.photoUri }} style={styles.thumbnail} />
-        <View style={styles.gradientOverlay} />
-        <Text style={styles.dateText}>
-          {new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.rowContainer}>
+        {item.items.map(memory => (
+          <TouchableOpacity 
+            key={memory.id}
+            style={styles.itemContainer} 
+            onPress={() => navigation.navigate('MemoryDetail', { memoryId: memory.id })}
+            activeOpacity={0.8}
+          >
+            <Image source={{ uri: memory.photoUri }} style={styles.thumbnail} />
+            <View style={styles.gradientOverlay} />
+            <Text style={styles.dateText}>
+              {/* Parse strictly to avoid timezone jumping for display */}
+              {new Date(memory.date + 'T12:00:00Z').toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' })}
+            </Text>
+          </TouchableOpacity>
+        ))}
+        {Array.from({ length: 3 - item.items.length }).map((_, i) => (
+          <View key={`empty-${i}`} style={[styles.itemContainer, styles.emptyItem]} />
+        ))}
+      </View>
     );
   };
+
+  const renderSectionHeader = ({ section: { title } }: { section: MonthSection }) => (
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionHeaderText}>{title}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -54,12 +117,13 @@ export const TimelineScreen = () => {
           <Text style={styles.emptySubText}>Your captures will appear here.</Text>
         </View>
       ) : (
-        <FlatList
-          data={memories}
+        <SectionList
+          sections={sections}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
-          numColumns={3}
+          renderSectionHeader={renderSectionHeader}
           contentContainerStyle={styles.listContent}
+          stickySectionHeadersEnabled={true}
         />
       )}
     </View>
@@ -93,6 +157,22 @@ const styles = StyleSheet.create({
   },
   listContent: { 
     padding: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
+  },
+  sectionHeader: {
+    backgroundColor: theme.colors.background,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.xs,
+    marginBottom: theme.spacing.xs,
+  },
+  sectionHeaderText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.text.primary,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
   },
   itemContainer: {
     width: itemSize,
@@ -103,6 +183,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: theme.colors.card,
     ...theme.shadows.sm,
+  },
+  emptyItem: {
+    backgroundColor: 'transparent',
+    elevation: 0,
+    shadowOpacity: 0,
   },
   thumbnail: {
     width: '100%',
