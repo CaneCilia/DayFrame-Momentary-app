@@ -118,3 +118,51 @@ export const getOnThisDayMemories = async (db: SQLiteDatabase, monthStr: string,
   );
   return results;
 };
+
+/**
+ * Search memories by caption using SQLite FTS5.
+ * @param db SQLiteDatabase instance
+ * @param query Search string
+ * @returns Array of memories matching the query
+ */
+export const searchMemories = async (db: SQLiteDatabase, query: string): Promise<Memory[]> => {
+  if (!query.trim()) {
+    return [];
+  }
+  
+  // Clean query and prepare for prefix search
+  // Remove non-alphanumeric except spaces for safe FTS matching
+  const safeQuery = query.replace(/[^\w\s]/g, '').trim();
+  if (!safeQuery) return [];
+
+  const words = safeQuery.split(/\s+/);
+  // Example: "apple banana" -> "apple banana*"
+  const matchExpr = words.join(' ') + '*';
+
+  try {
+    const results = await db.getAllAsync<Memory>(
+      `SELECT m.* FROM memories m
+       JOIN memories_fts fts ON m.rowid = fts.rowid
+       WHERE memories_fts MATCH ?
+       ORDER BY fts.rank`,
+      [matchExpr]
+    );
+    return results;
+  } catch (e) {
+    console.error('FTS search error:', e);
+    return [];
+  }
+};
+
+/**
+ * Update the caption for a memory.
+ * @param db SQLiteDatabase instance
+ * @param id The memory ID
+ * @param caption The new caption
+ */
+export const updateMemoryCaption = async (db: SQLiteDatabase, id: string, caption: string): Promise<void> => {
+  await db.runAsync(
+    'UPDATE memories SET caption = ?, sync_status = ? WHERE id = ?',
+    [caption, 'PENDING', id]
+  );
+};

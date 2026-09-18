@@ -13,6 +13,7 @@ import { SetupCompleteScreen } from '../screens/SetupCompleteScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { CaptureScreen } from '../screens/CaptureScreen';
 import { AuthScreen } from '../screens/AuthScreen';
+import { SearchScreen } from '../screens/SearchScreen';
 
 // Define navigation types
 export type RootStackParamList = {
@@ -27,6 +28,7 @@ export type RootStackParamList = {
   Calendar: undefined;
   MemoryDetail: { memoryId: string }; // Example parameter
   Auth: undefined;
+  Search: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -89,6 +91,11 @@ export const AppNavigator = () => {
           name="Auth" 
           component={AuthScreen} 
           options={{ title: 'Cloud Sync', presentation: 'modal' }}
+        />
+        <Stack.Screen 
+          name="Search" 
+          component={SearchScreen} 
+          options={{ title: 'Search Memories' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

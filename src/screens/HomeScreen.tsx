@@ -154,6 +154,9 @@ export const HomeScreen = () => {
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Calendar')} activeOpacity={0.7}>
           <Text style={styles.navButtonText}>Calendar</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Search')} activeOpacity={0.7}>
+          <Text style={styles.navButtonText}>Search</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Settings')} activeOpacity={0.7}>
           <Text style={styles.navButtonText}>Settings</Text>
         </TouchableOpacity>
