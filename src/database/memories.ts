@@ -66,47 +66,55 @@ export const getMemoryById = async (db: SQLiteDatabase, id: string): Promise<Mem
  * @returns The current streak count
  */
 export const getCurrentStreak = async (db: SQLiteDatabase): Promise<number> => {
-  const result = await db.getAllAsync<{ date: string }>(
-    'SELECT date FROM memories ORDER BY date DESC'
-  );
-  
-  if (result.length === 0) return 0;
-  
-  // Get unique dates sorted descending
-  const dates = [...new Set(result.map(row => row.date))].sort().reverse();
-  
+  const allMemories = await db.getAllAsync<Memory>('SELECT * FROM memories ORDER BY date DESC');
+  if (allMemories.length === 0) return 0;
+
   let streak = 0;
-  
   const today = new Date();
+  // ... timezone offset logic
   const offset = today.getTimezoneOffset();
-  const localDate = new Date(today.getTime() - (offset * 60 * 1000));
-  const todayStr = localDate.toISOString().split('T')[0];
-  
-  const yesterday = new Date(localDate.getTime());
-  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split('T')[0];
-  
-  let expectedDateStr = '';
-  
-  if (dates[0] === todayStr) {
-    expectedDateStr = todayStr;
-  } else if (dates[0] === yesterdayStr) {
-    expectedDateStr = yesterdayStr;
-  } else {
+  const localToday = new Date(today.getTime() - (offset * 60 * 1000));
+  localToday.setUTCHours(0,0,0,0);
+
+  let currentDate = localToday;
+  let firstMemoryDate = new Date(allMemories[0].date);
+  firstMemoryDate.setUTCHours(0,0,0,0);
+
+  const diffTime = Math.abs(currentDate.getTime() - firstMemoryDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+  if (diffDays > 1) {
     return 0; // Streak broken
   }
-  
-  const currentCheckDate = new Date(expectedDateStr + "T00:00:00Z");
-  
-  for (let i = 0; i < dates.length; i++) {
-    const dStr = currentCheckDate.toISOString().split('T')[0];
-    if (dates.includes(dStr)) {
-      streak++;
-      currentCheckDate.setUTCDate(currentCheckDate.getUTCDate() - 1);
+
+  for (let i = 0; i < allMemories.length; i++) {
+    const memDate = new Date(allMemories[i].date);
+    memDate.setUTCHours(0,0,0,0);
+    
+    // Check if it's exactly the expected day in the streak
+    const expectedTime = currentDate.getTime() - (streak === 0 && diffDays === 1 ? (1000 * 60 * 60 * 24) : (streak * 1000 * 60 * 60 * 24));
+    
+    if (memDate.getTime() === expectedTime || memDate.getTime() === currentDate.getTime()) {
+      // If it's today and streak is 0, we count it. 
+      if (memDate.getTime() !== currentDate.getTime() || streak === 0) {
+         streak++;
+      }
     } else {
       break;
     }
   }
-  
+
   return streak;
+};
+
+export const getOnThisDayMemories = async (db: SQLiteDatabase, monthStr: string, dayStr: string, currentYear: string): Promise<Memory[]> => {
+  // SQLite doesn't have a robust date parser for YYYY-MM-DD built-in to compare parts easily without functions,
+  // but we know our format is exactly YYYY-MM-DD.
+  // We can use LIKE '%-MM-DD' and filter out the current year.
+  const likePattern = `%-${monthStr}-${dayStr}`;
+  const results = await db.getAllAsync<Memory>(
+    'SELECT * FROM memories WHERE date LIKE ? AND date NOT LIKE ? ORDER BY date DESC',
+    [likePattern, `${currentYear}-%`]
+  );
+  return results;
 };

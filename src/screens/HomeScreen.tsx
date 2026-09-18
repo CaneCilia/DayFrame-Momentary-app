@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, ScrollView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
-import { getMemoryByDate, getCurrentStreak, Memory } from '../database/memories';
+import { getMemoryByDate, getCurrentStreak, getOnThisDayMemories, Memory } from '../database/memories';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -15,6 +15,7 @@ export const HomeScreen = () => {
   const isFocused = useIsFocused();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [todayMemory, setTodayMemory] = useState<Memory | null>(null);
+  const [onThisDayMemories, setOnThisDayMemories] = useState<Memory[]>([]);
   const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -39,13 +40,12 @@ export const HomeScreen = () => {
   // Get today's date in YYYY-MM-DD format
   const getTodayDateString = () => {
     const today = new Date();
-    // Use local time instead of UTC to avoid timezone issues where it's a different day
     const offset = today.getTimezoneOffset();
     const localDate = new Date(today.getTime() - (offset * 60 * 1000));
     return localDate.toISOString().split('T')[0];
   };
 
-  const loadTodayMemory = async () => {
+  const loadMemories = async () => {
     setLoading(true);
     try {
       const todayDate = getTodayDateString();
@@ -54,8 +54,13 @@ export const HomeScreen = () => {
       
       const currentStreak = await getCurrentStreak(db);
       setStreak(currentStreak);
+
+      const [year, month, day] = todayDate.split('-');
+      const pastMemories = await getOnThisDayMemories(db, month, day, year);
+      setOnThisDayMemories(pastMemories);
+
     } catch (error) {
-      console.error('Failed to load today memory or streak:', error);
+      console.error('Failed to load memories or streak:', error);
     } finally {
       setLoading(false);
     }
@@ -63,7 +68,7 @@ export const HomeScreen = () => {
 
   useEffect(() => {
     if (isFocused) {
-      loadTodayMemory();
+      loadMemories();
     }
   }, [isFocused]);
 
@@ -93,30 +98,54 @@ export const HomeScreen = () => {
         </View>
       </View>
 
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading memory...</Text>
-        </View>
-      ) : todayMemory ? (
-        <View style={styles.memoryContainer}>
-          <Image source={{ uri: todayMemory.photoUri }} style={styles.memoryImage} />
-          <View style={styles.memoryMeta}>
-            {todayMemory.caption ? (
-              <Text style={styles.captionText}>{todayMemory.caption}</Text>
-            ) : null}
-            <Text style={styles.completedText}>Memory captured ✓</Text>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading memory...</Text>
           </View>
-        </View>
-      ) : (
-        <TouchableOpacity style={styles.emptyFrame} onPress={handleCapturePress} activeOpacity={0.9}>
-          <Animated.View style={[styles.emptyFrameInner, { transform: [{ scale: pulseAnim }] }]}>
-            <View style={styles.iconCircle}>
-              <Text style={styles.plusIcon}>+</Text>
+        ) : todayMemory ? (
+          <View style={styles.memoryContainer}>
+            <Image source={{ uri: todayMemory.photoUri }} style={styles.memoryImage} />
+            <View style={styles.memoryMeta}>
+              {todayMemory.caption ? (
+                <Text style={styles.captionText}>{todayMemory.caption}</Text>
+              ) : null}
+              <Text style={styles.completedText}>Memory captured ✓</Text>
             </View>
-            <Text style={styles.emptyFrameText}>Tap to capture</Text>
-          </Animated.View>
-        </TouchableOpacity>
-      )}
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.emptyFrame} onPress={handleCapturePress} activeOpacity={0.9}>
+            <Animated.View style={[styles.emptyFrameInner, { transform: [{ scale: pulseAnim }] }]}>
+              <View style={styles.iconCircle}>
+                <Text style={styles.plusIcon}>+</Text>
+              </View>
+              <Text style={styles.emptyFrameText}>Tap to capture</Text>
+            </Animated.View>
+          </TouchableOpacity>
+        )}
+
+        {onThisDayMemories.length > 0 && !loading && (
+          <View style={styles.onThisDayContainer}>
+            <Text style={styles.onThisDayTitle}>On This Day</Text>
+            {onThisDayMemories.map((mem) => {
+              const yearsAgo = parseInt(getTodayDateString().split('-')[0]) - parseInt(mem.date.split('-')[0]);
+              return (
+                <TouchableOpacity 
+                  key={mem.id} 
+                  style={styles.onThisDayCard}
+                  onPress={() => navigation.navigate('MemoryDetail', { memoryId: mem.id })}
+                  activeOpacity={0.8}
+                >
+                  <Image source={{ uri: mem.photoUri }} style={styles.onThisDayImage} />
+                  <View style={styles.onThisDayOverlay}>
+                    <Text style={styles.onThisDayYears}>{yearsAgo} {yearsAgo === 1 ? 'Year' : 'Years'} Ago</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+      </ScrollView>
 
       <View style={styles.navRow}>
         <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Timeline')} activeOpacity={0.7}>
@@ -140,6 +169,10 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     paddingTop: theme.spacing.xxl,
     paddingHorizontal: theme.spacing.lg,
+  },
+  scrollView: {
+    flex: 1,
+    width: '100%',
   },
   header: {
     flexDirection: 'row',
@@ -253,6 +286,47 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  scrollContent: {
+    width: '100%',
+    paddingBottom: theme.spacing.xxl,
+  },
+  onThisDayContainer: {
+    marginTop: theme.spacing.xl,
+    width: '100%',
+  },
+  onThisDayTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.md,
+    letterSpacing: -0.5,
+  },
+  onThisDayCard: {
+    width: '100%',
+    aspectRatio: 3 / 4,
+    borderRadius: theme.borderRadius.lg,
+    overflow: 'hidden',
+    marginBottom: theme.spacing.md,
+    ...theme.shadows.md,
+  },
+  onThisDayImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: theme.colors.border,
+  },
+  onThisDayOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: theme.spacing.md,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  onThisDayYears: {
+    color: theme.colors.text.inverse,
+    fontSize: 16,
+    fontWeight: '700',
   },
   navRow: {
     flexDirection: 'row',
