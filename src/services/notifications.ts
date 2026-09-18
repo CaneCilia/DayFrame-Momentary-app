@@ -1,18 +1,35 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+// Helper to safely get Notifications module
+const getNotificationsModule = async () => {
+  try {
+    const Notifications = await import('expo-notifications');
+    return Notifications;
+  } catch (error) {
+    console.warn('expo-notifications is not available in this environment');
+    return null;
+  }
+};
+
 // Configure how notifications appear when app is in foreground
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
+getNotificationsModule().then((Notifications) => {
+  if (Notifications) {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+  }
 });
 
 export const requestNotificationPermissions = async () => {
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) return false;
+
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
   
@@ -34,6 +51,9 @@ export const requestNotificationPermissions = async () => {
 };
 
 export const scheduleDailyReminder = async (hour: number, minute: number) => {
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) return;
+
   // Cancel existing reminders first
   await Notifications.cancelAllScheduledNotificationsAsync();
   
@@ -51,5 +71,7 @@ export const scheduleDailyReminder = async (hour: number, minute: number) => {
 };
 
 export const cancelAllReminders = async () => {
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) return;
   await Notifications.cancelAllScheduledNotificationsAsync();
 };
