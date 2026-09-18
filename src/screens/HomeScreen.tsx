@@ -5,6 +5,7 @@ import { getMemoryByDate, getCurrentStreak, Memory } from '../database/memories'
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { theme } from '../utils/theme';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -21,13 +22,13 @@ export const HomeScreen = () => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.1,
-          duration: 1000,
+          toValue: 1.05,
+          duration: 1200,
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 1000,
+          duration: 1200,
           useNativeDriver: true,
         }),
       ])
@@ -78,7 +79,10 @@ export const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.dateText}>{todayStr}</Text>
+        <View>
+          <Text style={styles.greetingText}>Today</Text>
+          <Text style={styles.dateText}>{todayStr}</Text>
+        </View>
         <View style={styles.streakContainer}>
           <Text style={styles.streakIcon}>🔥</Text>
           <Text style={styles.streakText}>{streak}</Text>
@@ -86,32 +90,38 @@ export const HomeScreen = () => {
       </View>
 
       {loading ? (
-        <Text style={styles.loadingText}>Loading...</Text>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading memory...</Text>
+        </View>
       ) : todayMemory ? (
         <View style={styles.memoryContainer}>
           <Image source={{ uri: todayMemory.photoUri }} style={styles.memoryImage} />
-          {todayMemory.caption && (
-            <Text style={styles.captionText}>{todayMemory.caption}</Text>
-          )}
-          <Text style={styles.completedText}>You've captured your moment for today!</Text>
+          <View style={styles.memoryMeta}>
+            {todayMemory.caption ? (
+              <Text style={styles.captionText}>{todayMemory.caption}</Text>
+            ) : null}
+            <Text style={styles.completedText}>Memory captured ✓</Text>
+          </View>
         </View>
       ) : (
-        <TouchableOpacity style={styles.emptyFrame} onPress={handleCapturePress}>
+        <TouchableOpacity style={styles.emptyFrame} onPress={handleCapturePress} activeOpacity={0.9}>
           <Animated.View style={[styles.emptyFrameInner, { transform: [{ scale: pulseAnim }] }]}>
-            <Text style={styles.plusIcon}>+</Text>
-            <Text style={styles.emptyFrameText}>Tap to capture today's moment</Text>
+            <View style={styles.iconCircle}>
+              <Text style={styles.plusIcon}>+</Text>
+            </View>
+            <Text style={styles.emptyFrameText}>Tap to capture</Text>
           </Animated.View>
         </TouchableOpacity>
       )}
 
       <View style={styles.navRow}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Timeline')}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Timeline')} activeOpacity={0.7}>
           <Text style={styles.navButtonText}>Timeline</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Calendar')}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Calendar')} activeOpacity={0.7}>
           <Text style={styles.navButtonText}>Calendar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Settings')}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Settings')} activeOpacity={0.7}>
           <Text style={styles.navButtonText}>Settings</Text>
         </TouchableOpacity>
       </View>
@@ -123,76 +133,91 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    paddingTop: 40,
-    paddingHorizontal: 20,
+    backgroundColor: theme.colors.background,
+    paddingTop: theme.spacing.xxl,
+    paddingHorizontal: theme.spacing.lg,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    marginBottom: 40,
+    marginBottom: theme.spacing.xl,
+  },
+  greetingText: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 4,
   },
   dateText: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: 28,
+    fontWeight: '800',
+    color: theme.colors.text.primary,
+    letterSpacing: -0.5,
   },
   streakContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    backgroundColor: theme.colors.card,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.pill,
+    ...theme.shadows.sm,
   },
   streakIcon: {
     fontSize: 16,
-    marginRight: 4,
+    marginRight: 6,
   },
   streakText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ff9800',
+    fontWeight: '800',
+    color: theme.colors.accent,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   loadingText: {
     fontSize: 16,
-    color: '#666',
-    marginTop: 50,
+    color: theme.colors.text.secondary,
+    fontWeight: '500',
   },
   emptyFrame: {
     width: '100%',
     aspectRatio: 3 / 4,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.lg,
     borderWidth: 2,
-    borderColor: '#ddd',
+    borderColor: theme.colors.border,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   emptyFrameInner: {
     alignItems: 'center',
   },
+  iconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: theme.colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
   plusIcon: {
-    fontSize: 48,
-    color: '#ccc',
-    marginBottom: 10,
+    fontSize: 32,
+    color: theme.colors.text.secondary,
+    fontWeight: '300',
+    marginTop: -4,
   },
   emptyFrameText: {
-    fontSize: 16,
-    color: '#888',
+    fontSize: 18,
+    fontWeight: '600',
+    color: theme.colors.text.secondary,
   },
   memoryContainer: {
     width: '100%',
@@ -201,39 +226,50 @@ const styles = StyleSheet.create({
   memoryImage: {
     width: '100%',
     aspectRatio: 3 / 4,
-    borderRadius: 12,
-    backgroundColor: '#ddd',
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.border,
+    ...theme.shadows.md,
+  },
+  memoryMeta: {
+    marginTop: theme.spacing.lg,
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.lg,
   },
   captionText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#333',
+    fontSize: 18,
+    color: theme.colors.text.primary,
     textAlign: 'center',
+    fontWeight: '500',
+    marginBottom: theme.spacing.sm,
+    lineHeight: 24,
   },
   completedText: {
-    marginTop: 20,
     fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    color: theme.colors.success,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   navRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
     marginTop: 'auto',
-    paddingBottom: 20,
+    marginBottom: theme.spacing.lg,
+    backgroundColor: theme.colors.card,
+    padding: theme.spacing.xs,
+    borderRadius: theme.borderRadius.pill,
+    ...theme.shadows.sm,
   },
   navButton: {
     flex: 1,
-    paddingVertical: 15,
-    marginHorizontal: 10,
-    backgroundColor: '#eee',
-    borderRadius: 8,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.pill,
     alignItems: 'center',
   },
   navButtonText: {
     fontSize: 14,
-    color: '#333',
-    fontWeight: '500',
+    color: theme.colors.text.primary,
+    fontWeight: '600',
   }
 });
