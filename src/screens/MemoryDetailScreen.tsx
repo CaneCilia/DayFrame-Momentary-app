@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, Dimensions } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getMemoryById, Memory } from '../database/memories';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { theme } from '../utils/theme';
 
 type MemoryDetailScreenRouteProp = RouteProp<RootStackParamList, 'MemoryDetail'>;
 
@@ -57,9 +58,10 @@ export const MemoryDetailScreen = () => {
   });
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} bounces={false}>
       <Image source={{ uri: memory.photoUri }} style={styles.image} />
       <View style={styles.infoContainer}>
+        <View style={styles.dragIndicator} />
         <Text style={styles.dateText}>{formattedDate}</Text>
         {memory.caption ? (
           <Text style={styles.captionText}>{memory.caption}</Text>
@@ -71,40 +73,54 @@ export const MemoryDetailScreen = () => {
   );
 };
 
+const windowHeight = Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' },
-  loadingText: { color: '#fff', fontSize: 16 },
-  errorText: { color: 'red', fontSize: 16 },
-  content: { paddingBottom: 40 },
+  container: { flex: 1, backgroundColor: theme.colors.primary },
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.primary },
+  loadingText: { color: theme.colors.text.inverse, fontSize: 16, fontWeight: '500' },
+  errorText: { color: theme.colors.accent, fontSize: 16, fontWeight: '500' },
+  content: { paddingBottom: 0 },
   image: {
     width: '100%',
-    aspectRatio: 3 / 4,
-    resizeMode: 'contain',
-    backgroundColor: '#111',
+    height: windowHeight * 0.65,
+    resizeMode: 'cover',
   },
   infoContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    marginTop: -20,
-    minHeight: 200,
+    padding: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
+    backgroundColor: theme.colors.background,
+    borderTopLeftRadius: theme.borderRadius.lg,
+    borderTopRightRadius: theme.borderRadius.lg,
+    marginTop: -theme.spacing.xl,
+    minHeight: windowHeight * 0.35,
+    ...theme.shadows.md,
+  },
+  dragIndicator: {
+    width: 40,
+    height: 5,
+    backgroundColor: theme.colors.border,
+    borderRadius: theme.borderRadius.pill,
+    alignSelf: 'center',
+    marginBottom: theme.spacing.md,
   },
   dateText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 10,
+    fontSize: 24,
+    fontWeight: '800',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.sm,
+    letterSpacing: -0.5,
   },
   captionText: {
-    fontSize: 16,
-    color: '#444',
-    lineHeight: 24,
+    fontSize: 18,
+    color: theme.colors.text.secondary,
+    lineHeight: 28,
+    fontWeight: '400',
   },
   noCaptionText: {
     fontSize: 16,
-    color: '#999',
+    color: theme.colors.text.secondary,
     fontStyle: 'italic',
+    opacity: 0.6,
   }
 });
