@@ -99,14 +99,14 @@ const styles = StyleSheet.create({
   deleteButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: theme.colors.error || '#FF3B30',
+    borderColor: theme.colors.error,
     borderRadius: theme.borderRadius.pill,
     paddingVertical: theme.spacing.md,
     alignItems: 'center',
     marginTop: theme.spacing.sm,
   },
   deleteButtonText: {
-    color: theme.colors.error || '#FF3B30',
+    color: theme.colors.error,
     fontSize: 16,
     fontWeight: '600',
   }

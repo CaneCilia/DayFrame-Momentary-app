@@ -123,7 +123,7 @@ export class GoogleDriveService {
     const fileId = createData.id;
 
     // Step 2: Upload content using Expo FileSystem (avoids RN FormData Blob bugs)
-    const FileSystem = await import('expo-file-system');
+    const FileSystem = await import('expo-file-system/legacy');
     const uploadRes = await FileSystem.uploadAsync(
       `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,
       fileUri,

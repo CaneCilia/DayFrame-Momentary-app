@@ -51,8 +51,10 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
         Alert.alert('Google Drive', 'Disconnected successfully.');
       } else {
         const userInfo = await GoogleDriveService.signIn();
-        setIsDriveConnected(true);
-        Alert.alert('Google Drive', `Connected as ${userInfo.user.email}. Future memories will be backed up.`);
+        if (userInfo && userInfo.type === 'success') {
+          setIsDriveConnected(true);
+          Alert.alert('Google Drive', `Connected as ${userInfo.data.user.email}. Future memories will be backed up.`);
+        }
       }
     } catch (error: any) {
       Alert.alert('Google Drive Error', error.message || 'Failed to connect to Google Drive.');
@@ -214,6 +216,9 @@ const styles = StyleSheet.create({
   restoreButton: { 
     backgroundColor: '#007AFF', 
     marginBottom: theme.spacing.md,
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   signOutButton: {
     backgroundColor: theme.colors.background,

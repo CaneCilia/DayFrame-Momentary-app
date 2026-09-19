@@ -11,6 +11,7 @@ export const theme = {
     accent: '#FF4B4B',
     border: '#E5E5EA',
     success: '#34C759',
+    error: '#FF3B30',
   },
   spacing: {
     xs: 4,
