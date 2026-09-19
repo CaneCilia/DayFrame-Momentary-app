@@ -39,7 +39,7 @@ export const AuthScreen = ({ navigation }: any) => {
       <View style={styles.content}>
         <Text style={styles.title}>{isLogin ? 'Welcome Back' : 'Create Account'}</Text>
         <Text style={styles.subtitle}>
-          {isLogin ? 'Sign in to securely sync your memories.' : 'Start backing up your daily moments.'}
+          {isLogin ? 'Sign in to securely sync your local vault.' : 'Create a secure backup of your timeline.'}
         </Text>
         
         <View style={styles.formContainer}>
