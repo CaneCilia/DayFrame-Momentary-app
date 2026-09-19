@@ -123,16 +123,16 @@ export const StorageScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Manage Space</Text>
+          <Text style={styles.sectionTitle}>Optimize Storage</Text>
           <Text style={styles.bodyText}>
-            You can free up local device space by clearing the local photo cache. Only photos that have been securely backed up to the cloud will be removed from this device.
+            Free up device space by safely clearing your local photo cache. Only memories that are fully synced with Google Drive will be removed locally, leaving unsynced photos intact.
           </Text>
           <TouchableOpacity 
             style={styles.clearButton} 
             onPress={handleClearCache}
             activeOpacity={0.8}
           >
-            <Text style={styles.clearButtonText}>Clear Local Cache</Text>
+            <Text style={styles.clearButtonText}>Clear Synced Photos</Text>
           </TouchableOpacity>
         </View>
 
