@@ -110,7 +110,7 @@ export const HomeScreen = () => {
               {todayMemory.caption ? (
                 <Text style={styles.captionText}>{todayMemory.caption}</Text>
               ) : null}
-              <Text style={styles.completedText}>Memory captured ✓</Text>
+              <Text style={styles.completedText}>Memory Secured ✓</Text>
             </View>
           </View>
         ) : (
@@ -119,7 +119,7 @@ export const HomeScreen = () => {
               <View style={styles.iconCircle}>
                 <Text style={styles.plusIcon}>+</Text>
               </View>
-              <Text style={styles.emptyFrameText}>Tap to capture</Text>
+              <Text style={styles.emptyFrameText}>Capture Today's Moment</Text>
             </Animated.View>
           </TouchableOpacity>
         )}
