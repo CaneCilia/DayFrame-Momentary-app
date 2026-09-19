@@ -128,7 +128,7 @@ export const CaptureScreen = () => {
             <Text style={styles.buttonText}>Retake</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={confirmPhoto} disabled={isSaving}>
-            <Text style={styles.buttonText}>{isSaving ? 'Saving...' : 'Confirm'}</Text>
+            <Text style={styles.buttonText}>{isSaving ? 'Saving...' : 'Save Memory'}</Text>
           </TouchableOpacity>
         </View>
       </View>
