@@ -10,8 +10,8 @@ export const SetupCompleteScreen = ({ navigation }: { navigation: SetupCompleteS
     <View style={styles.container}>
       <View style={styles.centerContent}>
         <Text style={styles.checkIcon}>✓</Text>
-        <Text style={styles.title}>First-Day Setup Complete</Text>
-        <Text style={styles.subtitle}>Your first frame is ready.</Text>
+        <Text style={styles.title}>You're All Set!</Text>
+        <Text style={styles.subtitle}>Your local vault is ready. Start building your timeline.</Text>
       </View>
       
       <TouchableOpacity 
