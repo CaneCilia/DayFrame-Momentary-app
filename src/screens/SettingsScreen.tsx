@@ -95,7 +95,7 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           </View>
         ) : (
           <View>
-            <Text style={styles.placeholder}>Sign in to securely back up your daily moments and sync across devices.</Text>
+            <Text style={styles.placeholder}>Enable secure cloud backup to sync your timeline across devices.</Text>
             <TouchableOpacity 
               style={styles.button} 
               onPress={() => navigation.navigate('Auth')}
@@ -111,7 +111,7 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Google Drive Backup</Text>
         </View>
-        <Text style={styles.placeholder}>Back up your memories directly to your personal Google Drive for extra safety.</Text>
+        <Text style={styles.placeholder}>Securely back up your encrypted vault to your personal Google Drive.</Text>
         <TouchableOpacity 
           style={[styles.button, isDriveConnected && styles.signOutButton]} 
           onPress={handleConnectDrive}
