@@ -43,7 +43,7 @@ export const PrivacyScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Data Deletion</Text>
           <Text style={styles.bodyText}>
-            You have the right to be forgotten. Requesting account deletion will remove your identity and all associated cloud-synced photos from our servers. Please note that this will not delete photos stored locally on your device or in your personal Google Drive.
+            Take control of your footprint. Account deletion will permanently erase your profile and all cloud-synced memories from our servers. This action will not affect photos saved locally on your device or in your personal Google Drive.
           </Text>
           <TouchableOpacity 
             style={styles.deleteButton} 
