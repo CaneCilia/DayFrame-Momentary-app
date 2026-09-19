@@ -44,3 +44,27 @@ Ensure the local-first architecture works flawlessly in all conditions, specific
 3. Background the app.
 4. Wait for the notification.
 5. Tap the notification and ensure it opens the app.
+
+### 6. Storage & Cache Management
+1. Navigate to Settings -> Storage & Data.
+2. Note the initial "Photos Cache" size.
+3. Tap "Clear Synced Photos".
+4. Confirm the action in the alert dialog.
+5. Verify that only photos with `sync_status = 'SYNCED'` are removed from local storage.
+6. Verify the "Photos Cache" size decreases appropriately.
+7. Verify that un-synced photos remain visible in the Timeline.
+
+### 7. Authentication & Google Drive Connection
+1. Navigate to Settings and tap "Sign In / Sign Up".
+2. Create a new account or log in.
+3. Navigate back to Settings and verify the user's email is displayed.
+4. Tap "Connect Google Drive".
+5. Complete the OAuth flow.
+6. Verify the button changes to "Disconnect Google Drive" and future captures trigger the backup flow.
+
+### 8. Privacy & Data Deletion
+1. Navigate to Settings -> Privacy Hub.
+2. Read the Local-First and Data Deletion sections.
+3. Tap "Request Account Deletion".
+4. Confirm the destructive action.
+5. Verify the request submission confirmation alert.
