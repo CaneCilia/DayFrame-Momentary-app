@@ -9,7 +9,7 @@ type HowItWorksScreenNavigationProp = NativeStackNavigationProp<RootStackParamLi
 export const HowItWorksScreen = ({ navigation }: { navigation: HowItWorksScreenNavigationProp }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>How DayFrame Works</Text>
+      <Text style={styles.title}>Welcome to DayFrame</Text>
       
       <View style={styles.stepsContainer}>
         <View style={styles.step}>
@@ -18,7 +18,7 @@ export const HowItWorksScreen = ({ navigation }: { navigation: HowItWorksScreenN
           </View>
           <View>
             <Text style={styles.stepTitle}>Capture</Text>
-            <Text style={styles.stepDesc}>One photo every day</Text>
+            <Text style={styles.stepDesc}>Snap one photo a day</Text>
           </View>
         </View>
         <View style={styles.step}>
@@ -26,8 +26,8 @@ export const HowItWorksScreen = ({ navigation }: { navigation: HowItWorksScreenN
             <Text style={styles.stepNumber}>2</Text>
           </View>
           <View>
-            <Text style={styles.stepTitle}>Save</Text>
-            <Text style={styles.stepDesc}>No social feed</Text>
+            <Text style={styles.stepTitle}>Private</Text>
+            <Text style={styles.stepDesc}>Local-first architecture</Text>
           </View>
         </View>
         <View style={styles.step}>
@@ -35,8 +35,8 @@ export const HowItWorksScreen = ({ navigation }: { navigation: HowItWorksScreenN
             <Text style={styles.stepNumber}>3</Text>
           </View>
           <View>
-            <Text style={styles.stepTitle}>Remember</Text>
-            <Text style={styles.stepDesc}>Your personal timeline</Text>
+            <Text style={styles.stepTitle}>Sync</Text>
+            <Text style={styles.stepDesc}>Secure cloud backup</Text>
           </View>
         </View>
       </View>
