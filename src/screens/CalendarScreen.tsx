@@ -49,7 +49,7 @@ export const CalendarScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pageTitle}>Calendar</Text>
+      <Text style={styles.pageTitle}>Your Calendar</Text>
       <Calendar
         markedDates={markedDates}
         onDayPress={onDayPress}
