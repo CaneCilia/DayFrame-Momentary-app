@@ -20,9 +20,9 @@ Ensure the local-first architecture works flawlessly in all conditions, specific
 2. Turn on Wi-Fi/Cellular Data.
 3. Re-open DayFrame.
 4. Verify the Background Sync Worker detects the connection and processes the `sync_queue`.
-5. Check Supabase Storage to ensure the image was uploaded.
-6. Check Supabase Database to ensure the memory metadata was inserted.
-7. Verify the SQLite local `sync_status` updates to `SYNCED`.
+5. Check Google Drive (in the dedicated DayFrame folder) to ensure the image was uploaded via REST API.
+6. Verify the SQLite local `sync_status` updates to `SYNCED`.
+7. Verify the Cloud Sync Status Indicator on the Home Screen reflects the `Synced` state.
 
 ### 3. Edge Case: 11:59 PM Capture
 1. Change the device time manually to 11:58 PM.
