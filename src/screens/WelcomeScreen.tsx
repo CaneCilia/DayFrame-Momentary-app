@@ -11,7 +11,7 @@ export const WelcomeScreen = ({ navigation }: { navigation: WelcomeScreenNavigat
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.logo}>DayFrame</Text>
-        <Text style={styles.tagline}>One photo. Every day.</Text>
+        <Text style={styles.tagline}>Capture the moment. Own your data.</Text>
       </View>
       
       <TouchableOpacity 
