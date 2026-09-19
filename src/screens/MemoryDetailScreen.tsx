@@ -66,7 +66,7 @@ export const MemoryDetailScreen = () => {
         {memory.caption ? (
           <Text style={styles.captionText}>{memory.caption}</Text>
         ) : (
-          <Text style={styles.noCaptionText}>No caption provided.</Text>
+          <Text style={styles.noCaptionText}>A moment without words.</Text>
         )}
       </View>
     </ScrollView>
