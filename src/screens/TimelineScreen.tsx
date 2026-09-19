@@ -111,11 +111,11 @@ export const TimelineScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pageTitle}>Timeline</Text>
+      <Text style={styles.pageTitle}>Your Timeline</Text>
       {memories.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No memories yet</Text>
-          <Text style={styles.emptySubText}>Your captures will appear here.</Text>
+          <Text style={styles.emptyText}>Your timeline is empty</Text>
+          <Text style={styles.emptySubText}>Capture today's moment to start your journey.</Text>
         </View>
       ) : (
         <SectionList
