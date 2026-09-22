@@ -41,25 +41,26 @@ export async function initializeDatabase(db: SQLiteDatabase) {
       value TEXT
     );
 
-    -- FTS5 virtual table for searching captions
+    -- FTS5 virtual table for searching captions and dates
     CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(
       caption,
+      date,
       content='memories',
       content_rowid='rowid'
     );
 
     -- Triggers to keep FTS table in sync with memories
     CREATE TRIGGER IF NOT EXISTS memories_ai AFTER INSERT ON memories BEGIN
-      INSERT INTO memories_fts(rowid, caption) VALUES (new.rowid, new.caption);
+      INSERT INTO memories_fts(rowid, caption, date) VALUES (new.rowid, new.caption, new.date);
     END;
 
     CREATE TRIGGER IF NOT EXISTS memories_ad AFTER DELETE ON memories BEGIN
-      INSERT INTO memories_fts(memories_fts, rowid, caption) VALUES('delete', old.rowid, old.caption);
+      INSERT INTO memories_fts(memories_fts, rowid, caption, date) VALUES('delete', old.rowid, old.caption, old.date);
     END;
 
     CREATE TRIGGER IF NOT EXISTS memories_au AFTER UPDATE ON memories BEGIN
-      INSERT INTO memories_fts(memories_fts, rowid, caption) VALUES('delete', old.rowid, old.caption);
-      INSERT INTO memories_fts(rowid, caption) VALUES (new.rowid, new.caption);
+      INSERT INTO memories_fts(memories_fts, rowid, caption, date) VALUES('delete', old.rowid, old.caption, old.date);
+      INSERT INTO memories_fts(rowid, caption, date) VALUES (new.rowid, new.caption, new.date);
     END;
   `);
 }
