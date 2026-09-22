@@ -6,6 +6,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
+import { MonthSummaryCard } from '../components/MonthSummaryCard';
 
 type TimelineScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Timeline'>;
 
@@ -103,11 +104,14 @@ export const TimelineScreen = () => {
     );
   };
 
-  const renderSectionHeader = ({ section: { title } }: { section: MonthSection }) => (
-    <View style={styles.sectionHeader}>
-      <Text style={styles.sectionHeaderText}>{title}</Text>
-    </View>
-  );
+  const renderSectionHeader = ({ section }: { section: MonthSection }) => {
+    const memoryCount = section.data.reduce((total, row) => total + row.items.length, 0);
+    return (
+      <View style={styles.sectionHeader}>
+        <MonthSummaryCard title={section.title} memoryCount={memoryCount} />
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
