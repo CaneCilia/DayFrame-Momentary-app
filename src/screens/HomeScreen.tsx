@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, ScrollView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
-import { getMemoryByDate, getCurrentStreak, getOnThisDayMemories, Memory } from '../database/memories';
+import { getMemoryByDate, getOnThisDayMemories, Memory } from '../database/memories';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
 import { SyncIndicator } from '../components/SyncIndicator';
+import { ContributionGraph } from '../components/ContributionGraph';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -16,7 +17,6 @@ export const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [todayMemory, setTodayMemory] = useState<Memory | null>(null);
   const [onThisDayMemories, setOnThisDayMemories] = useState<Memory[]>([]);
-  const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -52,9 +52,6 @@ export const HomeScreen = () => {
       const memory = await getMemoryByDate(db, todayDate);
       setTodayMemory(memory);
       
-      const currentStreak = await getCurrentStreak(db);
-      setStreak(currentStreak);
-
       const [year, month, day] = todayDate.split('-');
       const pastMemories = await getOnThisDayMemories(db, month, day, year);
       setOnThisDayMemories(pastMemories);
@@ -90,15 +87,13 @@ export const HomeScreen = () => {
           <Text style={styles.dateText}>{todayStr}</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={styles.streakContainer}>
-            <Text style={styles.streakIcon}>🔥</Text>
-            <Text style={styles.streakText}>{streak}</Text>
-          </View>
           <SyncIndicator />
         </View>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        
+        <ContributionGraph />
         {onThisDayMemories.length > 0 && !loading && (
           <View style={styles.onThisDayContainer}>
             <Text style={styles.onThisDayTitle}>On This Day</Text>
@@ -197,24 +192,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: theme.colors.text.primary,
     letterSpacing: -0.5,
-  },
-  streakContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.card,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.pill,
-    ...theme.shadows.sm,
-  },
-  streakIcon: {
-    fontSize: 16,
-    marginRight: 6,
-  },
-  streakText: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: theme.colors.accent,
   },
   loadingContainer: {
     flex: 1,
