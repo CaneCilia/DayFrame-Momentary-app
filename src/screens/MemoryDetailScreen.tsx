@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity, Alert } from 'react-native';
+import * as Sharing from 'expo-sharing';
+import { captureRef } from 'react-native-view-shot';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getMemoryById, Memory } from '../database/memories';
@@ -57,19 +59,59 @@ export const MemoryDetailScreen = () => {
     day: 'numeric',
   });
 
+  const polaroidRef = React.useRef<View>(null);
+
+  const handleShare = async () => {
+    try {
+      const uri = await captureRef(polaroidRef, {
+        format: 'png',
+        quality: 1,
+      });
+      
+      if (!(await Sharing.isAvailableAsync())) {
+        Alert.alert('Sharing is not available on this device');
+        return;
+      }
+      
+      await Sharing.shareAsync(uri, { dialogTitle: 'Share your memory' });
+    } catch (error) {
+      console.error('Failed to share memory:', error);
+      Alert.alert('Failed to share memory');
+    }
+  };
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} bounces={false}>
-      <Image source={{ uri: memory.photoUri }} style={styles.image} />
-      <View style={styles.infoContainer}>
-        <View style={styles.dragIndicator} />
-        <Text style={styles.dateText}>{formattedDate}</Text>
-        {memory.caption ? (
-          <Text style={styles.captionText}>{memory.caption}</Text>
-        ) : (
-          <Text style={styles.noCaptionText}>A moment without words.</Text>
-        )}
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} bounces={false}>
+        <Image source={{ uri: memory.photoUri }} style={styles.image} />
+        <View style={styles.infoContainer}>
+          <View style={styles.dragIndicator} />
+          <View style={styles.headerRow}>
+            <Text style={styles.dateText}>{formattedDate}</Text>
+            <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
+              <Text style={styles.shareText}>Share</Text>
+            </TouchableOpacity>
+          </View>
+          {memory.caption ? (
+            <Text style={styles.captionText}>{memory.caption}</Text>
+          ) : (
+            <Text style={styles.noCaptionText}>A moment without words.</Text>
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Off-screen Polaroid View for Sharing */}
+      <View style={{ position: 'absolute', left: -9999, top: -9999 }}>
+        <View ref={polaroidRef} style={styles.polaroidContainer}>
+          <View style={styles.polaroidImageContainer}>
+            <Image source={{ uri: memory.photoUri }} style={styles.polaroidImage} />
+          </View>
+          <Text style={styles.polaroidDate}>{formattedDate}</Text>
+          {memory.caption && <Text style={styles.polaroidCaption} numberOfLines={2}>{memory.caption}</Text>}
+          <Text style={styles.polaroidBranding}>DayFrame</Text>
+        </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -122,5 +164,62 @@ const styles = StyleSheet.create({
     color: theme.colors.text.secondary,
     fontStyle: 'italic',
     opacity: 0.6,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.sm,
+  },
+  shareButton: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.pill,
+    ...theme.shadows.sm,
+  },
+  shareText: {
+    color: theme.colors.primary,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  polaroidContainer: {
+    width: 1080,
+    backgroundColor: '#FFFFFF',
+    padding: 40,
+    paddingBottom: 80,
+  },
+  polaroidImageContainer: {
+    width: 1000,
+    height: 1000,
+    backgroundColor: '#EAEAEA',
+    marginBottom: 40,
+  },
+  polaroidImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  polaroidDate: {
+    fontSize: 48,
+    fontWeight: '800',
+    color: '#111111',
+    fontFamily: 'sans-serif',
+    marginBottom: 20,
+  },
+  polaroidCaption: {
+    fontSize: 36,
+    color: '#444444',
+    fontFamily: 'serif',
+    lineHeight: 48,
+    marginBottom: 20,
+  },
+  polaroidBranding: {
+    fontSize: 24,
+    color: '#888888',
+    textAlign: 'right',
+    marginTop: 40,
+    fontWeight: '600',
+    letterSpacing: 2,
   }
 });
