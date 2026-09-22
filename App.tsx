@@ -22,7 +22,7 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <SQLiteProvider databaseName="dayframe.db" onInit={initializeDatabase}>
+      <SQLiteProvider databaseName="dayframe_v2.db" onInit={initializeDatabase}>
         <AppNavigator />
       </SQLiteProvider>
     </AuthProvider>
