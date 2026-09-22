@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import * as Sharing from 'expo-sharing';
-import { captureRef } from 'react-native-view-shot';
 import { RouteProp, useRoute } from '@react-navigation/native';
+
+let captureRef: any;
+try {
+  captureRef = require('react-native-view-shot').captureRef;
+} catch (e) {
+  console.log('react-native-view-shot is not available in Expo Go');
+  captureRef = async () => {
+    throw new Error('This feature requires an EAS Development Build.');
+  };
+}
 import { useSQLiteContext } from 'expo-sqlite';
 import { getMemoryById, Memory } from '../database/memories';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -74,9 +83,9 @@ export const MemoryDetailScreen = () => {
       }
       
       await Sharing.shareAsync(uri, { dialogTitle: 'Share your memory' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to share memory:', error);
-      Alert.alert('Failed to share memory');
+      Alert.alert('Failed to share memory', error.message || 'An error occurred.');
     }
   };
 
