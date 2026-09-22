@@ -113,6 +113,28 @@ export const TimelineScreen = () => {
     );
   };
 
+  const sectionListRef = React.useRef<SectionList<MemoryRow, MonthSection>>(null);
+
+  const years = useMemo(() => {
+    const yearSet = new Set<string>();
+    sections.forEach(sec => {
+      const year = sec.title.split(' ').pop();
+      if (year) yearSet.add(year);
+    });
+    return Array.from(yearSet);
+  }, [sections]);
+
+  const scrollToYear = (year: string) => {
+    const index = sections.findIndex(sec => sec.title.endsWith(year));
+    if (index !== -1 && sectionListRef.current) {
+      sectionListRef.current.scrollToLocation({
+        sectionIndex: index,
+        itemIndex: 0,
+        animated: true,
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.pageTitle}>Your Timeline</Text>
@@ -122,14 +144,26 @@ export const TimelineScreen = () => {
           <Text style={styles.emptySubText}>Capture today's moment to start your journey.</Text>
         </View>
       ) : (
-        <SectionList
-          sections={sections}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          renderSectionHeader={renderSectionHeader}
-          contentContainerStyle={styles.listContent}
-          stickySectionHeadersEnabled={true}
-        />
+        <View style={styles.listWrapper}>
+          <SectionList
+            ref={sectionListRef}
+            sections={sections}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            renderSectionHeader={renderSectionHeader}
+            contentContainerStyle={styles.listContent}
+            stickySectionHeadersEnabled={true}
+          />
+          {years.length > 1 && (
+            <View style={styles.scrubberContainer}>
+              {years.map(year => (
+                <TouchableOpacity key={year} onPress={() => scrollToYear(year)}>
+                  <Text style={styles.scrubberText}>{year}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
       )}
     </View>
   );
@@ -226,5 +260,25 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: {width: 0, height: 1},
     textShadowRadius: 2
+  },
+  listWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  scrubberContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.xs,
+    backgroundColor: 'rgba(255,255,255,0.7)', // subtle background for readability
+  },
+  scrubberText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: theme.colors.primary,
+    marginVertical: theme.spacing.xs,
+    textAlign: 'center',
   }
 });
