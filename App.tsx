@@ -14,7 +14,10 @@ import { registerBackgroundSync } from './src/services/syncWorker';
 
 export default function App() {
   useEffect(() => {
-    registerBackgroundSync().catch(console.error);
+    registerBackgroundSync().catch(e => {
+      // Background fetch is not available in Expo Go, so we can silently ignore this error
+      console.log('Background sync registration skipped in this environment.');
+    });
   }, []);
 
   return (
