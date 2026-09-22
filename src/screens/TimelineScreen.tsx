@@ -209,9 +209,6 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     backgroundColor: theme.colors.background,
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.xs,
-    marginBottom: theme.spacing.xs,
   },
   sectionHeaderText: {
     fontSize: 18,
@@ -267,17 +264,20 @@ const styles = StyleSheet.create({
   },
   scrubberContainer: {
     position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
+    right: theme.spacing.sm,
+    top: '25%',
+    bottom: '25%',
     justifyContent: 'center',
-    paddingHorizontal: theme.spacing.xs,
-    backgroundColor: 'rgba(255,255,255,0.7)', // subtle background for readability
+    paddingHorizontal: 6,
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    borderRadius: theme.borderRadius.pill,
+    ...theme.shadows.sm,
   },
   scrubberText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: theme.colors.primary,
+    fontSize: 10,
+    fontWeight: '800',
+    color: theme.colors.text.secondary,
     marginVertical: theme.spacing.xs,
     textAlign: 'center',
   }

@@ -21,25 +21,24 @@ export const MonthSummaryCard: React.FC<MonthSummaryCardProps> = ({ title, memor
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.colors.card,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginHorizontal: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-    marginTop: theme.spacing.sm,
-    ...theme.shadows.sm,
+    backgroundColor: theme.colors.background, // Match background so it blends
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'baseline',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '800',
     color: theme.colors.text.primary,
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 14,
     color: theme.colors.text.secondary,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });
