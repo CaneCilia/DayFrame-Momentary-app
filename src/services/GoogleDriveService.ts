@@ -1,4 +1,21 @@
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+let GoogleSignin: any;
+let statusCodes: any;
+
+try {
+  const RNGoogleSignin = require('@react-native-google-signin/google-signin');
+  GoogleSignin = RNGoogleSignin.GoogleSignin;
+  statusCodes = RNGoogleSignin.statusCodes;
+} catch (e) {
+  console.warn("Google Signin native module is not available. This is expected in Expo Go. Please use a Dev Build.");
+  GoogleSignin = {
+    configure: () => {},
+    hasPlayServices: async () => false,
+    signIn: async () => { throw new Error("Google Sign In requires a Dev Build."); },
+    getTokens: async () => ({ accessToken: null }),
+    signOut: async () => {},
+  };
+  statusCodes = {};
+}
 
 /**
  * Service for handling true native Google Drive backup and sync.
