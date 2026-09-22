@@ -99,6 +99,28 @@ export const HomeScreen = () => {
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {onThisDayMemories.length > 0 && !loading && (
+          <View style={styles.onThisDayContainer}>
+            <Text style={styles.onThisDayTitle}>On This Day</Text>
+            {onThisDayMemories.map((mem) => {
+              const yearsAgo = parseInt(getTodayDateString().split('-')[0]) - parseInt(mem.date.split('-')[0]);
+              return (
+                <TouchableOpacity 
+                  key={mem.id} 
+                  style={styles.onThisDayCard}
+                  onPress={() => navigation.navigate('MemoryDetail', { memoryId: mem.id })}
+                  activeOpacity={0.8}
+                >
+                  <Image source={{ uri: mem.photoUri }} style={styles.onThisDayImage} />
+                  <View style={styles.onThisDayOverlay}>
+                    <Text style={styles.onThisDayYears}>{yearsAgo} {yearsAgo === 1 ? 'Year' : 'Years'} Ago Today</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+
         {loading ? (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Loading memory...</Text>
@@ -122,28 +144,6 @@ export const HomeScreen = () => {
               <Text style={styles.emptyFrameText}>Capture Today's Moment</Text>
             </Animated.View>
           </TouchableOpacity>
-        )}
-
-        {onThisDayMemories.length > 0 && !loading && (
-          <View style={styles.onThisDayContainer}>
-            <Text style={styles.onThisDayTitle}>On This Day</Text>
-            {onThisDayMemories.map((mem) => {
-              const yearsAgo = parseInt(getTodayDateString().split('-')[0]) - parseInt(mem.date.split('-')[0]);
-              return (
-                <TouchableOpacity 
-                  key={mem.id} 
-                  style={styles.onThisDayCard}
-                  onPress={() => navigation.navigate('MemoryDetail', { memoryId: mem.id })}
-                  activeOpacity={0.8}
-                >
-                  <Image source={{ uri: mem.photoUri }} style={styles.onThisDayImage} />
-                  <View style={styles.onThisDayOverlay}>
-                    <Text style={styles.onThisDayYears}>{yearsAgo} {yearsAgo === 1 ? 'Year' : 'Years'} Ago</Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
         )}
       </ScrollView>
 
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xxl,
   },
   onThisDayContainer: {
-    marginTop: theme.spacing.xl,
+    marginBottom: theme.spacing.xl,
     width: '100%',
   },
   onThisDayTitle: {
