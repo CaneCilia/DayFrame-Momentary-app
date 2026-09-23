@@ -50,7 +50,7 @@ export const SearchScreen = () => {
         <Image source={{ uri: item.photoUri }} style={styles.thumbnail} />
         <View style={styles.textContainer}>
           <Text style={styles.dateText}>
-            {new Date(item.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+            {new Date(item.date + 'T12:00:00Z').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
           </Text>
           <Text style={styles.captionText} numberOfLines={2}>
             {item.caption || 'No caption'}

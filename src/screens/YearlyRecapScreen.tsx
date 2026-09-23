@@ -35,7 +35,7 @@ export const YearlyRecapScreen = ({ navigation }: { navigation: YearlyRecapScree
   }, [db, currentYear]);
 
   const renderStory = ({ item, index }: { item: Memory; index: number }) => {
-    const monthName = new Date(item.date).toLocaleDateString(undefined, { month: 'long' });
+    const monthName = new Date(item.date + 'T12:00:00Z').toLocaleDateString(undefined, { month: 'long', timeZone: 'UTC' });
     return (
       <View style={styles.storyContainer}>
         <Image source={{ uri: item.photoUri }} style={styles.storyImage} />
