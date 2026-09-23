@@ -137,7 +137,15 @@ export const TimelineScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pageTitle}>Your Timeline</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.pageTitle}>Your Timeline</Text>
+        <TouchableOpacity 
+          style={styles.recapButton}
+          onPress={() => navigation.navigate('YearlyRecap')}
+        >
+          <Text style={styles.recapButtonText}>2026 Recap</Text>
+        </TouchableOpacity>
+      </View>
       {memories.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Your timeline is empty</Text>
@@ -177,6 +185,12 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: theme.colors.background 
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    paddingRight: theme.spacing.md,
+  },
   pageTitle: {
     fontSize: 32,
     fontWeight: '800',
@@ -185,6 +199,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
     paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.sm,
+  },
+  recapButton: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  recapButtonText: {
+    color: theme.colors.text.inverse,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   emptyContainer: {
     flex: 1,

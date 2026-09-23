@@ -114,5 +114,5 @@ Everything has been committed and pushed to main.
 
 
 ## Phase 7: Delight & Sharing (V2)
-- [ ] **7.1 Yearly Recap:** Build a specialized horizontal-scrolling "Story" UI (like Spotify Wrapped) to curate the best 12 photos of the year.
-- [ ] **7.2 Export / Share:** Implement expo-sharing and react-native-view-shot to export a stylized Polaroid version of a memory.
+- [x] **7.1 Yearly Recap:** Build a specialized horizontal-scrolling "Story" UI (like Spotify Wrapped) to curate the best 12 photos of the year.
+- [x] **7.2 Export / Share:** Implement expo-sharing and react-native-view-shot to export a stylized Polaroid version of a memory.

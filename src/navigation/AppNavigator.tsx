@@ -16,6 +16,7 @@ import { AuthScreen } from '../screens/AuthScreen';
 import { SearchScreen } from '../screens/SearchScreen';
 import { PrivacyScreen } from '../screens/PrivacyScreen';
 import { StorageScreen } from '../screens/StorageScreen';
+import { YearlyRecapScreen } from '../screens/YearlyRecapScreen';
 
 // Define navigation types
 export type RootStackParamList = {
@@ -33,6 +34,7 @@ export type RootStackParamList = {
   Search: undefined;
   Privacy: undefined;
   Storage: undefined;
+  YearlyRecap: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -110,6 +112,11 @@ export const AppNavigator = () => {
           name="Storage" 
           component={StorageScreen} 
           options={{ title: 'Storage & Data' }}
+        />
+        <Stack.Screen 
+          name="YearlyRecap" 
+          component={YearlyRecapScreen} 
+          options={{ headerShown: false, presentation: 'fullScreenModal' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
