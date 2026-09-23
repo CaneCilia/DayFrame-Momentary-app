@@ -27,3 +27,26 @@ export const getCurrentUser = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   return user;
 };
+
+// Requires @react-native-google-signin/google-signin
+export const signInWithGoogle = async () => {
+  try {
+    const { GoogleSignin } = require('@react-native-google-signin/google-signin');
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+    
+    if (userInfo.data?.idToken) {
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: userInfo.data.idToken,
+      });
+      if (error) throw error;
+      return data;
+    } else {
+      throw new Error('no ID token present!');
+    }
+  } catch (error: any) {
+    console.error(error);
+    throw error;
+  }
+};
