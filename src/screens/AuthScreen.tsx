@@ -21,8 +21,13 @@ export const AuthScreen = ({ navigation }: any) => {
         // Alert.alert('Success', 'Logged in successfully!');
         navigation.goBack();
       } else {
-        await signUpWithEmail(email, password);
-        Alert.alert('Success', 'Check your email for the confirmation link.');
+        const { session } = await signUpWithEmail(email, password);
+        if (session) {
+          navigation.goBack();
+        } else {
+          Alert.alert('Success', 'Check your email for the confirmation link.');
+          setIsLogin(true); // Switch to login for when they return
+        }
       }
     } catch (error: any) {
       Alert.alert('Authentication Error', error.message);
