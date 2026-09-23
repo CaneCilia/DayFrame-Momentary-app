@@ -120,19 +120,38 @@ export const HomeScreen = () => {
           <View style={styles.captureSection}>
             <Text style={styles.sectionHeading}>Capture the Moment</Text>
             <Text style={styles.sectionSubheading}>Save today's moments before they become memories.</Text>
-            <TouchableOpacity style={styles.emptyFrame} onPress={handleCapturePress} activeOpacity={0.9}>
-              <Animated.View style={[styles.emptyFrameInner, { transform: [{ scale: pulseAnim }] }]}>
-                <View style={styles.iconCircle}>
-                  <Text style={styles.plusIcon}>+</Text>
-                </View>
-                <Text style={styles.emptyFrameText}>Take Photo or Upload</Text>
-              </Animated.View>
-            </TouchableOpacity>
+            
+            <View style={styles.captureActionRow}>
+              <TouchableOpacity style={styles.actionCard} onPress={handleCapturePress} activeOpacity={0.9}>
+                <Text style={styles.actionIcon}>📸</Text>
+                <Text style={styles.actionText}>Take Photo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionCard} onPress={handleCapturePress} activeOpacity={0.9}>
+                <Text style={styles.actionIcon}>🎥</Text>
+                <Text style={styles.actionText}>Record Video</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.captureActionRow}>
+              <TouchableOpacity style={styles.actionCardSmall} activeOpacity={0.9}>
+                <Text style={styles.actionIconSmall}>⚡</Text>
+                <Text style={styles.actionTextSmall}>Quick Upload</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionCardSmall} activeOpacity={0.9}>
+                <Text style={styles.actionIconSmall}>✨</Text>
+                <Text style={styles.actionTextSmall}>Effects & Filters</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
         <View style={styles.contributionSection}>
           <Text style={styles.sectionHeading}>Memory Contribution</Text>
+          <Text style={styles.sectionSubheading}>Add stories, locations, and invite friends.</Text>
+          <TouchableOpacity style={styles.contributeButton} activeOpacity={0.8}>
+            <Text style={styles.contributeButtonIcon}>+</Text>
+            <Text style={styles.contributeButtonText}>Contribute to a Memory</Text>
+          </TouchableOpacity>
           <ContributionGraph />
         </View>
 
@@ -253,39 +272,72 @@ const styles = StyleSheet.create({
     color: theme.colors.text.secondary,
     marginBottom: theme.spacing.md,
   },
-  emptyFrame: {
-    width: '100%',
-    aspectRatio: 3 / 4,
+  captureActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.sm,
+  },
+  actionCard: {
+    flex: 1,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    borderWidth: 2,
-    borderColor: theme.colors.border,
-    borderStyle: 'dashed',
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.lg,
+    marginHorizontal: theme.spacing.xs,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
+    ...theme.shadows.sm,
+    aspectRatio: 1,
   },
-  emptyFrameInner: {
-    alignItems: 'center',
+  actionIcon: {
+    fontSize: 40,
+    marginBottom: theme.spacing.sm,
   },
-  iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: theme.colors.background,
+  actionText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+  },
+  actionCardSmall: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    marginHorizontal: theme.spacing.xs,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
+    ...theme.shadows.sm,
   },
-  plusIcon: {
-    fontSize: 32,
-    color: theme.colors.text.secondary,
-    fontWeight: '300',
-    marginTop: -4,
+  actionIconSmall: {
+    fontSize: 20,
+    marginRight: theme.spacing.sm,
   },
-  emptyFrameText: {
-    fontSize: 18,
+  actionTextSmall: {
+    fontSize: 14,
     fontWeight: '600',
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.primary,
+  },
+  contributeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.lg,
+    ...theme.shadows.sm,
+  },
+  contributeButtonIcon: {
+    color: theme.colors.text.inverse,
+    fontSize: 24,
+    fontWeight: '300',
+    marginRight: theme.spacing.sm,
+    marginTop: -2,
+  },
+  contributeButtonText: {
+    color: theme.colors.text.inverse,
+    fontSize: 16,
+    fontWeight: '700',
   },
   memoryContainer: {
     width: '100%',
