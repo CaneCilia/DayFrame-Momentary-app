@@ -102,7 +102,40 @@ export const HomeScreen = () => {
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
-        <ContributionGraph />
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading memory...</Text>
+          </View>
+        ) : todayMemory ? (
+          <View style={styles.memoryContainer}>
+            <Image source={{ uri: todayMemory.photoUri }} style={styles.memoryImage} />
+            <View style={styles.memoryMeta}>
+              {todayMemory.caption ? (
+                <Text style={styles.captionText}>{todayMemory.caption}</Text>
+              ) : null}
+              <Text style={styles.completedText}>Memory Secured ✓</Text>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.captureSection}>
+            <Text style={styles.sectionHeading}>Capture the Moment</Text>
+            <Text style={styles.sectionSubheading}>Save today's moments before they become memories.</Text>
+            <TouchableOpacity style={styles.emptyFrame} onPress={handleCapturePress} activeOpacity={0.9}>
+              <Animated.View style={[styles.emptyFrameInner, { transform: [{ scale: pulseAnim }] }]}>
+                <View style={styles.iconCircle}>
+                  <Text style={styles.plusIcon}>+</Text>
+                </View>
+                <Text style={styles.emptyFrameText}>Take Photo or Upload</Text>
+              </Animated.View>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View style={styles.contributionSection}>
+          <Text style={styles.sectionHeading}>Memory Contribution</Text>
+          <ContributionGraph />
+        </View>
+
         {onThisDayMemories.length > 0 && !loading && (
           <View style={styles.onThisDayContainer}>
             <Text style={styles.onThisDayTitle}>On This Day</Text>
@@ -123,31 +156,6 @@ export const HomeScreen = () => {
               );
             })}
           </View>
-        )}
-
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading memory...</Text>
-          </View>
-        ) : todayMemory ? (
-          <View style={styles.memoryContainer}>
-            <Image source={{ uri: todayMemory.photoUri }} style={styles.memoryImage} />
-            <View style={styles.memoryMeta}>
-              {todayMemory.caption ? (
-                <Text style={styles.captionText}>{todayMemory.caption}</Text>
-              ) : null}
-              <Text style={styles.completedText}>Memory Secured ✓</Text>
-            </View>
-          </View>
-        ) : (
-          <TouchableOpacity style={styles.emptyFrame} onPress={handleCapturePress} activeOpacity={0.9}>
-            <Animated.View style={[styles.emptyFrameInner, { transform: [{ scale: pulseAnim }] }]}>
-              <View style={styles.iconCircle}>
-                <Text style={styles.plusIcon}>+</Text>
-              </View>
-              <Text style={styles.emptyFrameText}>Capture Today's Moment</Text>
-            </Animated.View>
-          </TouchableOpacity>
         )}
       </ScrollView>
 
@@ -217,11 +225,33 @@ const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
+    minHeight: 200,
   },
   loadingText: {
     fontSize: 16,
     color: theme.colors.text.secondary,
     fontWeight: '500',
+    textAlign: 'center',
+  },
+  captureSection: {
+    width: '100%',
+    marginBottom: theme.spacing.xl,
+  },
+  contributionSection: {
+    width: '100%',
+    marginBottom: theme.spacing.xl,
+  },
+  sectionHeading: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.xs,
+    letterSpacing: -0.5,
+  },
+  sectionSubheading: {
+    fontSize: 15,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.md,
   },
   emptyFrame: {
     width: '100%',
