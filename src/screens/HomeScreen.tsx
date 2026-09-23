@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, ScrollView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
-import { getMemoryByDate, getOnThisDayMemories, Memory } from '../database/memories';
+import { getMemoryByDate, getOnThisDayMemories, getCurrentStreak, Memory } from '../database/memories';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -17,6 +17,7 @@ export const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [todayMemory, setTodayMemory] = useState<Memory | null>(null);
   const [onThisDayMemories, setOnThisDayMemories] = useState<Memory[]>([]);
+  const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -56,6 +57,9 @@ export const HomeScreen = () => {
       const pastMemories = await getOnThisDayMemories(db, month, day, year);
       setOnThisDayMemories(pastMemories);
 
+      const currentStreak = await getCurrentStreak(db);
+      setStreak(currentStreak);
+
     } catch (error) {
       console.error('Failed to load memories or streak:', error);
     } finally {
@@ -86,8 +90,13 @@ export const HomeScreen = () => {
           <Text style={styles.greetingText}>Today</Text>
           <Text style={styles.dateText}>{todayStr}</Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
           <SyncIndicator />
+          {streak > 0 && (
+            <View style={styles.streakBadge}>
+              <Text style={styles.streakText}>🔥 {streak} Day Streak</Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -192,6 +201,18 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: theme.colors.text.primary,
     letterSpacing: -0.5,
+  },
+  streakBadge: {
+    marginTop: 8,
+    backgroundColor: 'rgba(255, 149, 0, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  streakText: {
+    color: '#FF9500',
+    fontWeight: '800',
+    fontSize: 12,
   },
   loadingContainer: {
     flex: 1,
