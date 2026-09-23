@@ -99,3 +99,16 @@ Everything has been committed and pushed to main.
   3. Google Drive Integration (V1.1): Start the rigorous native setup for true Google Drive backup.
 
   What would you like to focus on next?
+
+## Current To-Do (V1.1 to V2 Transition)
+
+- [ ] **1. Google Drive Integration (V1.1)**
+  - Implement Drive REST API for silent background photo backup.
+  - Add UI toggle in Settings for Drive Backup.
+- [ ] **2. Monthly Memories (V2)**
+  - Update TimelineScreen to inject sticky headers for each Month.
+  - Build "Month Summary" cards.
+- [ ] **3. Search Engine (V2)**
+  - Add SQLite FTS5 virtual table for searching past captions.
+  - Build a real-time Search screen.
+
