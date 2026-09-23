@@ -32,7 +32,7 @@ export class GoogleDriveService {
         'https://www.googleapis.com/auth/drive.appdata', // Scope for App Data folder
         'https://www.googleapis.com/auth/drive.file'    // Scope for files created by the app
       ],
-      // webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com', // Required for obtaining an access token
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
       offlineAccess: true, 
       forceCodeForRefreshToken: true,
     });
