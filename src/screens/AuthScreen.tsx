@@ -75,6 +75,32 @@ export const AuthScreen = ({ navigation }: any) => {
             )}
           </TouchableOpacity>
         </View>
+
+        <View style={styles.dividerContainer}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>OR</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TouchableOpacity 
+          style={styles.googleButton} 
+          onPress={async () => {
+            try {
+              setLoading(true);
+              const { signInWithGoogle } = require('../lib/auth');
+              await signInWithGoogle();
+              navigation.goBack();
+            } catch (error: any) {
+              Alert.alert('Google Sign-In Error', error.message || 'An error occurred.');
+            } finally {
+              setLoading(false);
+            }
+          }}
+          disabled={loading}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.googleButtonText}>Continue with Google</Text>
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={styles.toggleContainer} activeOpacity={0.7}>
@@ -150,6 +176,35 @@ const styles = StyleSheet.create({
   },
   toggleTextBold: {
     color: theme.colors.text.primary,
+    fontWeight: '700',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: theme.spacing.xl,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.colors.border,
+  },
+  dividerText: {
+    marginHorizontal: theme.spacing.md,
+    color: theme.colors.text.secondary,
+    fontWeight: '600',
+  },
+  googleButton: {
+    backgroundColor: theme.colors.background,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.pill,
+    alignItems: 'center',
+    ...theme.shadows.sm,
+  },
+  googleButtonText: {
+    color: theme.colors.text.primary,
+    fontSize: 16,
     fontWeight: '700',
   }
 });
