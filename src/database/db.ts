@@ -39,18 +39,8 @@ export async function initializeDatabase(db: SQLiteDatabase) {
       );
     `);
 
-    // Handle FTS table separately to avoid execAsync native crashes
-    try {
-      await db.runAsync(`DROP TRIGGER IF EXISTS memories_ai;`);
-      await db.runAsync(`DROP TRIGGER IF EXISTS memories_ad;`);
-      await db.runAsync(`DROP TRIGGER IF EXISTS memories_au;`);
-      await db.runAsync(`DROP TABLE IF EXISTS memories_fts;`);
-    } catch (e) {
-      console.log('Skipping FTS drop', e);
-    }
-
     await db.runAsync(`
-      CREATE VIRTUAL TABLE memories_fts USING fts5(
+      CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(
         caption,
         date,
         content='memories',
@@ -59,24 +49,23 @@ export async function initializeDatabase(db: SQLiteDatabase) {
     `);
 
     await db.runAsync(`
-      INSERT INTO memories_fts(rowid, caption, date) 
-      SELECT rowid, caption, date FROM memories;
+      INSERT INTO memories_fts(memories_fts) VALUES('rebuild');
     `);
 
     await db.runAsync(`
-      CREATE TRIGGER memories_ai AFTER INSERT ON memories BEGIN
+      CREATE TRIGGER IF NOT EXISTS memories_ai AFTER INSERT ON memories BEGIN
         INSERT INTO memories_fts(rowid, caption, date) VALUES (new.rowid, new.caption, new.date);
       END;
     `);
 
     await db.runAsync(`
-      CREATE TRIGGER memories_ad AFTER DELETE ON memories BEGIN
+      CREATE TRIGGER IF NOT EXISTS memories_ad AFTER DELETE ON memories BEGIN
         INSERT INTO memories_fts(memories_fts, rowid, caption, date) VALUES('delete', old.rowid, old.caption, old.date);
       END;
     `);
 
     await db.runAsync(`
-      CREATE TRIGGER memories_au AFTER UPDATE ON memories BEGIN
+      CREATE TRIGGER IF NOT EXISTS memories_au AFTER UPDATE ON memories BEGIN
         INSERT INTO memories_fts(memories_fts, rowid, caption, date) VALUES('delete', old.rowid, old.caption, old.date);
         INSERT INTO memories_fts(rowid, caption, date) VALUES (new.rowid, new.caption, new.date);
       END;

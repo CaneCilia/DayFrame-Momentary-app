@@ -41,6 +41,28 @@ export const SearchScreen = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [query, db]);
 
+  const renderHighlightedText = (text: string | undefined | null) => {
+    if (!text) return <Text style={styles.captionText}>No caption</Text>;
+    
+    // Split by <b> and </b> tags
+    const parts = text.split(/(<b>.*?<\/b>)/g);
+    
+    return (
+      <Text style={styles.captionText} numberOfLines={2}>
+        {parts.map((part, index) => {
+          if (part.startsWith('<b>') && part.endsWith('</b>')) {
+            return (
+              <Text key={index} style={{ fontWeight: '800', color: theme.colors.primary }}>
+                {part.replace(/<\/?b>/g, '')}
+              </Text>
+            );
+          }
+          return <Text key={index}>{part}</Text>;
+        })}
+      </Text>
+    );
+  };
+
   const renderItem = ({ item }: { item: Memory }) => {
     return (
       <TouchableOpacity 
@@ -53,9 +75,7 @@ export const SearchScreen = () => {
           <Text style={styles.dateText}>
             {new Date(item.date + 'T12:00:00Z').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
           </Text>
-          <Text style={styles.captionText} numberOfLines={2}>
-            {item.caption || 'No caption'}
-          </Text>
+          {renderHighlightedText(item.highlighted_caption || item.caption)}
         </View>
       </TouchableOpacity>
     );

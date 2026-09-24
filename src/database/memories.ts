@@ -6,6 +6,7 @@ export interface Memory {
   photoUri: string;
   caption: string | null;
   sync_status: string;
+  highlighted_caption?: string;
 }
 
 /**
@@ -141,7 +142,8 @@ export const searchMemories = async (db: SQLiteDatabase, query: string): Promise
 
   try {
     const results = await db.getAllAsync<Memory>(
-      `SELECT m.* FROM memories m
+      `SELECT m.*, highlight(memories_fts, 0, '<b>', '</b>') as highlighted_caption 
+       FROM memories m
        JOIN memories_fts fts ON m.rowid = fts.rowid
        WHERE memories_fts MATCH ?
        ORDER BY fts.rank`,
