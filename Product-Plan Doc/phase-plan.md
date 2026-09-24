@@ -123,4 +123,4 @@ Everything has been committed and pushed to main.
 - [x] **8.3 Gallery Features:** Build a "Quick Upload" feature to easily select, preview, and import memories from the device gallery.
 
 ## Phase 9: UI Overhaul (V3)
-- [ ] **9.1 Global UI Update:** Apply the new V3 UI design language across all pages (Home, Search, Calendar, Timeline) ensuring a premium, consistent user experience.
+- [x] **9.1 Global UI Update:** Apply the new V3 UI design language across all pages (Home, Search, Calendar, Timeline) ensuring a premium, consistent user experience.
