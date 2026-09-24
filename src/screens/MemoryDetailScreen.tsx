@@ -68,7 +68,7 @@ export const MemoryDetailScreen = () => {
     day: 'numeric',
   });
 
-  const polaroidRef = React.useRef<View>(null);
+  const polaroidRef = React.useRef<any>(null);
   const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);

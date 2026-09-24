@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getAllMemories } from '../database/memories';
