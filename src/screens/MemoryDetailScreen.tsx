@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, Dimensions, TouchableOpacity, Alert, Modal, ActivityIndicator } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import { RouteProp, useRoute } from '@react-navigation/native';
 
@@ -69,20 +69,38 @@ export const MemoryDetailScreen = () => {
   });
 
   const polaroidRef = React.useRef<View>(null);
+  const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleShare = async () => {
     try {
+      setIsGenerating(true);
       const uri = await captureRef(polaroidRef, {
         format: 'png',
         quality: 1,
       });
-      
+      setPreviewImageUri(uri);
+      setShareModalVisible(true);
+    } catch (error: any) {
+      console.error('Failed to generate polaroid:', error);
+      Alert.alert('Error', 'Failed to generate share preview.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const confirmShare = async () => {
+    if (!previewImageUri) return;
+    
+    try {
       if (!(await Sharing.isAvailableAsync())) {
         Alert.alert('Sharing is not available on this device');
         return;
       }
       
-      await Sharing.shareAsync(uri, { dialogTitle: 'Share your memory' });
+      await Sharing.shareAsync(previewImageUri, { dialogTitle: 'Share your memory' });
+      setShareModalVisible(false);
     } catch (error: any) {
       console.error('Failed to share memory:', error);
       Alert.alert('Failed to share memory', error.message || 'An error occurred.');
@@ -97,8 +115,12 @@ export const MemoryDetailScreen = () => {
           <View style={styles.dragIndicator} />
           <View style={styles.headerRow}>
             <Text style={styles.dateText}>{formattedDate}</Text>
-            <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
-              <Text style={styles.shareText}>Share</Text>
+            <TouchableOpacity onPress={handleShare} style={styles.shareButton} disabled={isGenerating}>
+              {isGenerating ? (
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+              ) : (
+                <Text style={styles.shareText}>Share</Text>
+              )}
             </TouchableOpacity>
           </View>
           {memory.caption ? (
@@ -108,6 +130,46 @@ export const MemoryDetailScreen = () => {
           )}
         </View>
       </ScrollView>
+
+      {/* Share Preview Modal */}
+      <Modal
+        visible={shareModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShareModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Share Preview</Text>
+            
+            {previewImageUri && (
+              <View style={styles.previewImageWrapper}>
+                <Image 
+                  source={{ uri: previewImageUri }} 
+                  style={styles.previewImage} 
+                  resizeMode="contain" 
+                />
+              </View>
+            )}
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.cancelButton} 
+                onPress={() => setShareModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.confirmShareButton} 
+                onPress={confirmShare}
+              >
+                <Text style={styles.confirmShareText}>Share Polaroid</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Off-screen Polaroid View for Sharing */}
       <View style={{ position: 'absolute', left: -9999, top: -9999 }}>
@@ -230,5 +292,68 @@ const styles = StyleSheet.create({
     marginTop: 40,
     fontWeight: '600',
     letterSpacing: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.background,
+    borderTopLeftRadius: theme.borderRadius.xl,
+    borderTopRightRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    paddingBottom: 40,
+    maxHeight: '90%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.md,
+    textAlign: 'center',
+  },
+  previewImageWrapper: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: '#EAEAEA',
+    borderRadius: theme.borderRadius.md,
+    overflow: 'hidden',
+    marginBottom: theme.spacing.lg,
+    ...theme.shadows.sm,
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 14,
+    backgroundColor: theme.colors.border,
+    borderRadius: theme.borderRadius.pill,
+    marginRight: theme.spacing.sm,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+  },
+  confirmShareButton: {
+    flex: 2,
+    paddingVertical: 14,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.pill,
+    alignItems: 'center',
+    ...theme.shadows.sm,
+  },
+  confirmShareText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.text.inverse,
   }
 });
