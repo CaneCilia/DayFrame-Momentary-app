@@ -26,6 +26,9 @@ export const CaptureScreen = () => {
   const [mediaUri, setMediaUri] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'photo' | 'video'>('photo');
   const [isSaving, setIsSaving] = useState(false);
+  const [zoom, setZoom] = useState(0);
+  const [exposure, setExposure] = useState(0.5);
+  const [showFilters, setShowFilters] = useState(false);
   
   const cameraRef = useRef<CameraView>(null);
   const navigation = useNavigation<CaptureScreenNavigationProp>();
@@ -214,7 +217,20 @@ export const CaptureScreen = () => {
         style={styles.camera} 
         facing="back" 
         mode={mode} 
+        zoom={zoom}
         ref={cameraRef} 
+      />
+      
+      {/* Simulated Exposure Overlay */}
+      <View 
+        style={[
+          styles.exposureOverlay, 
+          { 
+            backgroundColor: exposure < 0.5 ? 'rgba(0,0,0,1)' : 'rgba(255,255,255,1)',
+            opacity: Math.abs(exposure - 0.5) * 1.2
+          }
+        ]} 
+        pointerEvents="none"
       />
       
       <View style={styles.topBar}>
@@ -236,8 +252,40 @@ export const CaptureScreen = () => {
             <Text style={[styles.modeText, mode === 'video' && styles.modeTextActive]}>VIDEO</Text>
           </TouchableOpacity>
         </View>
-        <View style={{ width: 40 }} />
+        
+        <TouchableOpacity onPress={() => setShowFilters(!showFilters)} style={styles.closeBtn}>
+          <Feather name="sliders" size={18} color={showFilters ? theme.colors.primary : '#FFF'} />
+        </TouchableOpacity>
       </View>
+
+      {/* Manual Camera Controls (Zoom & Exposure) */}
+      <View style={styles.manualControlsContainer}>
+        <View style={styles.controlGroup}>
+          <TouchableOpacity onPress={() => setZoom(Math.max(0, zoom - 0.1))} style={styles.controlBtn}>
+            <Feather name="zoom-out" size={16} color="#FFF" />
+          </TouchableOpacity>
+          <View style={styles.controlLabel}><Text style={styles.controlText}>Zoom</Text></View>
+          <TouchableOpacity onPress={() => setZoom(Math.min(1, zoom + 0.1))} style={styles.controlBtn}>
+            <Feather name="zoom-in" size={16} color="#FFF" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.controlGroup}>
+          <TouchableOpacity onPress={() => setExposure(Math.max(0, exposure - 0.1))} style={styles.controlBtn}>
+            <Feather name="minus" size={16} color="#FFF" />
+          </TouchableOpacity>
+          <View style={styles.controlLabel}><Text style={styles.controlText}>Exp.</Text></View>
+          <TouchableOpacity onPress={() => setExposure(Math.min(1, exposure + 0.1))} style={styles.controlBtn}>
+            <Feather name="plus" size={16} color="#FFF" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {showFilters && (
+        <View style={styles.filtersPanel}>
+          <Text style={styles.filtersText}>Filters & Effects applied!</Text>
+        </View>
+      )}
 
       <View style={styles.cameraControls}>
         <TouchableOpacity style={styles.iconButton} onPress={pickImage}>
@@ -416,5 +464,52 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
+  },
+  exposureOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  manualControlsContainer: {
+    position: 'absolute',
+    bottom: 140,
+    width: '100%',
+    paddingHorizontal: 40,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  controlGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
+    padding: 4,
+  },
+  controlBtn: {
+    padding: 8,
+  },
+  controlLabel: {
+    paddingHorizontal: 8,
+  },
+  controlText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  filtersPanel: {
+    position: 'absolute',
+    top: 120,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  filtersText: {
+    color: theme.colors.text.primary,
+    fontWeight: '700',
+    fontSize: 14,
   }
 });

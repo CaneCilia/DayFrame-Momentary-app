@@ -128,17 +128,6 @@ export const HomeScreen = () => {
                   <Text style={styles.actionText}>Video</Text>
                 </TouchableOpacity>
               </View>
-              
-              <View style={styles.captureActionRow}>
-                <TouchableOpacity style={styles.actionCardSmall} activeOpacity={0.8}>
-                  <Feather name="upload" size={18} color={theme.colors.text.secondary} style={styles.smallIcon} />
-                  <Text style={styles.actionTextSmall}>Quick Upload</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.actionCardSmall} activeOpacity={0.8}>
-                  <Feather name="sliders" size={18} color={theme.colors.text.secondary} style={styles.smallIcon} />
-                  <Text style={styles.actionTextSmall}>Filters</Text>
-                </TouchableOpacity>
-              </View>
             </View>
           )}
 

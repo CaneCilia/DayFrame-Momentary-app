@@ -124,18 +124,22 @@ export const SearchScreen = () => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Featured Stories</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
-                {[1, 2, 3].map((i) => (
-                  <View key={i} style={styles.templateCard}>
+                {[
+                  { id: 1, title: 'Summer 2026', meta: '12 Memories', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80' },
+                  { id: 2, title: 'Japan Trip', meta: '45 Memories', img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80' },
+                  { id: 3, title: 'Graduation', meta: '8 Memories', img: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=80' }
+                ].map((item) => (
+                  <View key={item.id} style={styles.templateCard}>
                     <View style={styles.templateThumbWrapper}>
-                      <View style={[styles.templateThumb, { backgroundColor: '#E0E0E0' }]} />
+                      <Image source={{ uri: item.img }} style={styles.templateThumb} />
                       <LinearGradient
                         colors={['transparent', 'rgba(0,0,0,0.8)']}
                         style={styles.templateGradient}
                       />
                     </View>
                     <View style={styles.templateInfo}>
-                      <Text style={styles.templateName}>Chapter {i}</Text>
-                      <Text style={styles.templateMeta}>12 Memories</Text>
+                      <Text style={styles.templateName}>{item.title}</Text>
+                      <Text style={styles.templateMeta}>{item.meta}</Text>
                     </View>
                   </View>
                 ))}

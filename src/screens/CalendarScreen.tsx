@@ -49,11 +49,17 @@ export const CalendarScreen = () => {
     }
   };
 
+  const [eventModalVisible, setEventModalVisible] = useState(false);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.pageTitle}>Timeline</Text>
+          <TouchableOpacity onPress={() => setEventModalVisible(true)} style={styles.addEventBtn}>
+            <Feather name="plus" size={16} color={theme.colors.text.inverse} style={{ marginRight: 6 }} />
+            <Text style={styles.addEventBtnText}>Add Event</Text>
+          </TouchableOpacity>
         </View>
         
         <View style={styles.calendarWrapper}>
@@ -126,6 +132,46 @@ export const CalendarScreen = () => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Add Event Modal */}
+      {eventModalVisible && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Schedule Event</Text>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Event Title</Text>
+              <View style={styles.inputWrapper}>
+                <Feather name="calendar" size={16} color={theme.colors.text.secondary} style={styles.inputIcon} />
+                <Text style={styles.mockInputText}>Summer Roadtrip</Text>
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Date</Text>
+              <View style={styles.inputWrapper}>
+                <Feather name="clock" size={16} color={theme.colors.text.secondary} style={styles.inputIcon} />
+                <Text style={styles.mockInputText}>August 15, 2026</Text>
+              </View>
+            </View>
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.cancelBtn} 
+                onPress={() => setEventModalVisible(false)}
+              >
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.saveBtn} 
+                onPress={() => setEventModalVisible(false)}
+              >
+                <Text style={styles.saveBtnText}>Save Event</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -280,5 +326,93 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     width: 32,
     textAlign: 'center',
+  },
+  addEventBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: theme.borderRadius.pill,
+  },
+  addEventBtnText: {
+    color: theme.colors.text.inverse,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0, bottom: 0, left: 0, right: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.card,
+    borderTopLeftRadius: theme.borderRadius.xl,
+    borderTopRightRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    paddingBottom: 40,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.xl,
+  },
+  inputGroup: {
+    marginBottom: theme.spacing.lg,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text.secondary,
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    backgroundColor: theme.colors.background,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  mockInputText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: theme.colors.text.primary,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: theme.spacing.md,
+  },
+  cancelBtn: {
+    flex: 1,
+    paddingVertical: 16,
+    marginRight: theme.spacing.sm,
+    backgroundColor: theme.colors.border,
+    borderRadius: theme.borderRadius.pill,
+    alignItems: 'center',
+  },
+  cancelBtnText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+  },
+  saveBtn: {
+    flex: 2,
+    paddingVertical: 16,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.pill,
+    alignItems: 'center',
+  },
+  saveBtnText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.text.inverse,
   }
 });
