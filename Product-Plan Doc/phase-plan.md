@@ -105,10 +105,10 @@ Everything has been committed and pushed to main.
 - [x] **1. Google Drive Integration (V1.1)**
   - [x] Implement Drive REST API for silent background photo backup.
   - [x] Add UI toggle in Settings for Drive Backup.
-- [ ] **2. Monthly Memories (V2)**
+- [x] **2. Monthly Memories (V2)**
   - Update TimelineScreen to inject sticky headers for each Month.
   - Build "Month Summary" cards.
-- [ ] **3. Search Engine (V2)**
+- [x] **3. Search Engine (V2)**
   - Add SQLite FTS5 virtual table for searching past captions.
   - Build a real-time Search screen.
 
@@ -116,3 +116,11 @@ Everything has been committed and pushed to main.
 ## Phase 7: Delight & Sharing (V2)
 - [x] **7.1 Yearly Recap:** Build a specialized horizontal-scrolling "Story" UI (like Spotify Wrapped) to curate the best 12 photos of the year.
 - [x] **7.2 Export / Share:** Implement expo-sharing and react-native-view-shot to export a stylized Polaroid version of a memory.
+
+## Phase 8: Advanced Capture & Gallery (V3)
+- [ ] **8.1 Access & Permissions:** Implement robust permission flows for Camera, Microphone, and Media Library.
+- [ ] **8.2 Camera Controls:** Build a custom camera interface supporting both photo capture and video recording.
+- [ ] **8.3 Gallery Features:** Build a "Quick Upload" feature to easily select, preview, and import memories from the device gallery.
+
+## Phase 9: UI Overhaul (V3)
+- [ ] **9.1 Global UI Update:** Apply the new V3 UI design language across all pages (Home, Search, Calendar, Timeline) ensuring a premium, consistent user experience.
