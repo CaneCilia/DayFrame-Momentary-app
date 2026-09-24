@@ -13,6 +13,8 @@ type TimelineScreenNavigationProp = NativeStackNavigationProp<RootStackParamList
 interface MemoryRow {
   id: string;
   items: Memory[];
+  isSummary?: boolean;
+  monthTitle?: string;
 }
 
 interface MonthSection {
@@ -49,6 +51,15 @@ export const TimelineScreen = () => {
     const flushGroup = () => {
       if (currentGroup.length > 0) {
         const rows: MemoryRow[] = [];
+        
+        // Inject Month Summary Card as the first row
+        rows.push({
+          id: `summary-${currentMonth}`,
+          isSummary: true,
+          monthTitle: currentMonth,
+          items: currentGroup,
+        });
+
         for (let i = 0; i < currentGroup.length; i += 3) {
           rows.push({
             id: currentGroup[i].id + '-row',
@@ -80,6 +91,10 @@ export const TimelineScreen = () => {
   }, [memories]);
 
   const renderItem = ({ item }: { item: MemoryRow }) => {
+    if (item.isSummary && item.monthTitle) {
+      return <MonthSummaryCard title={item.monthTitle} memories={item.items} />;
+    }
+
     return (
       <View style={styles.rowContainer}>
         {item.items.map(memory => (
@@ -105,10 +120,9 @@ export const TimelineScreen = () => {
   };
 
   const renderSectionHeader = ({ section }: { section: MonthSection }) => {
-    const memoryCount = section.data.reduce((total, row) => total + row.items.length, 0);
     return (
       <View style={styles.sectionHeader}>
-        <MonthSummaryCard title={section.title} memoryCount={memoryCount} />
+        <Text style={styles.sectionHeaderText}>{section.title}</Text>
       </View>
     );
   };
@@ -233,12 +247,19 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xl,
   },
   sectionHeader: {
-    backgroundColor: theme.colors.background,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
+    borderRadius: theme.borderRadius.sm,
+    backdropFilter: 'blur(10px)',
   },
   sectionHeaderText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '800',
     color: theme.colors.text.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   rowContainer: {
     flexDirection: 'row',
