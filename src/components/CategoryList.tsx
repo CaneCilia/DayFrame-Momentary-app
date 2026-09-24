@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { theme } from '../utils/theme';
+import { Feather } from '@expo/vector-icons';
 
 export interface Category {
   id: string;
   label: string;
-  icon: string;
+  icon: keyof typeof Feather.glyphMap;
 }
 
 interface CategoryListProps {
@@ -35,7 +36,12 @@ export const CategoryList: React.FC<CategoryListProps> = ({ categories, title, o
               onPress={() => handlePress(cat)}
               activeOpacity={0.7}
             >
-              <Text style={styles.icon}>{cat.icon}</Text>
+              <Feather 
+                name={cat.icon} 
+                size={16} 
+                color={isActive ? theme.colors.text.inverse : theme.colors.text.secondary} 
+                style={styles.icon}
+              />
               <Text style={[styles.label, isActive && styles.labelActive]}>{cat.label}</Text>
             </TouchableOpacity>
           );
@@ -50,26 +56,27 @@ const styles = StyleSheet.create({
     marginVertical: theme.spacing.md,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '800',
     color: theme.colors.text.primary,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
+    letterSpacing: -0.5,
   },
   scrollContent: {
     paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.xs, // Shadow room
+    paddingBottom: theme.spacing.sm,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.card,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderRadius: theme.borderRadius.pill,
     marginRight: theme.spacing.sm,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: 'rgba(0,0,0,0.05)',
     ...theme.shadows.sm,
   },
   chipActive: {
@@ -77,8 +84,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.primary,
   },
   icon: {
-    fontSize: 16,
-    marginRight: 6,
+    marginRight: 8,
   },
   label: {
     fontSize: 14,

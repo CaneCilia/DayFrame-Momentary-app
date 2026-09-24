@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Text, StyleSheet, SectionList, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, SectionList, Image, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getAllMemories, Memory } from '../database/memories';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -7,6 +7,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
 import { MonthSummaryCard } from '../components/MonthSummaryCard';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 
 type TimelineScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Timeline'>;
 
@@ -105,9 +107,11 @@ export const TimelineScreen = () => {
             activeOpacity={0.8}
           >
             <Image source={{ uri: memory.photoUri }} style={styles.thumbnail} />
-            <View style={styles.gradientOverlay} />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.8)']}
+              style={styles.gradientOverlay}
+            />
             <Text style={styles.dateText}>
-              {/* Parse strictly to avoid timezone jumping for display */}
               {new Date(memory.date + 'T12:00:00Z').toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' })}
             </Text>
           </TouchableOpacity>
@@ -150,44 +154,50 @@ export const TimelineScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={styles.pageTitle}>Your Timeline</Text>
-        <TouchableOpacity 
-          style={styles.recapButton}
-          onPress={() => navigation.navigate('YearlyRecap')}
-        >
-          <Text style={styles.recapButtonText}>2026 Recap</Text>
-        </TouchableOpacity>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.headerRow}>
+          <Text style={styles.pageTitle}>Timeline</Text>
+          <TouchableOpacity 
+            style={styles.recapButton}
+            onPress={() => navigation.navigate('YearlyRecap')}
+            activeOpacity={0.8}
+          >
+            <Feather name="play-circle" size={16} color={theme.colors.text.inverse} style={{ marginRight: 6 }} />
+            <Text style={styles.recapButtonText}>2026 Recap</Text>
+          </TouchableOpacity>
+        </View>
+        {memories.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Feather name="grid" size={48} color={theme.colors.border} style={{ marginBottom: 16 }} />
+            <Text style={styles.emptyText}>Your timeline is empty</Text>
+            <Text style={styles.emptySubText}>Capture today's moment to start your journey.</Text>
+          </View>
+        ) : (
+          <View style={styles.listWrapper}>
+            <SectionList
+              ref={sectionListRef}
+              sections={sections}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              renderSectionHeader={renderSectionHeader}
+              contentContainerStyle={styles.listContent}
+              stickySectionHeadersEnabled={true}
+              showsVerticalScrollIndicator={false}
+            />
+            {years.length > 1 && (
+              <View style={styles.scrubberContainer}>
+                {years.map(year => (
+                  <TouchableOpacity key={year} onPress={() => scrollToYear(year)}>
+                    <Text style={styles.scrubberText}>{year}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
       </View>
-      {memories.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Your timeline is empty</Text>
-          <Text style={styles.emptySubText}>Capture today's moment to start your journey.</Text>
-        </View>
-      ) : (
-        <View style={styles.listWrapper}>
-          <SectionList
-            ref={sectionListRef}
-            sections={sections}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            renderSectionHeader={renderSectionHeader}
-            contentContainerStyle={styles.listContent}
-            stickySectionHeadersEnabled={true}
-          />
-          {years.length > 1 && (
-            <View style={styles.scrubberContainer}>
-              {years.map(year => (
-                <TouchableOpacity key={year} onPress={() => scrollToYear(year)}>
-                  <Text style={styles.scrubberText}>{year}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
-      )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -195,6 +205,10 @@ const windowWidth = Dimensions.get('window').width;
 const itemSize = (windowWidth - theme.spacing.md * 2 - theme.spacing.sm * 2) / 3;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
   container: { 
     flex: 1, 
     backgroundColor: theme.colors.background 
@@ -202,33 +216,37 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
-    paddingRight: theme.spacing.md,
+    alignItems: 'center',
+    paddingRight: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
   },
   pageTitle: {
     fontSize: 32,
     fontWeight: '800',
     color: theme.colors.text.primary,
     letterSpacing: -0.5,
-    paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.lg,
   },
   recapButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: theme.colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: theme.borderRadius.pill,
+    ...theme.shadows.md,
   },
   recapButtonText: {
     color: theme.colors.text.inverse,
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingBottom: 100,
   },
   emptyText: { 
     textAlign: 'center', 
@@ -243,23 +261,22 @@ const styles = StyleSheet.create({
     fontSize: 16, 
   },
   listContent: { 
-    padding: theme.spacing.md,
-    paddingBottom: theme.spacing.xl,
+    padding: theme.spacing.lg,
+    paddingBottom: theme.spacing.xxl,
   },
   sectionHeader: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(249, 249, 251, 0.95)',
     paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.xs,
     marginBottom: theme.spacing.xs,
     borderRadius: theme.borderRadius.sm,
-    backdropFilter: 'blur(10px)',
   },
   sectionHeaderText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '800',
     color: theme.colors.text.primary,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -270,15 +287,18 @@ const styles = StyleSheet.create({
     height: itemSize * 1.33,
     margin: theme.spacing.xs,
     position: 'relative',
-    borderRadius: theme.borderRadius.sm,
+    borderRadius: theme.borderRadius.md,
     overflow: 'hidden',
     backgroundColor: theme.colors.card,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
     ...theme.shadows.sm,
   },
   emptyItem: {
     backgroundColor: 'transparent',
     elevation: 0,
     shadowOpacity: 0,
+    borderWidth: 0,
   },
   thumbnail: {
     width: '100%',
@@ -290,19 +310,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: '40%',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    height: '50%',
   },
   dateText: {
     position: 'absolute',
-    bottom: theme.spacing.xs,
-    left: theme.spacing.xs,
+    bottom: theme.spacing.sm,
+    left: theme.spacing.sm,
     color: theme.colors.text.inverse,
-    fontSize: 12,
-    fontWeight: '700',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: 0, height: 1},
-    textShadowRadius: 2
+    fontSize: 13,
+    fontWeight: '800',
   },
   listWrapper: {
     flex: 1,
@@ -310,21 +326,22 @@ const styles = StyleSheet.create({
   },
   scrubberContainer: {
     position: 'absolute',
-    right: theme.spacing.sm,
-    top: '25%',
-    bottom: '25%',
+    right: theme.spacing.md,
+    top: '30%',
     justifyContent: 'center',
-    paddingHorizontal: 6,
-    paddingVertical: theme.spacing.sm,
-    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    paddingHorizontal: 8,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
     ...theme.shadows.sm,
   },
   scrubberText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
     color: theme.colors.text.secondary,
-    marginVertical: theme.spacing.xs,
+    marginVertical: theme.spacing.sm,
     textAlign: 'center',
   }
 });

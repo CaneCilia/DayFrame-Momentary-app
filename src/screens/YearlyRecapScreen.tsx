@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 
 type YearlyRecapScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'YearlyRecap'>;
 
@@ -127,7 +128,7 @@ export const YearlyRecapScreen = ({ navigation }: { navigation: YearlyRecapScree
 
       <View style={styles.header}>
         <View style={styles.musicTag}>
-          <Text style={styles.musicIcon}>🎵</Text>
+          <Feather name="music" size={12} color="#FFF" style={styles.musicIcon} />
           <Text style={styles.musicText}>{currentYear} in Review Mix</Text>
         </View>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>

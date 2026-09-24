@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions, ScrollView, SafeAreaView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Memory, searchMemories } from '../database/memories';
 import { CategoryList } from '../components/CategoryList';
@@ -7,6 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
+import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type SearchScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Search'>;
 
@@ -44,7 +46,6 @@ export const SearchScreen = () => {
   const renderHighlightedText = (text: string | undefined | null) => {
     if (!text) return <Text style={styles.captionText}>No caption</Text>;
     
-    // Split by <b> and </b> tags
     const parts = text.split(/(<b>.*?<\/b>)/g);
     
     return (
@@ -68,7 +69,7 @@ export const SearchScreen = () => {
       <TouchableOpacity 
         style={styles.itemContainer} 
         onPress={() => navigation.navigate('MemoryDetail', { memoryId: item.id })}
-        activeOpacity={0.8}
+        activeOpacity={0.9}
       >
         <Image source={{ uri: item.photoUri }} style={styles.thumbnail} />
         <View style={styles.textContainer}>
@@ -77,113 +78,153 @@ export const SearchScreen = () => {
           </Text>
           {renderHighlightedText(item.highlighted_caption || item.caption)}
         </View>
+        <Feather name="chevron-right" size={20} color={theme.colors.border} style={styles.chevron} />
       </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.pageTitle}>Search</Text>
-      <View style={styles.searchBarContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search captions..."
-          placeholderTextColor={theme.colors.text.secondary}
-          value={query}
-          onChangeText={setQuery}
-          autoFocus
-        />
-      </View>
-      
-      {query.trim().length === 0 ? (
-        <ScrollView style={styles.v3Container}>
-          <CategoryList 
-            title="Explore Slideshows"
-            categories={[
-              { id: 'travel', label: 'Travel', icon: '✈️' },
-              { id: 'birthday', label: 'Birthday', icon: '🎂' },
-              { id: 'wedding', label: 'Wedding', icon: '💍' },
-              { id: 'family', label: 'Family', icon: '👨‍👩‍👧' },
-              { id: 'nature', label: 'Nature', icon: '🌲' },
-            ]} 
-          />
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Featured Templates</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
-              {[1, 2, 3].map((i) => (
-                <View key={i} style={styles.templateCard}>
-                  <View style={styles.templateThumb} />
-                  <Text style={styles.templateName}>Cinematic Story {i}</Text>
-                  <Text style={styles.templateMeta}>12 Photos • Travel</Text>
-                  <TouchableOpacity style={styles.useButton}>
-                    <Text style={styles.useButtonText}>Use Template</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Searches</Text>
-            <View style={styles.recentSearchChips}>
-              {['beach', 'summer 2026', 'birthday party'].map(term => (
-                <TouchableOpacity key={term} style={styles.recentChip} onPress={() => setQuery(term)}>
-                  <Text style={styles.recentChipText}>{term}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </ScrollView>
-      ) : query.trim().length > 0 && results.length === 0 && !isSearching ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No results found</Text>
-          <Text style={styles.emptySubText}>Try different keywords.</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.pageTitle}>Explore</Text>
         </View>
-      ) : (
-        <FlatList
-          data={results}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          keyboardShouldPersistTaps="handled"
-        />
-      )}
-    </View>
+        
+        <View style={styles.searchBarContainer}>
+          <View style={styles.searchInputWrapper}>
+            <Feather name="search" size={20} color={theme.colors.text.secondary} style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search moments, locations, people..."
+              placeholderTextColor={theme.colors.text.secondary}
+              value={query}
+              onChangeText={setQuery}
+            />
+            {query.length > 0 && (
+              <TouchableOpacity onPress={() => setQuery('')} style={styles.clearBtn}>
+                <Feather name="x-circle" size={18} color={theme.colors.text.secondary} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+        
+        {query.trim().length === 0 ? (
+          <ScrollView style={styles.v3Container} showsVerticalScrollIndicator={false}>
+            <CategoryList 
+              title="Collections"
+              categories={[
+                { id: 'travel', label: 'Travel', icon: 'map-pin' },
+                { id: 'birthday', label: 'Celebrations', icon: 'gift' },
+                { id: 'family', label: 'Family', icon: 'users' },
+                { id: 'nature', label: 'Nature', icon: 'image' },
+                { id: 'favorites', label: 'Favorites', icon: 'heart' },
+              ]} 
+            />
+            
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Featured Stories</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
+                {[1, 2, 3].map((i) => (
+                  <View key={i} style={styles.templateCard}>
+                    <View style={styles.templateThumbWrapper}>
+                      <View style={[styles.templateThumb, { backgroundColor: '#E0E0E0' }]} />
+                      <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.8)']}
+                        style={styles.templateGradient}
+                      />
+                    </View>
+                    <View style={styles.templateInfo}>
+                      <Text style={styles.templateName}>Chapter {i}</Text>
+                      <Text style={styles.templateMeta}>12 Memories</Text>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+            
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Recent Searches</Text>
+              <View style={styles.recentSearchChips}>
+                {['beach trip', 'summer 2026', 'graduation'].map(term => (
+                  <TouchableOpacity key={term} style={styles.recentChip} onPress={() => setQuery(term)}>
+                    <Feather name="clock" size={14} color={theme.colors.text.secondary} style={{ marginRight: 6 }} />
+                    <Text style={styles.recentChipText}>{term}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        ) : query.trim().length > 0 && results.length === 0 && !isSearching ? (
+          <View style={styles.emptyContainer}>
+            <Feather name="search" size={48} color={theme.colors.border} style={{ marginBottom: 16 }} />
+            <Text style={styles.emptyText}>No moments found</Text>
+            <Text style={styles.emptySubText}>Try a different keyword.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={results}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContent}
+            keyboardShouldPersistTaps="handled"
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
   container: { 
     flex: 1, 
     backgroundColor: theme.colors.background 
+  },
+  header: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
   },
   pageTitle: {
     fontSize: 32,
     fontWeight: '800',
     color: theme.colors.text.primary,
     letterSpacing: -0.5,
-    paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.sm,
   },
   searchBarContainer: {
-    padding: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.md,
+  },
+  searchInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: theme.colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+    ...theme.shadows.sm,
+  },
+  searchIcon: {
+    paddingLeft: theme.spacing.md,
   },
   searchInput: {
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
+    flex: 1,
+    padding: 16,
     color: theme.colors.text.primary,
     fontSize: 16,
+    fontWeight: '500',
+  },
+  clearBtn: {
+    padding: theme.spacing.md,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingBottom: 100,
   },
   emptyText: { 
     textAlign: 'center', 
@@ -202,15 +243,18 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: theme.spacing.md,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.lg,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
     ...theme.shadows.sm,
   },
   thumbnail: {
-    width: 100,
-    height: 100,
+    width: 90,
+    height: 90,
     backgroundColor: theme.colors.border,
   },
   textContainer: {
@@ -218,84 +262,99 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     justifyContent: 'center',
   },
+  chevron: {
+    paddingRight: theme.spacing.md,
+  },
   dateText: {
     color: theme.colors.text.secondary,
     fontSize: 12,
-    marginBottom: theme.spacing.xs,
+    fontWeight: '600',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   captionText: {
     color: theme.colors.text.primary,
     fontSize: 16,
     lineHeight: 22,
+    fontWeight: '500',
   },
   v3Container: {
     flex: 1,
   },
   section: {
-    marginTop: theme.spacing.xl,
+    marginTop: theme.spacing.lg,
     paddingHorizontal: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '800',
     color: theme.colors.text.primary,
     marginBottom: theme.spacing.md,
+    letterSpacing: -0.5,
   },
   horizontalScroll: {
     paddingBottom: theme.spacing.md,
   },
   templateCard: {
-    width: 220,
+    width: 160,
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.sm,
     marginRight: theme.spacing.md,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
     ...theme.shadows.sm,
+  },
+  templateThumbWrapper: {
+    width: '100%',
+    height: 200,
+    position: 'relative',
   },
   templateThumb: {
     width: '100%',
-    height: 140,
-    backgroundColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.sm,
+    height: '100%',
+  },
+  templateGradient: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: '50%',
+  },
+  templateInfo: {
+    padding: theme.spacing.md,
   },
   templateName: {
     fontSize: 16,
     fontWeight: '700',
     color: theme.colors.text.primary,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   templateMeta: {
     fontSize: 13,
+    fontWeight: '500',
     color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.md,
-  },
-  useButton: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: 8,
-    borderRadius: theme.borderRadius.pill,
-    alignItems: 'center',
-  },
-  useButtonText: {
-    color: theme.colors.text.inverse,
-    fontWeight: '700',
-    fontSize: 14,
   },
   recentSearchChips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   recentChip: {
-    backgroundColor: theme.colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.card,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: theme.borderRadius.pill,
     marginRight: theme.spacing.sm,
     marginBottom: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
   },
   recentChipText: {
     fontSize: 14,
     color: theme.colors.text.primary,
-    fontWeight: '500',
+    fontWeight: '600',
   }
 });

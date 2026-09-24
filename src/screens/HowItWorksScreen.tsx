@@ -1,118 +1,141 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
+import { Feather } from '@expo/vector-icons';
 
 type HowItWorksScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HowItWorks'>;
 
 export const HowItWorksScreen = ({ navigation }: { navigation: HowItWorksScreenNavigationProp }) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to DayFrame</Text>
-      
-      <View style={styles.stepsContainer}>
-        <View style={styles.step}>
-          <View style={styles.stepNumberContainer}>
-            <Text style={styles.stepNumber}>1</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>How it Works</Text>
+          <Text style={styles.subtitle}>Three simple rules to build a lifetime of memories.</Text>
+        </View>
+        
+        <View style={styles.stepsContainer}>
+          <View style={styles.step}>
+            <View style={styles.stepIconWrapper}>
+              <Feather name="camera" size={24} color={theme.colors.text.inverse} />
+            </View>
+            <View style={styles.stepTextContainer}>
+              <Text style={styles.stepTitle}>Capture Once a Day</Text>
+              <Text style={styles.stepDesc}>Take exactly one photo every day. Focus on the moment, not the perfect shot.</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.stepTitle}>Capture</Text>
-            <Text style={styles.stepDesc}>Snap one photo a day</Text>
+
+          <View style={styles.step}>
+            <View style={styles.stepIconWrapper}>
+              <Feather name="lock" size={24} color={theme.colors.text.inverse} />
+            </View>
+            <View style={styles.stepTextContainer}>
+              <Text style={styles.stepTitle}>100% Private</Text>
+              <Text style={styles.stepDesc}>Your data is stored locally on your device first. You are in complete control.</Text>
+            </View>
+          </View>
+
+          <View style={styles.step}>
+            <View style={styles.stepIconWrapper}>
+              <Feather name="cloud" size={24} color={theme.colors.text.inverse} />
+            </View>
+            <View style={styles.stepTextContainer}>
+              <Text style={styles.stepTitle}>Secure Cloud Backup</Text>
+              <Text style={styles.stepDesc}>Seamlessly sync your memories to your secure cloud so you never lose them.</Text>
+            </View>
           </View>
         </View>
-        <View style={styles.step}>
-          <View style={styles.stepNumberContainer}>
-            <Text style={styles.stepNumber}>2</Text>
-          </View>
-          <View>
-            <Text style={styles.stepTitle}>Private</Text>
-            <Text style={styles.stepDesc}>Local-first architecture</Text>
-          </View>
-        </View>
-        <View style={styles.step}>
-          <View style={styles.stepNumberContainer}>
-            <Text style={styles.stepNumber}>3</Text>
-          </View>
-          <View>
-            <Text style={styles.stepTitle}>Sync</Text>
-            <Text style={styles.stepDesc}>Secure cloud backup</Text>
-          </View>
+
+        <View style={styles.actionContainer}>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => navigation.navigate('ReminderSetup')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>Continue</Text>
+          </TouchableOpacity>
         </View>
       </View>
-
-      <TouchableOpacity 
-        style={styles.button}
-        onPress={() => navigation.navigate('ReminderSetup')}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#0A0A0C', // Match Welcome Screen
+  },
   container: { 
     flex: 1, 
-    backgroundColor: theme.colors.background, 
     padding: theme.spacing.lg, 
-    paddingTop: theme.spacing.xxl 
+  },
+  header: {
+    marginTop: theme.spacing.xl,
+    marginBottom: theme.spacing.xxl,
   },
   title: { 
-    fontSize: 32, 
+    fontSize: 36, 
     fontWeight: '800', 
-    marginBottom: 40, 
-    color: theme.colors.text.primary,
-    letterSpacing: -0.5,
+    color: theme.colors.text.inverse,
+    letterSpacing: -1,
+    marginBottom: theme.spacing.md,
   },
-  stepsContainer: { flex: 1, marginTop: theme.spacing.lg },
+  subtitle: {
+    fontSize: 18,
+    color: '#8E8E93',
+    lineHeight: 26,
+    fontWeight: '500',
+  },
+  stepsContainer: { 
+    flex: 1, 
+  },
   step: { 
     flexDirection: 'row', 
-    alignItems: 'center', 
-    marginBottom: 40 
+    alignItems: 'flex-start', 
+    marginBottom: 40,
   },
-  stepNumberContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: theme.colors.card,
+  stepIconWrapper: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 20,
-    ...theme.shadows.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
   },
-  stepNumber: { 
-    fontSize: 20, 
-    fontWeight: '700', 
-    color: theme.colors.primary,
+  stepTextContainer: {
+    flex: 1,
   },
   stepTitle: { 
-    fontSize: 22, 
+    fontSize: 20, 
     fontWeight: '700', 
-    color: theme.colors.text.primary, 
-    marginBottom: 4 
+    color: theme.colors.text.inverse, 
+    marginBottom: 8,
   },
   stepDesc: { 
-    fontSize: 16, 
-    color: theme.colors.text.secondary,
+    fontSize: 15, 
+    color: '#8E8E93',
+    lineHeight: 22,
     fontWeight: '500',
   },
+  actionContainer: {
+    width: '100%',
+    paddingBottom: theme.spacing.xl,
+  },
   button: { 
-    backgroundColor: theme.colors.primary, 
-    paddingHorizontal: 40, 
-    paddingVertical: theme.spacing.lg, 
+    backgroundColor: theme.colors.card, 
+    paddingVertical: 18, 
     borderRadius: theme.borderRadius.pill, 
     width: '100%', 
     alignItems: 'center', 
-    position: 'absolute', 
-    bottom: theme.spacing.xl, 
-    alignSelf: 'center',
-    ...theme.shadows.md,
   },
   buttonText: { 
-    color: theme.colors.text.inverse, 
-    fontSize: 18, 
-    fontWeight: '600' 
+    color: theme.colors.primary, 
+    fontSize: 16, 
+    fontWeight: '800' 
   }
 });

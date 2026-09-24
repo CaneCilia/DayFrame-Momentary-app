@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { useSyncStatus } from '../hooks/useSyncStatus';
 import { theme } from '../utils/theme';
+import { Feather } from '@expo/vector-icons';
 
 export const SyncIndicator = () => {
   const { status, pendingCount } = useSyncStatus();
@@ -28,25 +29,25 @@ export const SyncIndicator = () => {
 
   if (status === 'NO_ACCOUNT') return null;
 
-  let icon = '☁️';
+  let iconName: keyof typeof Feather.glyphMap = 'cloud';
   let color = theme.colors.text.secondary;
 
   if (status === 'SYNCED') {
-    icon = '☁️✓';
+    iconName = 'cloud-drizzle'; // Or just cloud with success color
     color = theme.colors.success;
   } else if (status === 'OFFLINE_PENDING') {
-    icon = '☁️⚠';
+    iconName = 'cloud-off';
     color = theme.colors.accent;
   } else if (status === 'SYNCING') {
-    icon = '↻';
+    iconName = 'refresh-cw';
     color = theme.colors.primary;
   }
 
   return (
     <View style={styles.container}>
-      <Animated.Text style={[styles.icon, status === 'SYNCING' && { transform: [{ rotate: spin }] }]}>
-        {icon}
-      </Animated.Text>
+      <Animated.View style={status === 'SYNCING' && { transform: [{ rotate: spin }] }}>
+        <Feather name={iconName} size={14} color={color} />
+      </Animated.View>
       {pendingCount > 0 && status !== 'SYNCING' && (
         <Text style={styles.countText}>{pendingCount}</Text>
       )}
@@ -59,19 +60,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.card,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: theme.borderRadius.pill,
     ...theme.shadows.sm,
-    marginLeft: theme.spacing.sm,
-  },
-  icon: {
-    fontSize: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
   },
   countText: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: theme.colors.accent,
-    marginLeft: 4,
+    marginLeft: 6,
   }
 });

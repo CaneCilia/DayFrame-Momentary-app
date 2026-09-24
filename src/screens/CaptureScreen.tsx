@@ -12,6 +12,7 @@ import { insertMemory, getMemoryByDate } from '../database/memories';
 import { enqueueSyncOperation } from '../database/syncQueue';
 import { Video, ResizeMode } from 'expo-av';
 import { theme } from '../utils/theme';
+import { Feather } from '@expo/vector-icons';
 
 type CaptureScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Capture'>;
 
@@ -240,10 +241,7 @@ export const CaptureScreen = () => {
 
       <View style={styles.cameraControls}>
         <TouchableOpacity style={styles.iconButton} onPress={pickImage}>
-          <Image 
-             source={{ uri: 'https://img.icons8.com/ios-filled/50/ffffff/image-gallery.png' }} 
-             style={{ width: 30, height: 30 }} 
-          />
+          <Feather name="image" size={24} color="#FFF" />
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.captureButtonWrapper} onPress={handleCaptureBtn}>

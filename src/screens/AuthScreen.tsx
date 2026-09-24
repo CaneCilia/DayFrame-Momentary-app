@@ -10,6 +10,11 @@ export const AuthScreen = ({ navigation }: any) => {
   const [isLogin, setIsLogin] = useState(true);
 
   const handleAuth = async () => {
+    if (!process.env.EXPO_PUBLIC_SUPABASE_URL || !process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY) {
+      Alert.alert('Configuration Missing', 'Please set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY in your .env file to use authentication.');
+      return;
+    }
+
     if (!email || !password) {
       Alert.alert('Error', 'Please enter both email and password.');
       return;
@@ -90,13 +95,21 @@ export const AuthScreen = ({ navigation }: any) => {
         <TouchableOpacity 
           style={styles.googleButton} 
           onPress={async () => {
+            if (!process.env.EXPO_PUBLIC_SUPABASE_URL || !process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY) {
+              Alert.alert('Configuration Missing', 'Please set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY in your .env file to use authentication.');
+              return;
+            }
             try {
               setLoading(true);
               const { signInWithGoogle } = require('../lib/auth');
               await signInWithGoogle();
               navigation.goBack();
             } catch (error: any) {
-              Alert.alert('Google Sign-In Error', error.message || 'An error occurred.');
+              if (error.message && error.message.includes('Native module cannot be null')) {
+                Alert.alert('Google Sign-In Unavailable', 'Google Sign-In requires a standalone Development Build. It is not supported in Expo Go.');
+              } else {
+                Alert.alert('Google Sign-In Error', error.message || 'An error occurred.');
+              }
             } finally {
               setLoading(false);
             }

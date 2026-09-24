@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, Alert, SafeAreaView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { requestNotificationPermissions, scheduleDailyReminder, cancelAllReminders } from '../services/notifications';
+import { theme } from '../utils/theme';
+import { Feather } from '@expo/vector-icons';
 
 type ReminderSetupScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ReminderSetup'>;
 
@@ -35,37 +37,120 @@ export const ReminderSetupScreen = ({ navigation }: { navigation: ReminderSetupS
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Reminder Setup</Text>
-      <Text style={styles.subtitle}>Get a gentle nudge so you never miss a day. By default, we will remind you at 8:00 PM.</Text>
-      
-      <View style={styles.settingRow}>
-        <Text style={styles.settingLabel}>Enable daily reminder</Text>
-        <Switch
-          trackColor={{ false: '#767577', true: '#007AFF' }}
-          thumbColor={'#fff'}
-          onValueChange={toggleSwitch}
-          value={isEnabled}
-          disabled={isRequesting}
-        />
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.iconWrapper}>
+            <Feather name="bell" size={32} color={theme.colors.text.inverse} />
+          </View>
+          <Text style={styles.title}>Never Miss a Day</Text>
+          <Text style={styles.subtitle}>Consistency is key. Get a gentle nudge at 8:00 PM to capture your daily memory.</Text>
+        </View>
+        
+        <View style={styles.settingCard}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Daily Notifications</Text>
+            <Text style={styles.settingDesc}>Receive a push notification at 8:00 PM</Text>
+          </View>
+          <Switch
+            trackColor={{ false: 'rgba(255,255,255,0.1)', true: theme.colors.card }}
+            thumbColor={'#fff'}
+            onValueChange={toggleSwitch}
+            value={isEnabled}
+            disabled={isRequesting}
+          />
+        </View>
 
-      <TouchableOpacity 
-        style={styles.button}
-        onPress={handleContinue}
-      >
-        <Text style={styles.buttonText}>{isEnabled ? 'Save and Continue' : 'Skip for now'}</Text>
-      </TouchableOpacity>
-    </View>
+        <View style={styles.actionContainer}>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={handleContinue}
+          >
+            <Text style={styles.buttonText}>{isEnabled ? 'Save and Continue' : 'Skip for now'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 20, paddingTop: 80 },
-  title: { fontSize: 32, fontWeight: '700', marginBottom: 15, color: '#333' },
-  subtitle: { fontSize: 16, color: '#666', marginBottom: 40, lineHeight: 24 },
-  settingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  settingLabel: { fontSize: 18, color: '#333' },
-  button: { backgroundColor: '#000', paddingHorizontal: 40, paddingVertical: 16, borderRadius: 30, width: '100%', alignItems: 'center', position: 'absolute', bottom: 50, alignSelf: 'center' },
-  buttonText: { color: '#fff', fontSize: 18, fontWeight: '600' }
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#0A0A0C',
+  },
+  container: { 
+    flex: 1, 
+    padding: theme.spacing.lg, 
+  },
+  header: {
+    marginTop: theme.spacing.xl,
+    marginBottom: theme.spacing.xxl,
+  },
+  iconWrapper: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: theme.spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  title: { 
+    fontSize: 36, 
+    fontWeight: '800', 
+    color: theme.colors.text.inverse,
+    letterSpacing: -1,
+    marginBottom: theme.spacing.md,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#8E8E93',
+    lineHeight: 26,
+    fontWeight: '500',
+  },
+  settingCard: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    padding: theme.spacing.lg, 
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.02)',
+  },
+  settingInfo: {
+    flex: 1,
+    paddingRight: theme.spacing.md,
+  },
+  settingLabel: { 
+    fontSize: 18, 
+    color: theme.colors.text.inverse,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  settingDesc: {
+    fontSize: 14,
+    color: '#8E8E93',
+    fontWeight: '500',
+  },
+  actionContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    paddingBottom: theme.spacing.xl,
+  },
+  button: { 
+    backgroundColor: theme.colors.card, 
+    paddingVertical: 18, 
+    borderRadius: theme.borderRadius.pill, 
+    width: '100%', 
+    alignItems: 'center', 
+  },
+  buttonText: { 
+    color: theme.colors.primary, 
+    fontSize: 16, 
+    fontWeight: '800' 
+  }
 });
