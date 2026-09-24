@@ -118,9 +118,9 @@ Everything has been committed and pushed to main.
 - [x] **7.2 Export / Share:** Implement expo-sharing and react-native-view-shot to export a stylized Polaroid version of a memory.
 
 ## Phase 8: Advanced Capture & Gallery (V3)
-- [ ] **8.1 Access & Permissions:** Implement robust permission flows for Camera, Microphone, and Media Library.
-- [ ] **8.2 Camera Controls:** Build a custom camera interface supporting both photo capture and video recording.
-- [ ] **8.3 Gallery Features:** Build a "Quick Upload" feature to easily select, preview, and import memories from the device gallery.
+- [x] **8.1 Access & Permissions:** Implement robust permission flows for Camera, Microphone, and Media Library.
+- [x] **8.2 Camera Controls:** Build a custom camera interface supporting both photo capture and video recording.
+- [x] **8.3 Gallery Features:** Build a "Quick Upload" feature to easily select, preview, and import memories from the device gallery.
 
 ## Phase 9: UI Overhaul (V3)
 - [ ] **9.1 Global UI Update:** Apply the new V3 UI design language across all pages (Home, Search, Calendar, Timeline) ensuring a premium, consistent user experience.
