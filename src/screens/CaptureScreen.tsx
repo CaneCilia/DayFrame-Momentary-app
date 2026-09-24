@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Button, Alert } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
+import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -10,36 +10,66 @@ import * as Crypto from 'expo-crypto';
 import { saveImageToLocal } from '../utils/fileSystem';
 import { insertMemory, getMemoryByDate } from '../database/memories';
 import { enqueueSyncOperation } from '../database/syncQueue';
+import { Video, ResizeMode } from 'expo-av';
+import { theme } from '../utils/theme';
 
 type CaptureScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Capture'>;
 
 export const CaptureScreen = () => {
-  const [permission, requestPermission] = useCameraPermissions();
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [micPermission, requestMicPermission] = useMicrophonePermissions();
+  const [galleryPermission, requestGalleryPermission] = ImagePicker.useMediaLibraryPermissions();
+  
+  const [mode, setMode] = useState<'picture' | 'video'>('picture');
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaUri, setMediaUri] = useState<string | null>(null);
+  const [mediaType, setMediaType] = useState<'photo' | 'video'>('photo');
   const [isSaving, setIsSaving] = useState(false);
+  
   const cameraRef = useRef<CameraView>(null);
   const navigation = useNavigation<CaptureScreenNavigationProp>();
   const db = useSQLiteContext();
 
-  if (!permission) {
+  const allPermissionsGranted = 
+    cameraPermission?.granted && 
+    micPermission?.granted && 
+    galleryPermission?.granted;
+
+  if (!cameraPermission || !micPermission || !galleryPermission) {
     return <View style={styles.container} />;
   }
 
-  if (!permission.granted) {
+  if (!allPermissionsGranted) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.permissionText}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="Grant Permission" />
+      <View style={styles.permissionContainer}>
+        <Text style={styles.permissionTitle}>Allow Access</Text>
+        <Text style={styles.permissionText}>DayFrame needs access to your camera, microphone, and gallery to capture your memories.</Text>
+        
+        <TouchableOpacity 
+          style={styles.permissionBtn}
+          onPress={async () => {
+            await requestCameraPermission();
+            await requestMicPermission();
+            await requestGalleryPermission();
+          }}
+        >
+          <Text style={styles.permissionBtnText}>Grant Permissions</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 20 }}>
+          <Text style={{ color: '#888' }}>Not Now</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   const takePicture = async () => {
-    if (cameraRef.current) {
+    if (cameraRef.current && !isRecording) {
       try {
         const photo = await cameraRef.current.takePictureAsync();
         if (photo) {
-          setPhotoUri(photo.uri);
+          setMediaUri(photo.uri);
+          setMediaType('photo');
         }
       } catch (e) {
         console.error('Failed to take picture:', e);
@@ -47,23 +77,55 @@ export const CaptureScreen = () => {
     }
   };
 
+  const toggleRecording = async () => {
+    if (!cameraRef.current) return;
+    
+    if (isRecording) {
+      cameraRef.current.stopRecording();
+      setIsRecording(false);
+    } else {
+      try {
+        setIsRecording(true);
+        const video = await cameraRef.current.recordAsync({
+          maxDuration: 60, // 1 minute max for daily memories
+        });
+        if (video) {
+          setMediaUri(video.uri);
+          setMediaType('video');
+        }
+      } catch (e) {
+        console.error('Failed to record video:', e);
+        setIsRecording(false);
+      }
+    }
+  };
+
+  const handleCaptureBtn = () => {
+    if (mode === 'picture') {
+      takePicture();
+    } else {
+      toggleRecording();
+    }
+  };
+
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         quality: 1,
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        setPhotoUri(result.assets[0].uri);
+        const asset = result.assets[0];
+        setMediaUri(asset.uri);
+        setMediaType(asset.type === 'video' ? 'video' : 'photo');
       }
     } catch (e) {
-      console.error('Failed to pick image:', e);
+      console.error('Failed to pick media:', e);
     }
   };
 
-  // Get today's date in YYYY-MM-DD format
   const getTodayDateString = () => {
     const today = new Date();
     const offset = today.getTimezoneOffset();
@@ -71,14 +133,13 @@ export const CaptureScreen = () => {
     return localDate.toISOString().split('T')[0];
   };
 
-  const confirmPhoto = async () => {
-    if (!photoUri || isSaving) return;
+  const confirmMedia = async () => {
+    if (!mediaUri || isSaving) return;
 
     try {
       setIsSaving(true);
       const todayDate = getTodayDateString();
 
-      // Enforce one memory per calendar day
       const existingMemory = await getMemoryByDate(db, todayDate);
       if (existingMemory) {
         Alert.alert('Limit Reached', 'You have already captured your moment for today!');
@@ -86,11 +147,10 @@ export const CaptureScreen = () => {
         return;
       }
 
-      // Save to local file system
-      const filename = `memory_${todayDate}_${Date.now()}.jpg`;
-      const localUri = await saveImageToLocal(photoUri, filename);
+      const ext = mediaType === 'video' ? 'mp4' : 'jpg';
+      const filename = `memory_${todayDate}_${Date.now()}.${ext}`;
+      const localUri = await saveImageToLocal(mediaUri, filename);
 
-      // Save to database
       const memoryId = Crypto.randomUUID();
       await insertMemory(db, {
         id: memoryId,
@@ -100,10 +160,7 @@ export const CaptureScreen = () => {
         sync_status: 'PENDING',
       });
 
-      // Queue background upload
       await enqueueSyncOperation(db, 'UPLOAD_PHOTO', memoryId, 'MEMORY');
-
-      // Navigate back to home (Home screen will refresh because of useIsFocused)
       navigation.goBack();
     } catch (error) {
       console.error('Failed to save memory:', error);
@@ -113,22 +170,37 @@ export const CaptureScreen = () => {
     }
   };
 
-  const retakePhoto = () => {
+  const retakeMedia = () => {
     if (!isSaving) {
-      setPhotoUri(null);
+      setMediaUri(null);
     }
   };
 
-  if (photoUri) {
+  if (mediaUri) {
     return (
       <View style={styles.container}>
-        <Image source={{ uri: photoUri }} style={styles.preview} />
+        {mediaType === 'video' ? (
+          <Video
+            source={{ uri: mediaUri }}
+            style={styles.preview}
+            useNativeControls
+            resizeMode={ResizeMode.CONTAIN}
+            isLooping
+            shouldPlay
+          />
+        ) : (
+          <Image source={{ uri: mediaUri }} style={styles.preview} />
+        )}
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.button} onPress={retakePhoto} disabled={isSaving}>
+          <TouchableOpacity style={styles.button} onPress={retakeMedia} disabled={isSaving}>
             <Text style={styles.buttonText}>Retake</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={confirmPhoto} disabled={isSaving}>
-            <Text style={styles.buttonText}>{isSaving ? 'Saving...' : 'Save Memory'}</Text>
+          <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={confirmMedia} disabled={isSaving}>
+            {isSaving ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={styles.buttonText}>Save Memory</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -137,14 +209,56 @@ export const CaptureScreen = () => {
 
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing="back" ref={cameraRef} />
+      <CameraView 
+        style={styles.camera} 
+        facing="back" 
+        mode={mode} 
+        ref={cameraRef} 
+      />
+      
+      <View style={styles.topBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
+          <Text style={styles.closeBtnText}>✕</Text>
+        </TouchableOpacity>
+        
+        <View style={styles.modeSwitcher}>
+          <TouchableOpacity 
+            style={[styles.modeTab, mode === 'picture' && styles.modeTabActive]} 
+            onPress={() => setMode('picture')}
+          >
+            <Text style={[styles.modeText, mode === 'picture' && styles.modeTextActive]}>PHOTO</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.modeTab, mode === 'video' && styles.modeTabActive]} 
+            onPress={() => setMode('video')}
+          >
+            <Text style={[styles.modeText, mode === 'video' && styles.modeTextActive]}>VIDEO</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{ width: 40 }} />
+      </View>
+
       <View style={styles.cameraControls}>
         <TouchableOpacity style={styles.iconButton} onPress={pickImage}>
-          <Text style={styles.iconText}>Gallery</Text>
+          <Image 
+             source={{ uri: 'https://img.icons8.com/ios-filled/50/ffffff/image-gallery.png' }} 
+             style={{ width: 30, height: 30 }} 
+          />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-          <View style={styles.captureInner} />
+        
+        <TouchableOpacity style={styles.captureButtonWrapper} onPress={handleCaptureBtn}>
+          <View style={[
+            styles.captureButtonOuter, 
+            mode === 'video' && isRecording && styles.recordingOuter
+          ]}>
+            <View style={[
+              styles.captureButtonInner,
+              mode === 'video' && styles.captureButtonVideo,
+              isRecording && styles.captureButtonRecording
+            ]} />
+          </View>
         </TouchableOpacity>
+        
         <View style={styles.placeholder} />
       </View>
     </View>
@@ -152,65 +266,157 @@ export const CaptureScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000', justifyContent: 'center' },
-  permissionText: { color: '#fff', textAlign: 'center', marginBottom: 20 },
+  container: { flex: 1, backgroundColor: '#000' },
+  permissionContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  permissionTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFF',
+    marginBottom: 10,
+  },
+  permissionText: {
+    color: '#AAA',
+    textAlign: 'center',
+    marginBottom: 30,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  permissionBtn: {
+    backgroundColor: theme.colors.primary,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+  },
+  permissionBtnText: {
+    color: '#FFF',
+    fontWeight: '700',
+    fontSize: 16,
+  },
   camera: { flex: 1 },
+  topBar: {
+    position: 'absolute',
+    top: 50,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  closeBtn: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
+  },
+  closeBtnText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  modeSwitcher: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
+    padding: 4,
+  },
+  modeTab: {
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+  },
+  modeTabActive: {
+    backgroundColor: '#333',
+  },
+  modeText: {
+    color: '#AAA',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  modeTextActive: {
+    color: '#FFF',
+  },
   cameraControls: {
     position: 'absolute',
     bottom: 40,
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 40,
   },
-  captureButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  captureButtonWrapper: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  captureInner: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#fff',
+  captureButtonOuter: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 4,
+    borderColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  recordingOuter: {
+    borderColor: '#FF3B30',
+  },
+  captureButtonInner: {
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    backgroundColor: '#FFF',
+  },
+  captureButtonVideo: {
+    backgroundColor: '#FF3B30',
+  },
+  captureButtonRecording: {
+    borderRadius: 10,
+    width: 30,
+    height: 30,
   },
   iconButton: {
-    padding: 10,
-  },
-  iconText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 25,
   },
   placeholder: {
-    width: 60,
+    width: 50,
   },
   preview: {
     flex: 1,
-    resizeMode: 'contain',
   },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 20,
+    padding: 30,
     backgroundColor: '#000',
+    paddingBottom: 50,
   },
   button: {
-    paddingVertical: 15,
+    paddingVertical: 16,
     paddingHorizontal: 30,
-    borderRadius: 25,
+    borderRadius: 30,
     backgroundColor: '#333',
+    minWidth: 140,
+    alignItems: 'center',
   },
   confirmButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: theme.colors.primary,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   }
 });

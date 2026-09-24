@@ -12,6 +12,7 @@
     "@supabase/supabase-js": "^2.117.0",
     "base64-arraybuffer": "^1.0.2",
     "expo": "~57.0.23",
+    "expo-av": "^16.0.8",
     "expo-background-fetch": "~57.0.18",
     "expo-camera": "~57.0.5",
     "expo-constants": "^57.0.19",
