@@ -75,13 +75,18 @@ export const HomeScreen = () => {
             <Text style={styles.dateText}>{todayStr}</Text>
           </View>
           <View style={styles.headerRight}>
-            <SyncIndicator />
-            {streak > 0 && (
-              <View style={styles.streakBadge}>
-                <Feather name="zap" size={14} color={theme.colors.accent} />
-                <Text style={styles.streakText}>{streak} Days</Text>
-              </View>
-            )}
+            <TouchableOpacity onPress={() => navigation.navigate('Favorites')} style={{ marginRight: 12 }}>
+              <Feather name="heart" size={24} color={theme.colors.text.primary} />
+            </TouchableOpacity>
+            <View style={{ alignItems: 'flex-end' }}>
+              <SyncIndicator />
+              {streak > 0 && (
+                <View style={styles.streakBadge}>
+                  <Feather name="zap" size={14} color={theme.colors.accent} />
+                  <Text style={styles.streakText}>{streak} Days</Text>
+                </View>
+              )}
+            </View>
           </View>
         </View>
 
@@ -214,7 +219,8 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.xl,
   },
   headerRight: {
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   greetingText: {
     fontSize: 13,
