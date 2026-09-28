@@ -126,5 +126,5 @@ Everything has been committed and pushed to main.
 - [x] **9.1 Global UI Update:** Apply the new V3 UI design language across all pages (Home, Search, Calendar, Timeline) ensuring a premium, consistent user experience.
 
 ## Phase 10: Favorites & Smart Albums (V4)
-- [ ] **10.1 Favorites Integration:** Add favorite tracking to the database and MemoryDetailScreen.
-- [ ] **10.2 Favorites Screen:** Build a dedicated page to view all favorited memories.
+- [x] **10.1 Favorites Integration:** Add favorite tracking to the database and MemoryDetailScreen.
+- [x] **10.2 Favorites Screen:** Build a dedicated page to view all favorited memories.
