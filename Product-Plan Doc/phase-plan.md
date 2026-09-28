@@ -106,11 +106,11 @@ Everything has been committed and pushed to main.
   - [x] Implement Drive REST API for silent background photo backup.
   - [x] Add UI toggle in Settings for Drive Backup.
 - [x] **2. Monthly Memories (V2)**
-  - Update TimelineScreen to inject sticky headers for each Month.
-  - Build "Month Summary" cards.
+  - [x] Update TimelineScreen to inject sticky headers for each Month.
+  - [x] Build "Month Summary" cards.
 - [x] **3. Search Engine (V2)**
-  - Add SQLite FTS5 virtual table for searching past captions.
-  - Build a real-time Search screen.
+  - [x] Add SQLite FTS5 virtual table for searching past captions.
+  - [x] Build a real-time Search screen.
 
 
 ## Phase 7: Delight & Sharing (V2)
