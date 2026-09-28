@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ImageBackground, StatusBar } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
@@ -8,107 +8,120 @@ import { Feather } from '@expo/vector-icons';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Welcome'>;
 
+const { height } = Dimensions.get('window');
+
 export const WelcomeScreen = ({ navigation }: { navigation: WelcomeScreenNavigationProp }) => {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <View style={styles.iconWrapper}>
-            <Feather name="aperture" size={48} color={theme.colors.text.inverse} />
-          </View>
-          <Text style={styles.logo}>DayFrame</Text>
-          <Text style={styles.tagline}>Your life, one frame at a time.</Text>
-          
-          <View style={styles.featurePill}>
-            <Text style={styles.featurePillText}>Secure. Private. Local-First.</Text>
-          </View>
-        </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <ImageBackground 
+        source={{ uri: 'https://images.unsplash.com/photo-1516961642265-531546e84af2?q=80&w=1000&auto=format&fit=crop' }} 
+        style={styles.backgroundImage}
+      >
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.95)']}
+          style={styles.gradient}
+        />
         
-        <View style={styles.actionContainer}>
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={() => navigation.navigate('HowItWorks')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.buttonText}>Start the Journey</Text>
-            <Feather name="arrow-right" size={20} color={theme.colors.primary} />
-          </TouchableOpacity>
+        <View style={styles.content}>
+          <View style={styles.topSection}>
+            <View style={styles.featurePill}>
+              <Feather name="shield" size={12} color="#E5E5EA" style={{ marginRight: 6 }} />
+              <Text style={styles.featurePillText}>Secure & Local-First</Text>
+            </View>
+          </View>
+
+          <View style={styles.bottomSection}>
+            <Text style={styles.logo}>DayFrame</Text>
+            <Text style={styles.tagline}>Your life, captured one intentional frame at a time.</Text>
+            
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={() => navigation.navigate('HowItWorks')}
+              activeOpacity={0.9}
+            >
+              <Text style={styles.buttonText}>Start the Journey</Text>
+              <Feather name="arrow-right" size={20} color={theme.colors.primary} />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#0A0A0C', // Deep premium dark background
-  },
   container: { 
     flex: 1,
-    padding: theme.spacing.lg,
-    justifyContent: 'space-between',
+    backgroundColor: '#000', 
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: height * 0.6,
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
+    justifyContent: 'space-between',
+    padding: theme.spacing.xl,
+    paddingTop: 80,
+    paddingBottom: 50,
   },
-  iconWrapper: {
-    marginBottom: theme.spacing.xl,
-    padding: theme.spacing.md,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 32,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+  topSection: {
+    alignItems: 'center',
+  },
+  bottomSection: {
+    width: '100%',
   },
   logo: { 
     fontSize: 48, 
     fontWeight: '800', 
-    marginBottom: theme.spacing.md, 
-    color: theme.colors.text.inverse,
+    marginBottom: theme.spacing.sm, 
+    color: '#FFFFFF',
     letterSpacing: -1.5,
   },
   tagline: { 
-    fontSize: 20, 
-    color: '#8E8E93', 
-    textAlign: 'center',
+    fontSize: 18, 
+    color: '#CCCCCC', 
     fontWeight: '500',
-    lineHeight: 28,
-    marginBottom: theme.spacing.xxl,
+    lineHeight: 26,
+    marginBottom: 40,
   },
   featurePill: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: theme.borderRadius.pill,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   featurePillText: {
-    color: '#E5E5EA',
-    fontSize: 13,
+    color: '#FFFFFF',
+    fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
-  actionContainer: {
-    width: '100%',
-    paddingBottom: theme.spacing.xl,
-  },
   button: { 
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: theme.colors.card, 
+    backgroundColor: '#FFFFFF', 
     paddingVertical: 18, 
     borderRadius: theme.borderRadius.pill, 
     width: '100%', 
     alignItems: 'center', 
-    ...theme.shadows.md,
   },
   buttonText: { 
-    color: theme.colors.primary, 
+    color: '#000000', 
     fontSize: 16, 
     fontWeight: '800',
     marginRight: 8,
