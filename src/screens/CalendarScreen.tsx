@@ -16,21 +16,29 @@ export const CalendarScreen = () => {
   const isFocused = useIsFocused();
   const navigation = useNavigation<CalendarScreenNavigationProp>();
   const [markedDates, setMarkedDates] = useState<{ [date: string]: any }>({});
+  const [memoryStats, setMemoryStats] = useState({ total: 0, thisMonth: 0 });
 
   const loadMemories = async () => {
     try {
       const all = await getAllMemories(db);
       const marks: { [date: string]: any } = {};
       
+      const currentMonthStr = new Date().toISOString().substring(0, 7);
+      let thisMonthCount = 0;
+
       all.forEach(memory => {
         marks[memory.date] = { 
           selected: true, 
           selectedColor: theme.colors.primary, 
           memoryId: memory.id 
         };
+        if (memory.date.startsWith(currentMonthStr)) {
+          thisMonthCount++;
+        }
       });
 
       setMarkedDates(marks);
+      setMemoryStats({ total: all.length, thisMonth: thisMonthCount });
     } catch (e) {
       console.error('Failed to load memories for calendar:', e);
     }
@@ -49,17 +57,11 @@ export const CalendarScreen = () => {
     }
   };
 
-  const [eventModalVisible, setEventModalVisible] = useState(false);
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.pageTitle}>Timeline</Text>
-          <TouchableOpacity onPress={() => setEventModalVisible(true)} style={styles.addEventBtn}>
-            <Feather name="plus" size={16} color={theme.colors.text.inverse} style={{ marginRight: 6 }} />
-            <Text style={styles.addEventBtnText}>Add Event</Text>
-          </TouchableOpacity>
         </View>
         
         <View style={styles.calendarWrapper}>
@@ -84,94 +86,33 @@ export const CalendarScreen = () => {
         <View style={styles.legendContainer}>
           <View style={styles.legendItem}>
             <Feather name="camera" size={14} color={theme.colors.text.secondary} style={styles.legendIcon} />
-            <Text style={styles.legendText}>Memory</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <Feather name="map-pin" size={14} color={theme.colors.text.secondary} style={styles.legendIcon} />
-            <Text style={styles.legendText}>Trip</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <Feather name="calendar" size={14} color={theme.colors.text.secondary} style={styles.legendIcon} />
-            <Text style={styles.legendText}>Event</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <Feather name="gift" size={14} color={theme.colors.text.secondary} style={styles.legendIcon} />
-            <Text style={styles.legendText}>Milestone</Text>
+            <Text style={styles.legendText}>Memory Captured</Text>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Trips</Text>
-          <View style={styles.tripCard}>
-            <View style={styles.tripHeader}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Feather name="map-pin" size={18} color={theme.colors.primary} style={{ marginRight: 8 }} />
-                <Text style={styles.tripTitle}>Trip: Goa</Text>
+          <Text style={styles.sectionTitle}>Overview</Text>
+          
+          <View style={styles.statsRow}>
+            <View style={styles.statCard}>
+              <View style={styles.statIconWrapper}>
+                <Feather name="grid" size={20} color={theme.colors.primary} />
               </View>
-              <View style={styles.tripBadge}><Text style={styles.tripBadgeText}>5 Days</Text></View>
+              <Text style={styles.statValue}>{memoryStats.total}</Text>
+              <Text style={styles.statLabel}>Total Memories</Text>
             </View>
-            <Text style={styles.tripDates}>12 Jun → 16 Jun</Text>
-            <Text style={styles.tripDescription}>Upcoming vacation with friends! Get ready to capture some sunny memories.</Text>
+            
+            <View style={styles.statCard}>
+              <View style={styles.statIconWrapper}>
+                <Feather name="calendar" size={20} color={theme.colors.primary} />
+              </View>
+              <Text style={styles.statValue}>{memoryStats.thisMonth}</Text>
+              <Text style={styles.statLabel}>This Month</Text>
+            </View>
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Activity Overview</Text>
-          <View style={styles.graphPlaceholder}>
-            <Text style={styles.graphTitle}>Memories Added Per Month</Text>
-            <View style={styles.mockChart}>
-              {[40, 70, 45, 90, 65, 100].map((height, i) => (
-                <View key={i} style={[styles.bar, { height: `${height}%` }]} />
-              ))}
-            </View>
-            <View style={styles.chartLabels}>
-              {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map(m => (
-                <Text key={m} style={styles.chartLabelText}>{m}</Text>
-              ))}
-            </View>
-          </View>
-        </View>
       </ScrollView>
-
-      {/* Add Event Modal */}
-      {eventModalVisible && (
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Schedule Event</Text>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Event Title</Text>
-              <View style={styles.inputWrapper}>
-                <Feather name="calendar" size={16} color={theme.colors.text.secondary} style={styles.inputIcon} />
-                <Text style={styles.mockInputText}>Summer Roadtrip</Text>
-              </View>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Date</Text>
-              <View style={styles.inputWrapper}>
-                <Feather name="clock" size={16} color={theme.colors.text.secondary} style={styles.inputIcon} />
-                <Text style={styles.mockInputText}>August 15, 2026</Text>
-              </View>
-            </View>
-            
-            <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={styles.cancelBtn} 
-                onPress={() => setEventModalVisible(false)}
-              >
-                <Text style={styles.cancelBtnText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.saveBtn} 
-                onPress={() => setEventModalVisible(false)}
-              >
-                <Text style={styles.saveBtnText}>Save Event</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      )}
     </SafeAreaView>
   );
 };
@@ -189,6 +130,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.md,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   pageTitle: {
     fontSize: 32,
@@ -207,7 +151,7 @@ const styles = StyleSheet.create({
   },
   legendContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     marginHorizontal: theme.spacing.lg,
     marginTop: theme.spacing.lg,
     paddingVertical: theme.spacing.md,
@@ -232,6 +176,7 @@ const styles = StyleSheet.create({
   section: {
     marginTop: theme.spacing.xl,
     paddingHorizontal: theme.spacing.lg,
+    paddingBottom: 40,
   },
   sectionTitle: {
     fontSize: 20,
@@ -240,179 +185,39 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
     letterSpacing: -0.5,
   },
-  tripCard: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
-    borderLeftWidth: 4,
-    borderLeftColor: theme.colors.primary,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
-    ...theme.shadows.sm,
-  },
-  tripHeader: {
+  statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
   },
-  tripTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: theme.colors.text.primary,
-  },
-  tripBadge: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: theme.borderRadius.pill,
-  },
-  tripBadgeText: {
-    color: theme.colors.primary,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  tripDates: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  tripDescription: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    lineHeight: 22,
-    fontWeight: '500',
-  },
-  graphPlaceholder: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
-    marginBottom: 40,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
-    ...theme.shadows.sm,
-  },
-  graphTitle: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
-    fontWeight: '700',
-    marginBottom: 16,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  mockChart: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    height: 120,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-  bar: {
-    width: 32,
-    backgroundColor: theme.colors.primary,
-    borderRadius: 4,
-  },
-  chartLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 12,
-  },
-  chartLabelText: {
-    fontSize: 12,
-    color: theme.colors.text.secondary,
-    fontWeight: '600',
-    width: 32,
-    textAlign: 'center',
-  },
-  addEventBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: theme.borderRadius.pill,
-  },
-  addEventBtnText: {
-    color: theme.colors.text.inverse,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0, bottom: 0, left: 0, right: 0,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: theme.colors.card,
-    borderTopLeftRadius: theme.borderRadius.xl,
-    borderTopRightRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    paddingBottom: 40,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing.xl,
-  },
-  inputGroup: {
-    marginBottom: theme.spacing.lg,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: theme.colors.text.secondary,
-    marginBottom: 8,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    backgroundColor: theme.colors.background,
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  mockInputText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: theme.colors.text.primary,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: theme.spacing.md,
-  },
-  cancelBtn: {
+  statCard: {
     flex: 1,
-    paddingVertical: 16,
-    marginRight: theme.spacing.sm,
-    backgroundColor: theme.colors.border,
-    borderRadius: theme.borderRadius.pill,
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    marginHorizontal: 4,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
+    ...theme.shadows.sm,
   },
-  cancelBtnText: {
-    fontSize: 16,
-    fontWeight: '700',
+  statIconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.03)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  statValue: {
+    fontSize: 28,
+    fontWeight: '800',
     color: theme.colors.text.primary,
+    marginBottom: 4,
   },
-  saveBtn: {
-    flex: 2,
-    paddingVertical: 16,
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.pill,
-    alignItems: 'center',
+  statLabel: {
+    fontSize: 13,
+    color: theme.colors.text.secondary,
+    fontWeight: '600',
   },
-  saveBtnText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.text.inverse,
-  }
 });
