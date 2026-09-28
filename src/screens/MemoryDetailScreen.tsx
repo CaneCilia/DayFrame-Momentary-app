@@ -129,7 +129,7 @@ export const MemoryDetailScreen = () => {
             <Text style={styles.dateText}>{formattedDate}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TouchableOpacity onPress={handleToggleFavorite} style={[styles.actionIconButton, { marginRight: 8 }]}>
-                <Feather name="heart" size={20} color={memory.is_favorite ? theme.colors.accent : theme.colors.text.secondary} style={memory.is_favorite && { fill: theme.colors.accent }} />
+                <Feather name="heart" size={20} color={memory.is_favorite ? theme.colors.accent : theme.colors.text.secondary} />
               </TouchableOpacity>
               <TouchableOpacity onPress={handleShare} style={styles.shareButton} disabled={isGenerating}>
                 {isGenerating ? (
@@ -259,7 +259,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: theme.spacing.sm,
   },
-  actionIconButton: { paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, backgroundColor: theme.colors.card, borderRadius: theme.borderRadius.pill, ...theme.shadows.sm, }, shareButton: {
+  actionIconButton: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.pill,
+    ...theme.shadows.sm,
+  },
+  shareButton: {
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
     backgroundColor: theme.colors.card,
@@ -360,7 +367,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.colors.text.primary,
   },
-  confirmactionIconButton: { paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, backgroundColor: theme.colors.card, borderRadius: theme.borderRadius.pill, ...theme.shadows.sm, }, shareButton: {
+  confirmShareButton: {
     flex: 2,
     paddingVertical: 14,
     backgroundColor: theme.colors.primary,

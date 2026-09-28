@@ -54,7 +54,7 @@ export const FavoritesScreen = () => {
             <Text style={styles.noCaptionText}>A moment without words.</Text>
           )}
         </View>
-        <Feather name="heart" size={20} color={theme.colors.accent} style={[styles.heartIcon, { fill: theme.colors.accent }]} />
+        <Feather name="heart" size={20} color={theme.colors.accent} style={styles.heartIcon} />
       </TouchableOpacity>
     );
   };

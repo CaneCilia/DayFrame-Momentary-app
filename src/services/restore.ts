@@ -70,6 +70,7 @@ export const restoreFromCloud = async (db: SQLiteDatabase, userId: string) => {
         photoUri: destFile.uri,
         caption: cloudMemory.caption,
         sync_status: 'SYNCED', // Already synced since it came from the cloud
+        is_favorite: cloudMemory.is_favorite || 0,
       });
     }
 
