@@ -13,9 +13,10 @@ try {
   };
 }
 import { useSQLiteContext } from 'expo-sqlite';
-import { getMemoryById, Memory } from '../database/memories';
+import { getMemoryById, Memory, toggleFavorite } from '../database/memories';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
+import { Feather } from '@expo/vector-icons';
 
 type MemoryDetailScreenRouteProp = RouteProp<RootStackParamList, 'MemoryDetail'>;
 
@@ -38,6 +39,17 @@ export const MemoryDetailScreen = () => {
     };
     loadMemory();
   }, [db, route.params.memoryId]);
+
+  const handleToggleFavorite = async () => {
+    if (!memory) return;
+    try {
+      const newStatus = memory.is_favorite ? 0 : 1;
+      await toggleFavorite(db, memory.id, newStatus);
+      setMemory({ ...memory, is_favorite: newStatus });
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -115,13 +127,18 @@ export const MemoryDetailScreen = () => {
           <View style={styles.dragIndicator} />
           <View style={styles.headerRow}>
             <Text style={styles.dateText}>{formattedDate}</Text>
-            <TouchableOpacity onPress={handleShare} style={styles.shareButton} disabled={isGenerating}>
-              {isGenerating ? (
-                <ActivityIndicator size="small" color={theme.colors.primary} />
-              ) : (
-                <Text style={styles.shareText}>Share</Text>
-              )}
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity onPress={handleToggleFavorite} style={[styles.actionIconButton, { marginRight: 8 }]}>
+                <Feather name="heart" size={20} color={memory.is_favorite ? theme.colors.accent : theme.colors.text.secondary} style={memory.is_favorite && { fill: theme.colors.accent }} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleShare} style={styles.shareButton} disabled={isGenerating}>
+                {isGenerating ? (
+                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                ) : (
+                  <Text style={styles.shareText}>Share</Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
           {memory.caption ? (
             <Text style={styles.captionText}>{memory.caption}</Text>
@@ -242,7 +259,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: theme.spacing.sm,
   },
-  shareButton: {
+  actionIconButton: { paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, backgroundColor: theme.colors.card, borderRadius: theme.borderRadius.pill, ...theme.shadows.sm, }, shareButton: {
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
     backgroundColor: theme.colors.card,
@@ -343,7 +360,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.colors.text.primary,
   },
-  confirmShareButton: {
+  confirmactionIconButton: { paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, backgroundColor: theme.colors.card, borderRadius: theme.borderRadius.pill, ...theme.shadows.sm, }, shareButton: {
     flex: 2,
     paddingVertical: 14,
     backgroundColor: theme.colors.primary,
