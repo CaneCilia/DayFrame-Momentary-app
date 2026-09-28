@@ -1,95 +1,124 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Dimensions, StatusBar } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
 import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type SetupCompleteScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SetupComplete'>;
 
+const { height } = Dimensions.get('window');
+
 export const SetupCompleteScreen = ({ navigation }: { navigation: SetupCompleteScreenNavigationProp }) => {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.centerContent}>
-          <View style={styles.iconWrapper}>
-            <Feather name="check" size={48} color={theme.colors.card} />
-          </View>
-          <Text style={styles.title}>You're All Set</Text>
-          <Text style={styles.subtitle}>Your local vault is configured. It's time to start building your legacy, one frame at a time.</Text>
-        </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <ImageBackground 
+        source={{ uri: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?q=80&w=1000&auto=format&fit=crop' }} 
+        style={styles.backgroundImage}
+      >
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.95)']}
+          style={styles.gradient}
+        />
         
-        <View style={styles.actionContainer}>
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={() => navigation.replace('Home')}
-            activeOpacity={0.8}
-          >
-            <Feather name="camera" size={20} color={theme.colors.primary} style={{ marginRight: 8 }} />
-            <Text style={styles.buttonText}>Capture Today's Moment</Text>
-          </TouchableOpacity>
+        <View style={styles.content}>
+          <View style={styles.centerContent}>
+            <View style={styles.iconWrapper}>
+              <Feather name="check" size={48} color="#000000" />
+            </View>
+            <Text style={styles.title}>You're All Set</Text>
+            <Text style={styles.subtitle}>Your local vault is configured. It's time to start building your legacy, one frame at a time.</Text>
+          </View>
+          
+          <View style={styles.actionContainer}>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={() => navigation.replace('Home')}
+              activeOpacity={0.9}
+            >
+              <Feather name="camera" size={20} color="#000000" style={{ marginRight: 8 }} />
+              <Text style={styles.buttonText}>Capture Today's Moment</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#0A0A0C',
-  },
   container: { 
     flex: 1, 
-    padding: theme.spacing.lg 
+    backgroundColor: '#000',
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: height * 0.7,
+  },
+  content: {
+    flex: 1,
+    padding: theme.spacing.xl,
+    paddingTop: 80,
+    paddingBottom: 50,
+    justifyContent: 'space-between',
   },
   centerContent: { 
     flex: 1, 
-    justifyContent: 'center', 
+    justifyContent: 'flex-end', 
     alignItems: 'center',
     paddingHorizontal: theme.spacing.md,
+    paddingBottom: 60,
   },
   iconWrapper: {
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: theme.spacing.xxl,
+    marginBottom: theme.spacing.xl,
     borderWidth: 4,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   title: { 
-    fontSize: 40, 
+    fontSize: 48, 
     fontWeight: '800', 
     marginBottom: theme.spacing.md, 
-    color: theme.colors.text.inverse, 
+    color: '#FFFFFF', 
     textAlign: 'center',
-    letterSpacing: -1,
+    letterSpacing: -1.5,
   },
   subtitle: { 
     fontSize: 18, 
-    color: '#8E8E93', 
+    color: '#CCCCCC', 
     textAlign: 'center',
     lineHeight: 28,
     fontWeight: '500',
   },
   actionContainer: {
     width: '100%',
-    paddingBottom: theme.spacing.xl,
   },
   button: { 
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: theme.colors.card, 
+    backgroundColor: '#FFFFFF', 
     paddingVertical: 18, 
     borderRadius: theme.borderRadius.pill, 
     width: '100%', 
     alignItems: 'center', 
   },
   buttonText: { 
-    color: theme.colors.primary, 
+    color: '#000000', 
     fontSize: 16, 
     fontWeight: '800' 
   }
