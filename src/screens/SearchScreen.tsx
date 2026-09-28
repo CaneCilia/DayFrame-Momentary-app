@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
-import { Memory, searchMemories } from '../database/memories';
-import { CategoryList } from '../components/CategoryList';
-import { useNavigation } from '@react-navigation/native';
+import { Memory, searchMemories, getAllMemories } from '../database/memories';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
@@ -15,9 +14,21 @@ type SearchScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 
 export const SearchScreen = () => {
   const db = useSQLiteContext();
   const navigation = useNavigation<SearchScreenNavigationProp>();
+  const isFocused = useIsFocused();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Memory[]>([]);
+  const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    const fetchRecent = async () => {
+      try {
+        const all = await getAllMemories(db);
+        setRecentMemories(all.slice(0, 5)); // Get top 5 most recent
+      } catch (e) {}
+    };
+    if (isFocused) fetchRecent();
+  }, [isFocused, db]);
 
   useEffect(() => {
     const performSearch = async () => {
@@ -95,7 +106,7 @@ export const SearchScreen = () => {
             <Feather name="search" size={20} color={theme.colors.text.secondary} style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search moments, locations, people..."
+              placeholder="Search memories by caption..."
               placeholderTextColor={theme.colors.text.secondary}
               value={query}
               onChangeText={setQuery}
@@ -110,53 +121,35 @@ export const SearchScreen = () => {
         
         {query.trim().length === 0 ? (
           <ScrollView style={styles.v3Container} showsVerticalScrollIndicator={false}>
-            <CategoryList 
-              title="Collections"
-              categories={[
-                { id: 'travel', label: 'Travel', icon: 'map-pin' },
-                { id: 'birthday', label: 'Celebrations', icon: 'gift' },
-                { id: 'family', label: 'Family', icon: 'users' },
-                { id: 'nature', label: 'Nature', icon: 'image' },
-                { id: 'favorites', label: 'Favorites', icon: 'heart' },
-              ]} 
-            />
-            
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Featured Stories</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
-                {[
-                  { id: 1, title: 'Summer 2026', meta: '12 Memories', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80' },
-                  { id: 2, title: 'Japan Trip', meta: '45 Memories', img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80' },
-                  { id: 3, title: 'Graduation', meta: '8 Memories', img: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&q=80' }
-                ].map((item) => (
-                  <View key={item.id} style={styles.templateCard}>
-                    <View style={styles.templateThumbWrapper}>
-                      <Image source={{ uri: item.img }} style={styles.templateThumb} />
-                      <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.8)']}
-                        style={styles.templateGradient}
-                      />
-                    </View>
-                    <View style={styles.templateInfo}>
-                      <Text style={styles.templateName}>{item.title}</Text>
-                      <Text style={styles.templateMeta}>{item.meta}</Text>
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
-            
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Recent Searches</Text>
-              <View style={styles.recentSearchChips}>
-                {['beach trip', 'summer 2026', 'graduation'].map(term => (
-                  <TouchableOpacity key={term} style={styles.recentChip} onPress={() => setQuery(term)}>
-                    <Feather name="clock" size={14} color={theme.colors.text.secondary} style={{ marginRight: 6 }} />
-                    <Text style={styles.recentChipText}>{term}</Text>
-                  </TouchableOpacity>
-                ))}
+            {recentMemories.length > 0 && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Recent Highlights</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
+                  {recentMemories.map((item) => (
+                    <TouchableOpacity 
+                      key={item.id} 
+                      style={styles.templateCard}
+                      activeOpacity={0.9}
+                      onPress={() => navigation.navigate('MemoryDetail', { memoryId: item.id })}
+                    >
+                      <View style={styles.templateThumbWrapper}>
+                        <Image source={{ uri: item.photoUri }} style={styles.templateThumb} />
+                        <LinearGradient
+                          colors={['transparent', 'rgba(0,0,0,0.85)']}
+                          style={styles.templateGradient}
+                        />
+                      </View>
+                      <View style={styles.templateInfo}>
+                        <Text style={styles.templateName} numberOfLines={1}>{item.caption || "A moment to remember"}</Text>
+                        <Text style={styles.templateMeta}>
+                          {new Date(item.date + 'T12:00:00Z').toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
-            </View>
+            )}
           </ScrollView>
         ) : query.trim().length > 0 && results.length === 0 && !isSearching ? (
           <View style={styles.emptyContainer}>
@@ -302,7 +295,7 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.md,
   },
   templateCard: {
-    width: 160,
+    width: 240,
     backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.lg,
     marginRight: theme.spacing.md,
@@ -313,12 +306,13 @@ const styles = StyleSheet.create({
   },
   templateThumbWrapper: {
     width: '100%',
-    height: 200,
+    height: 300,
     position: 'relative',
   },
   templateThumb: {
     width: '100%',
     height: '100%',
+    backgroundColor: theme.colors.border,
   },
   templateGradient: {
     position: 'absolute',
@@ -327,38 +321,24 @@ const styles = StyleSheet.create({
     height: '50%',
   },
   templateInfo: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     padding: theme.spacing.md,
   },
   templateName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.text.primary,
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#FFFFFF',
     marginBottom: 2,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   templateMeta: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: theme.colors.text.secondary,
-  },
-  recentSearchChips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  recentChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.card,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: theme.borderRadius.pill,
-    marginRight: theme.spacing.sm,
-    marginBottom: theme.spacing.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-  },
-  recentChipText: {
     fontSize: 14,
-    color: theme.colors.text.primary,
     fontWeight: '600',
+    color: 'rgba(255,255,255,0.8)',
   }
 });
