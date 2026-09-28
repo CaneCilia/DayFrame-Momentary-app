@@ -13,8 +13,10 @@ export async function initializeDatabase(db: SQLiteDatabase) {
         date TEXT NOT NULL UNIQUE,
         photoUri TEXT NOT NULL,
         caption TEXT,
-        sync_status TEXT DEFAULT 'PENDING'
+        sync_status TEXT DEFAULT 'PENDING',
+        is_favorite INTEGER DEFAULT 0
       );
+
 
       CREATE TABLE IF NOT EXISTS sync_queue (
         id TEXT PRIMARY KEY NOT NULL,
@@ -38,6 +40,13 @@ export async function initializeDatabase(db: SQLiteDatabase) {
         value TEXT
       );
     `);
+
+    // Migration for Phase 10: Add is_favorite column if it doesn't exist
+    try {
+      await db.runAsync(`ALTER TABLE memories ADD COLUMN is_favorite INTEGER DEFAULT 0;`);
+    } catch (e) {
+      // Column might already exist, ignore error
+    }
 
     await db.runAsync(`
       CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(

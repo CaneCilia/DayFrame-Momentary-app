@@ -6,6 +6,7 @@ export interface Memory {
   photoUri: string;
   caption: string | null;
   sync_status: string;
+  is_favorite: number;
   highlighted_caption?: string;
 }
 
@@ -30,8 +31,8 @@ export const getMemoryByDate = async (db: SQLiteDatabase, date: string): Promise
  */
 export const insertMemory = async (db: SQLiteDatabase, memory: Memory): Promise<void> => {
   await db.runAsync(
-    'INSERT INTO memories (id, date, photoUri, caption, sync_status) VALUES (?, ?, ?, ?, ?)',
-    [memory.id, memory.date, memory.photoUri, memory.caption, memory.sync_status]
+    'INSERT INTO memories (id, date, photoUri, caption, sync_status, is_favorite) VALUES (?, ?, ?, ?, ?, ?)',
+    [memory.id, memory.date, memory.photoUri, memory.caption, memory.sync_status, memory.is_favorite || 0]
   );
 };
 
@@ -168,3 +169,18 @@ export const updateMemoryCaption = async (db: SQLiteDatabase, id: string, captio
     [caption, 'PENDING', id]
   );
 };
+
+/**
+ * Toggle the favorite status of a memory.
+ */
+export const toggleFavorite = async (db: SQLiteDatabase, id: string, is_favorite: number): Promise<void> => {
+  await db.runAsync('UPDATE memories SET is_favorite = ?, sync_status = ? WHERE id = ?', [is_favorite, 'PENDING', id]);
+};
+
+/**
+ * Fetch all favorite memories.
+ */
+export const getFavoriteMemories = async (db: SQLiteDatabase): Promise<Memory[]> => {
+  return await db.getAllAsync<Memory>('SELECT * FROM memories WHERE is_favorite = 1 ORDER BY date DESC');
+};
+

@@ -162,6 +162,7 @@ export const CaptureScreen = () => {
         photoUri: localUri,
         caption: null,
         sync_status: 'PENDING',
+        is_favorite: 0,
       });
 
       await enqueueSyncOperation(db, 'UPLOAD_PHOTO', memoryId, 'MEMORY');
