@@ -381,13 +381,21 @@ export const CalendarScreen = () => {
                       />
                       {item.photoUri ? (
                         <Image source={{ uri: item.photoUri }} style={styles.dayItemThumb} />
-                      ) : null}
+                      ) : (
+                        <View style={[styles.dayItemThumbPlaceholder, { backgroundColor: item.color || theme.colors.primary }]}>
+                          <Feather name={item.type === 'memory' ? 'heart' : item.type === 'photo' ? 'camera' : 'calendar'} size={14} color="#FFFFFF" />
+                        </View>
+                      )}
                       <View style={styles.dayItemContent}>
-                        <Text style={styles.dayItemTitle} numberOfLines={1}>
-                          {item.title}
-                        </Text>
+                        <View style={styles.dayItemHeaderLine}>
+                          <Text style={styles.dayItemTitle} numberOfLines={1}>
+                            {item.title}
+                          </Text>
+                          <Text style={styles.dayItemDateText}>{item.date}</Text>
+                        </View>
                         <Text style={styles.dayItemMeta}>
                           {item.type.toUpperCase()} • {item.durationHours}h span
+                          {item.notes ? ` • ${item.notes.substring(0, 36)}${item.notes.length > 36 ? '...' : ''}` : ''}
                         </Text>
                       </View>
                       <Feather name="chevron-right" size={16} color={theme.colors.text.secondary} />
@@ -429,6 +437,41 @@ export const CalendarScreen = () => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Bottom Navigation Bar */}
+      <View style={styles.navBar}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Home')}
+          activeOpacity={0.8}
+        >
+          <Feather name="home" size={22} color={theme.colors.text.secondary} />
+          <Text style={styles.navText}>Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navItem} activeOpacity={0.8}>
+          <Feather name="calendar" size={22} color={theme.colors.primary} />
+          <Text style={[styles.navText, { color: theme.colors.primary }]}>Calendar</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Gallery')}
+          activeOpacity={0.8}
+        >
+          <Feather name="image" size={22} color={theme.colors.text.secondary} />
+          <Text style={styles.navText}>Gallery</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Timeline')}
+          activeOpacity={0.8}
+        >
+          <Feather name="grid" size={22} color={theme.colors.text.secondary} />
+          <Text style={styles.navText}>Memories</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Add Event / Memory Modal */}
       <AddEventModal
@@ -680,5 +723,44 @@ const styles = StyleSheet.create({
     color: theme.colors.text.secondary,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  dayItemThumbPlaceholder: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  dayItemHeaderLine: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  dayItemDateText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: theme.colors.text.secondary,
+    marginLeft: 6,
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: theme.colors.card,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.sm,
+  },
+  navText: {
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 4,
+    color: theme.colors.text.secondary,
   },
 });

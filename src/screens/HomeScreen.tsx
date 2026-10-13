@@ -75,6 +75,9 @@ export const HomeScreen = () => {
             <Text style={styles.dateText}>{todayStr}</Text>
           </View>
           <View style={styles.headerRight}>
+            <TouchableOpacity onPress={() => navigation.navigate('Search')} style={{ marginRight: 12 }}>
+              <Feather name="search" size={24} color={theme.colors.text.primary} />
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Favorites')} style={{ marginRight: 12 }}>
               <Feather name="heart" size={24} color={theme.colors.text.primary} />
             </TouchableOpacity>
@@ -178,17 +181,17 @@ export const HomeScreen = () => {
             <Feather name="home" size={24} color={theme.colors.primary} />
             <Text style={[styles.navText, { color: theme.colors.primary }]}>Home</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Search')} activeOpacity={0.8}>
-            <Feather name="search" size={24} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Search</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Timeline')} activeOpacity={0.8}>
-            <Feather name="grid" size={24} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Timeline</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Calendar')} activeOpacity={0.8}>
             <Feather name="calendar" size={24} color={theme.colors.text.secondary} />
             <Text style={styles.navText}>Calendar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Gallery')} activeOpacity={0.8}>
+            <Feather name="image" size={24} color={theme.colors.text.secondary} />
+            <Text style={styles.navText}>Gallery</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Timeline')} activeOpacity={0.8}>
+            <Feather name="grid" size={24} color={theme.colors.text.secondary} />
+            <Text style={styles.navText}>Memories</Text>
           </TouchableOpacity>
         </View>
       </View>
