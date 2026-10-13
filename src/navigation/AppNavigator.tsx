@@ -18,6 +18,7 @@ import { PrivacyScreen } from '../screens/PrivacyScreen';
 import { StorageScreen } from '../screens/StorageScreen';
 import { YearlyRecapScreen } from '../screens/YearlyRecapScreen';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
+import { GalleryScreen } from '../screens/GalleryScreen';
 
 // Define navigation types
 export type RootStackParamList = {
@@ -30,6 +31,7 @@ export type RootStackParamList = {
   Capture: undefined;
   Timeline: undefined;
   Calendar: undefined;
+  Gallery: undefined;
   MemoryDetail: { memoryId: string }; // Example parameter
   Auth: undefined;
   Search: undefined;
@@ -89,6 +91,11 @@ export const AppNavigator = () => {
           name="Calendar" 
           component={CalendarScreen} 
           options={{ title: 'Calendar' }}
+        />
+        <Stack.Screen 
+          name="Gallery" 
+          component={GalleryScreen} 
+          options={{ title: 'Gallery', headerShown: false }}
         />
         <Stack.Screen 
           name="MemoryDetail" 
