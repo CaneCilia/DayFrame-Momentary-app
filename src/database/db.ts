@@ -39,6 +39,21 @@ export async function initializeDatabase(db: SQLiteDatabase) {
         key TEXT PRIMARY KEY NOT NULL,
         value TEXT
       );
+
+      CREATE TABLE IF NOT EXISTS timeline_events (
+        id TEXT PRIMARY KEY NOT NULL,
+        title TEXT NOT NULL,
+        type TEXT NOT NULL,
+        date TEXT NOT NULL,
+        end_date TEXT,
+        start_time TEXT,
+        end_time TEXT,
+        duration_hours REAL DEFAULT 1,
+        notes TEXT,
+        photo_uri TEXT,
+        color TEXT,
+        created_at TEXT NOT NULL
+      );
     `);
 
     // Migration for Phase 10: Add is_favorite column if it doesn't exist
