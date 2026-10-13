@@ -8,6 +8,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { restoreFromCloud } from '../services/restore';
 import { theme } from '../utils/theme';
 import { SyncIndicator } from '../components/SyncIndicator';
+import { Feather } from '@expo/vector-icons';
 
 import { GoogleDriveService } from '../services/GoogleDriveService';
 
