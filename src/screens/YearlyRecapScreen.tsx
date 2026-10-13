@@ -93,7 +93,7 @@ export const YearlyRecapScreen = ({ navigation }: { navigation: YearlyRecapScree
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
-            <Text style={styles.closeText}>✕</Text>
+            <Feather name="x" size={20} color="#FFF" />
           </TouchableOpacity>
         </View>
         <View style={styles.emptyContainer}>
@@ -132,7 +132,7 @@ export const YearlyRecapScreen = ({ navigation }: { navigation: YearlyRecapScree
           <Text style={styles.musicText}>{currentYear} in Review Mix</Text>
         </View>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
-          <Text style={styles.closeText}>✕</Text>
+          <Feather name="x" size={20} color="#FFF" />
         </TouchableOpacity>
       </View>
 
