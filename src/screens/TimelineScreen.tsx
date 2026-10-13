@@ -196,6 +196,41 @@ export const TimelineScreen = () => {
             )}
           </View>
         )}
+
+        {/* Bottom Navigation Bar */}
+        <View style={styles.navBar}>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Home')}
+            activeOpacity={0.8}
+          >
+            <Feather name="home" size={22} color={theme.colors.text.secondary} />
+            <Text style={styles.navText}>Home</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Calendar')}
+            activeOpacity={0.8}
+          >
+            <Feather name="calendar" size={22} color={theme.colors.text.secondary} />
+            <Text style={styles.navText}>Calendar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Gallery')}
+            activeOpacity={0.8}
+          >
+            <Feather name="image" size={22} color={theme.colors.text.secondary} />
+            <Text style={styles.navText}>Gallery</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navItem} activeOpacity={0.8}>
+            <Feather name="grid" size={22} color={theme.colors.primary} />
+            <Text style={[styles.navText, { color: theme.colors.primary }]}>Memories</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -343,5 +378,25 @@ const styles = StyleSheet.create({
     color: theme.colors.text.secondary,
     marginVertical: theme.spacing.sm,
     textAlign: 'center',
-  }
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: theme.colors.card,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.sm,
+  },
+  navText: {
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 4,
+    color: theme.colors.text.secondary,
+  },
 });
