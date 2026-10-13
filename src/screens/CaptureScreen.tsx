@@ -58,7 +58,7 @@ export const CaptureScreen = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const cameraRef = useRef<CameraView>(null);
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const navigation = useNavigation<CaptureScreenNavigationProp>();
   const db = useSQLiteContext();
 
@@ -631,7 +631,11 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   gridOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   gridLineVertical: {
     position: 'absolute',
