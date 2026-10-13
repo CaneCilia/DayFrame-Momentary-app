@@ -135,7 +135,7 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           activeOpacity={0.7}
         >
           <Text style={styles.menuRowText}>Storage & Data</Text>
-          <Text style={styles.menuRowArrow}>›</Text>
+          <Feather name="chevron-right" size={18} color={theme.colors.text.secondary} />
         </TouchableOpacity>
         
         <TouchableOpacity 
@@ -144,7 +144,7 @@ export const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           activeOpacity={0.7}
         >
           <Text style={styles.menuRowText}>Privacy Hub</Text>
-          <Text style={styles.menuRowArrow}>›</Text>
+          <Feather name="chevron-right" size={18} color={theme.colors.text.secondary} />
         </TouchableOpacity>
       </View>
     </View>
