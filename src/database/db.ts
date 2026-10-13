@@ -54,6 +54,33 @@ export async function initializeDatabase(db: SQLiteDatabase) {
         color TEXT,
         created_at TEXT NOT NULL
       );
+
+      CREATE TABLE IF NOT EXISTS folders (
+        id TEXT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
+        parent_id TEXT,
+        thumbnail_uri TEXT,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS albums (
+        id TEXT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
+        cover_photo_uri TEXT,
+        folder_id TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS album_items (
+        id TEXT PRIMARY KEY NOT NULL,
+        album_id TEXT NOT NULL,
+        photo_uri TEXT NOT NULL,
+        title TEXT,
+        item_type TEXT DEFAULT 'photo',
+        date TEXT,
+        created_at TEXT NOT NULL
+      );
     `);
 
     // Migration for Phase 10: Add is_favorite column if it doesn't exist
