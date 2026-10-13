@@ -119,40 +119,44 @@ export const HomeScreen = () => {
             </View>
           ) : (
             <View style={styles.captureSection}>
-              <Text style={styles.sectionHeading}>Capture the Moment</Text>
-              <Text style={styles.sectionSubheading}>Save today's moments before they become memories.</Text>
+              <Text style={styles.sectionHeading}>Daily Moment</Text>
+              <Text style={styles.sectionSubheading}>Record today's highlight before midnight.</Text>
               
               <View style={styles.captureActionRow}>
                 <TouchableOpacity style={styles.actionCard} onPress={handleCapturePress} activeOpacity={0.8}>
                   <View style={styles.iconCircle}>
                     <Feather name="camera" size={24} color={theme.colors.text.primary} />
                   </View>
-                  <Text style={styles.actionText}>Photo</Text>
+                  <Text style={styles.actionText}>Take Photo</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionCard} onPress={handleCapturePress} activeOpacity={0.8}>
                   <View style={styles.iconCircle}>
                     <Feather name="video" size={24} color={theme.colors.text.primary} />
                   </View>
-                  <Text style={styles.actionText}>Video</Text>
+                  <Text style={styles.actionText}>Record Video</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
 
           <View style={styles.contributionSection}>
-            <Text style={styles.sectionHeading}>Memory Contribution</Text>
-            <Text style={styles.sectionSubheading}>Add stories, locations, and invite friends.</Text>
-            <TouchableOpacity style={styles.contributeButton} activeOpacity={0.8}>
-              <Feather name="plus" size={20} color={theme.colors.text.inverse} style={{ marginRight: 8 }} />
-              <Text style={styles.contributeButtonText}>Contribute to a Memory</Text>
+            <Text style={styles.sectionHeading}>Habit & Consistency</Text>
+            <Text style={styles.sectionSubheading}>Daily memory activity across the past 14 weeks.</Text>
+            <TouchableOpacity 
+              style={styles.contributeButton} 
+              onPress={() => navigation.navigate('Timeline')}
+              activeOpacity={0.8}
+            >
+              <Feather name="grid" size={18} color={theme.colors.text.inverse} style={{ marginRight: 8 }} />
+              <Text style={styles.contributeButtonText}>Explore Full Timeline</Text>
             </TouchableOpacity>
             <ContributionGraph />
           </View>
 
-          {onThisDayMemories.length > 0 && !loading && (
+          {onThisDayMemories.length > 0 && !loading ? (
             <View style={styles.onThisDayContainer}>
               <Text style={styles.sectionHeading}>On This Day</Text>
-              <Text style={styles.sectionSubheading}>Rediscover past years.</Text>
+              <Text style={styles.sectionSubheading}>Rediscover past years on this exact date.</Text>
               {onThisDayMemories.map((mem) => {
                 const yearsAgo = parseInt(getTodayDateString().split('-')[0]) - parseInt(mem.date.split('-')[0]);
                 return (
@@ -164,7 +168,7 @@ export const HomeScreen = () => {
                   >
                     <Image source={{ uri: mem.photoUri }} style={styles.onThisDayImage} />
                     <LinearGradient
-                      colors={['transparent', 'rgba(0,0,0,0.8)']}
+                      colors={['transparent', 'rgba(0,0,0,0.85)']}
                       style={styles.onThisDayOverlay}
                     >
                       <Text style={styles.onThisDayYears}>{yearsAgo} {yearsAgo === 1 ? 'Year' : 'Years'} Ago Today</Text>
@@ -172,6 +176,18 @@ export const HomeScreen = () => {
                   </TouchableOpacity>
                 );
               })}
+            </View>
+          ) : !loading && (
+            <View style={styles.capsuleCard}>
+              <View style={styles.capsuleIconWrap}>
+                <Feather name="clock" size={22} color={theme.colors.primary} />
+              </View>
+              <View style={styles.capsuleTextWrap}>
+                <Text style={styles.capsuleTitle}>Time Capsule Flashbacks</Text>
+                <Text style={styles.capsuleDesc}>
+                  As you capture moments each day, past years' memories will automatically resurface here on their anniversary.
+                </Text>
+              </View>
             </View>
           )}
         </ScrollView>
@@ -460,5 +476,39 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 4,
     color: theme.colors.text.secondary,
-  }
+  },
+  capsuleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.card,
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    marginBottom: theme.spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.04)',
+    ...theme.shadows.sm,
+  },
+  capsuleIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0,0,0,0.04)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  capsuleTextWrap: {
+    flex: 1,
+  },
+  capsuleTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: theme.colors.text.primary,
+    marginBottom: 4,
+  },
+  capsuleDesc: {
+    fontSize: 13,
+    color: theme.colors.text.secondary,
+    lineHeight: 18,
+  },
 });
