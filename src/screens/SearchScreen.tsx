@@ -135,7 +135,7 @@ export const SearchScreen = () => {
                       <View style={styles.templateThumbWrapper}>
                         <Image source={{ uri: item.photoUri }} style={styles.templateThumb} />
                         <LinearGradient
-                          colors={['transparent', 'rgba(0,0,0,0.85)']}
+                          colors={theme.gradients.scrimDark}
                           style={styles.templateGradient}
                         />
                       </View>

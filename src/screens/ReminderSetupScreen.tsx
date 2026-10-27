@@ -47,7 +47,7 @@ export const ReminderSetupScreen = ({ navigation }: { navigation: ReminderSetupS
         style={styles.backgroundImage}
       >
         <LinearGradient
-          colors={['rgba(0,0,0,0.8)', 'rgba(0,0,0,0.95)']}
+          colors={theme.gradients.subtleDark}
           style={styles.gradient}
         />
         

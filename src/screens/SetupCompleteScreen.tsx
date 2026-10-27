@@ -19,7 +19,7 @@ export const SetupCompleteScreen = ({ navigation }: { navigation: SetupCompleteS
         style={styles.backgroundImage}
       >
         <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.95)']}
+          colors={theme.gradients.scrimDeep}
           style={styles.gradient}
         />
         

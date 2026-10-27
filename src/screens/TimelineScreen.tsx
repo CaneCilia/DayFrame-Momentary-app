@@ -108,7 +108,7 @@ export const TimelineScreen = () => {
           >
             <Image source={{ uri: memory.photoUri }} style={styles.thumbnail} />
             <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.8)']}
+              colors={theme.gradients.scrimDark}
               style={styles.gradientOverlay}
             />
             <Text style={styles.dateText}>

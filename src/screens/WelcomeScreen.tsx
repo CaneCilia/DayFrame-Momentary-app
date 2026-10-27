@@ -19,7 +19,7 @@ export const WelcomeScreen = ({ navigation }: { navigation: WelcomeScreenNavigat
         style={styles.backgroundImage}
       >
         <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.95)']}
+          colors={theme.gradients.scrimDeep}
           style={styles.gradient}
         />
         

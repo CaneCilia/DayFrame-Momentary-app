@@ -104,7 +104,7 @@ export const HomeScreen = () => {
               <View style={styles.imageWrapper}>
                 <Image source={{ uri: todayMemory.photoUri }} style={styles.memoryImage} />
                 <LinearGradient
-                  colors={['transparent', 'rgba(0,0,0,0.7)']}
+                  colors={theme.gradients.scrimDark}
                   style={styles.imageOverlay}
                 >
                   <View style={styles.memoryStatus}>
@@ -168,7 +168,7 @@ export const HomeScreen = () => {
                   >
                     <Image source={{ uri: mem.photoUri }} style={styles.onThisDayImage} />
                     <LinearGradient
-                      colors={['transparent', 'rgba(0,0,0,0.85)']}
+                      colors={theme.gradients.scrimDark}
                       style={styles.onThisDayOverlay}
                     >
                       <Text style={styles.onThisDayYears}>{yearsAgo} {yearsAgo === 1 ? 'Year' : 'Years'} Ago Today</Text>

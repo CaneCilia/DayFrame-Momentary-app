@@ -140,7 +140,7 @@ export const YearlyRecapScreen = ({ navigation }: { navigation: YearlyRecapScree
         <View style={styles.storyContainer}>
           <Image source={{ uri: currentMemory.photoUri }} style={styles.storyImage} />
           <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.8)', '#000']}
+            colors={theme.gradients.scrimDeep}
             style={styles.overlayGradient}
           >
             <View style={styles.textContainer}>
