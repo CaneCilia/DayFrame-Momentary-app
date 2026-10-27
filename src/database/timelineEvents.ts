@@ -1,5 +1,6 @@
 import { type SQLiteDatabase } from 'expo-sqlite';
 import { getAllMemories, Memory } from './memories';
+import { theme } from '../utils/theme';
 
 export type TimelineItemType = 'photo' | 'memory' | 'event' | 'note' | 'milestone';
 
@@ -103,23 +104,10 @@ export const getEventsByDate = async (
 };
 
 /**
- * Color mapper helper for item types
+ * Color mapper helper for item types (Solid, mature, production-grade palette)
  */
 export const getTypeColor = (type: TimelineItemType): string => {
-  switch (type) {
-    case 'memory':
-      return '#6C5CE7'; // Indigo/Purple
-    case 'photo':
-      return '#0984E3'; // Vibrant Blue
-    case 'event':
-      return '#00B894'; // Emerald Mint
-    case 'note':
-      return '#F39C12'; // Warm Amber
-    case 'milestone':
-      return '#E17055'; // Coral Flame
-    default:
-      return '#6C5CE7';
-  }
+  return theme.colors.itemTypes[type] || theme.colors.itemTypes.memory;
 };
 
 /**

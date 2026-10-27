@@ -67,7 +67,7 @@ export const CalendarScreen = () => {
             duration_hours: 4,
             notes: 'Spectacular sunrise views and peaceful trails.',
             photo_uri: null,
-            color: '#0984E3',
+            color: theme.colors.itemTypes.photo,
             created_at: new Date().toISOString()
           },
           {
@@ -78,7 +78,7 @@ export const CalendarScreen = () => {
             duration_hours: 6,
             notes: 'Quarterly roadmapping and sprint planning session.',
             photo_uri: null,
-            color: '#00B894',
+            color: theme.colors.itemTypes.event,
             created_at: new Date().toISOString()
           },
           {
@@ -89,7 +89,7 @@ export const CalendarScreen = () => {
             duration_hours: 2,
             notes: 'Caught up on life and upcoming projects.',
             photo_uri: null,
-            color: '#F39C12',
+            color: theme.colors.itemTypes.note,
             created_at: new Date().toISOString()
           },
           {
@@ -100,7 +100,7 @@ export const CalendarScreen = () => {
             duration_hours: 8,
             notes: 'Cruising down the coastal highway with great music.',
             photo_uri: null,
-            color: '#6C5CE7',
+            color: theme.colors.itemTypes.memory,
             created_at: new Date().toISOString()
           },
           {
@@ -111,7 +111,7 @@ export const CalendarScreen = () => {
             duration_hours: 4,
             notes: 'Successfully achieved the 100-day journaling streak!',
             photo_uri: null,
-            color: '#E17055',
+            color: theme.colors.itemTypes.milestone,
             created_at: new Date().toISOString()
           },
           {
@@ -122,7 +122,7 @@ export const CalendarScreen = () => {
             duration_hours: 3,
             notes: 'Golden hour captures at the bay.',
             photo_uri: null,
-            color: '#0984E3',
+            color: theme.colors.itemTypes.photo,
             created_at: new Date().toISOString()
           },
           {
@@ -133,7 +133,7 @@ export const CalendarScreen = () => {
             duration_hours: 2,
             notes: 'Reflecting on achievements, learnings and memories.',
             photo_uri: null,
-            color: '#F39C12',
+            color: theme.colors.itemTypes.note,
             created_at: new Date().toISOString()
           }
         ];
@@ -421,7 +421,7 @@ export const CalendarScreen = () => {
 
             <View style={styles.statCard}>
               <View style={styles.statIconWrapper}>
-                <Feather name="calendar" size={18} color="#00B894" />
+                <Feather name="calendar" size={18} color={theme.colors.itemTypes.event} />
               </View>
               <Text style={styles.statValue}>{memoryStats.thisMonth}</Text>
               <Text style={styles.statLabel}>This Month</Text>
@@ -429,7 +429,7 @@ export const CalendarScreen = () => {
 
             <View style={styles.statCard}>
               <View style={styles.statIconWrapper}>
-                <Feather name="heart" size={18} color="#6C5CE7" />
+                <Feather name="heart" size={18} color={theme.colors.itemTypes.memory} />
               </View>
               <Text style={styles.statValue}>{memoryStats.memoriesCaptured}</Text>
               <Text style={styles.statLabel}>Memories</Text>

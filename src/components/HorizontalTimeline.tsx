@@ -330,19 +330,19 @@ export const HorizontalTimeline: React.FC<HorizontalTimelineProps> = ({
           </Text>
           <View style={styles.timelineLegend}>
             <View style={styles.legendDotItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#6C5CE7' }]} />
+              <View style={[styles.legendDot, { backgroundColor: theme.colors.itemTypes.memory }]} />
               <Text style={styles.legendLabel}>Memory</Text>
             </View>
             <View style={styles.legendDotItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#00B894' }]} />
+              <View style={[styles.legendDot, { backgroundColor: theme.colors.itemTypes.event }]} />
               <Text style={styles.legendLabel}>Event</Text>
             </View>
             <View style={styles.legendDotItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#0984E3' }]} />
+              <View style={[styles.legendDot, { backgroundColor: theme.colors.itemTypes.photo }]} />
               <Text style={styles.legendLabel}>Photo</Text>
             </View>
             <View style={styles.legendDotItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#F39C12' }]} />
+              <View style={[styles.legendDot, { backgroundColor: theme.colors.itemTypes.note }]} />
               <Text style={styles.legendLabel}>Note</Text>
             </View>
           </View>

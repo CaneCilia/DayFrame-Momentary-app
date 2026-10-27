@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   restoreButton: { 
-    backgroundColor: '#007AFF', 
+    backgroundColor: theme.colors.primary, 
     marginBottom: theme.spacing.md,
   },
   disabledButton: {

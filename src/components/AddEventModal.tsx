@@ -32,11 +32,11 @@ interface AddEventModalProps {
 }
 
 const TYPE_OPTIONS: { type: TimelineItemType; label: string; icon: keyof typeof Feather.glyphMap; color: string }[] = [
-  { type: 'event', label: 'Event', icon: 'calendar', color: '#00B894' },
-  { type: 'memory', label: 'Memory', icon: 'heart', color: '#6C5CE7' },
-  { type: 'photo', label: 'Photo', icon: 'camera', color: '#0984E3' },
-  { type: 'note', label: 'Note', icon: 'file-text', color: '#F39C12' },
-  { type: 'milestone', label: 'Milestone', icon: 'flag', color: '#E17055' },
+  { type: 'event', label: 'Event', icon: 'calendar', color: theme.colors.itemTypes.event },
+  { type: 'memory', label: 'Memory', icon: 'heart', color: theme.colors.itemTypes.memory },
+  { type: 'photo', label: 'Photo', icon: 'camera', color: theme.colors.itemTypes.photo },
+  { type: 'note', label: 'Note', icon: 'file-text', color: theme.colors.itemTypes.note },
+  { type: 'milestone', label: 'Milestone', icon: 'flag', color: theme.colors.itemTypes.milestone },
 ];
 
 const DURATION_PRESETS = [

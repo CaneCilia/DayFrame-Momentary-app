@@ -198,14 +198,14 @@ const styles = StyleSheet.create({
   clearButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#007AFF', // Use a standard blue or accent color
+    borderColor: theme.colors.border,
     borderRadius: theme.borderRadius.pill,
     paddingVertical: theme.spacing.md,
     alignItems: 'center',
     marginTop: theme.spacing.sm,
   },
   clearButtonText: {
-    color: '#007AFF',
+    color: theme.colors.text.primary,
     fontSize: 16,
     fontWeight: '600',
   }
