@@ -127,6 +127,31 @@ Make categories accessible throughout the app using consistent category componen
 Use:
 * Rounded category chips, Icons + labels, Horizontal scrolling, Search/filter, Recently used categories, Custom category option
 
+---
+
+## 6. Color Direction & Design System Philosophy
+
+### Core Rules
+* **Avoid dual-gradient color treatments:** Strictly avoid neon, complementary-color pairs, or multi-hue transitions (e.g. purple-to-pink, cyan-to-purple) that create a cheap, "vibe-coded / AI-generated UI" feel.
+* **Prioritize Single Gradients:**
+  * Black → transparent (scrim overlays for photo readability and contrast).
+  * White → transparent (subtle content fades).
+  * One primary color → a related subtle monochromatic tone (e.g., `#1A1A1A` → `#111111`).
+* **Solid Colors for UI Elements:**
+  * Buttons, inputs, modals, cards, badges, and headers should use solid, purposeful, well-balanced surfaces.
+  * Primary actions utilize timeless solid neutrals (deep rich blacks, clean whites, and subtle tactile grays).
+* **Subtle Tonal Variations:**
+  * Surfaces utilize delicate stepped neutral tones (`#FFFFFF`, `#F9F9FB`, `#F2F2F7`, `#E5E5EA`).
+  * Category chips and badges use muted, grounded pigments (e.g. deep slate, warm sienna, dark pine) rather than harsh oversaturated candy hues.
+* **Keep Color System Clean, Controlled, and Premium:**
+  * The photo memories themselves supply vibrant color and life.
+  * The UI framework remains an understated, elegant editorial frame that lets photography take center stage.
+
+### Overall Direction
+The goal is to move away from a "vibe-coded / AI-generated UI" appearance and toward a **refined, cohesive, production-ready product design** with strong visual hierarchy, detailed content, purposeful imagery, and a consistent design system.
+
+---
+
 ## Overall Navigation
 
 **Home**
