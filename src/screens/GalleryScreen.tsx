@@ -33,6 +33,7 @@ import {
 import { PhotoViewerModal } from '../components/PhotoViewerModal';
 import { AlbumDetailModal } from '../components/AlbumDetailModal';
 import { FolderModal } from '../components/FolderModal';
+import { BottomNavBar } from '../components/BottomNavBar';
 
 type GalleryScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Gallery'>;
 
@@ -498,40 +499,8 @@ export const GalleryScreen = () => {
           </ScrollView>
         )}
 
-        {/* Bottom Navigation Bar: Home | Calendar | Gallery | Memories */}
-        <View style={styles.navBar}>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Home')}
-            activeOpacity={0.8}
-          >
-            <Feather name="home" size={22} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Home</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Calendar')}
-            activeOpacity={0.8}
-          >
-            <Feather name="calendar" size={22} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Calendar</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} activeOpacity={0.8}>
-            <Feather name="image" size={22} color={theme.colors.primary} />
-            <Text style={[styles.navText, { color: theme.colors.primary }]}>Gallery</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Timeline')}
-            activeOpacity={0.8}
-          >
-            <Feather name="grid" size={22} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Memories</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Unified Editorial Bottom Navigation */}
+        <BottomNavBar currentTab="Gallery" />
       </View>
 
       {/* Modals */}
@@ -584,10 +553,10 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xs,
   },
   pageTitle: {
-    fontSize: 30,
-    fontWeight: '800',
+    fontSize: 22,
+    fontWeight: '600',
     color: theme.colors.text.primary,
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
   },
   pageSubtitle: {
     fontSize: 13,
@@ -602,32 +571,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.primary,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: theme.borderRadius.pill,
-    ...theme.shadows.md,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: theme.borderRadius.xs,
   },
   addMediaBtnText: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: -0.2,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.pill,
+    borderRadius: theme.borderRadius.xs,
     marginHorizontal: theme.spacing.lg,
     marginTop: theme.spacing.md,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.04)',
-    ...theme.shadows.sm,
+    borderColor: theme.colors.border,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 13,
     color: theme.colors.text.primary,
   },
   mainTabsScroll: {
@@ -637,23 +605,25 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   mainTabPill: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: theme.borderRadius.pill,
-    backgroundColor: 'rgba(0,0,0,0.04)',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.xs,
+    backgroundColor: theme.colors.surface.subtle,
+    borderWidth: 1,
+    borderColor: theme.colors.borderSubtle,
   },
   mainTabPillActive: {
     backgroundColor: theme.colors.primary,
-    ...theme.shadows.sm,
+    borderColor: theme.colors.primary,
   },
   mainTabPillText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '500',
     color: theme.colors.text.secondary,
   },
   mainTabPillTextActive: {
     color: '#FFFFFF',
-    fontWeight: '700',
+    fontWeight: '600',
   },
   quickFilterScroll: {
     paddingHorizontal: theme.spacing.lg,
@@ -664,23 +634,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: theme.borderRadius.pill,
+    paddingVertical: 4,
+    borderRadius: theme.borderRadius.xs,
     backgroundColor: theme.colors.card,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.04)',
+    borderColor: theme.colors.border,
   },
   quickFilterChipActive: {
     backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   quickFilterText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '500',
     color: theme.colors.text.secondary,
   },
   quickFilterTextActive: {
     color: '#FFFFFF',
-    fontWeight: '700',
+    fontWeight: '600',
   },
   loadingContainer: {
     flex: 1,
@@ -737,32 +708,32 @@ const styles = StyleSheet.create({
   albumCard: {
     width: (windowWidth - theme.spacing.lg * 2 - 12) / 2,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xs,
     padding: 10,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
-    ...theme.shadows.sm,
+    borderColor: theme.colors.border,
   },
   albumCoverImage: {
     width: '100%',
     aspectRatio: 1,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.border,
+    borderRadius: theme.borderRadius.xs,
+    backgroundColor: theme.colors.surface.secondary,
     marginBottom: 8,
   },
   albumPlaceholderCover: {
     width: '100%',
     aspectRatio: 1,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: 'rgba(0,0,0,0.03)',
+    borderRadius: theme.borderRadius.xs,
+    backgroundColor: theme.colors.surface.secondary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
   },
   albumCardTitle: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '600',
     color: theme.colors.text.primary,
+    letterSpacing: -0.2,
   },
   albumCardMeta: {
     fontSize: 11,
@@ -777,30 +748,30 @@ const styles = StyleSheet.create({
   folderCard: {
     width: (windowWidth - theme.spacing.lg * 2 - 12) / 2,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    padding: 14,
+    borderRadius: theme.borderRadius.xs,
+    padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
-    ...theme.shadows.sm,
+    borderColor: theme.colors.border,
   },
   folderCardIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(0,0,0,0.04)',
+    width: 40,
+    height: 40,
+    borderRadius: theme.borderRadius.xs,
+    backgroundColor: theme.colors.surface.subtle,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   folderCardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '600',
     color: theme.colors.text.primary,
+    letterSpacing: -0.2,
   },
   folderCardMeta: {
     fontSize: 11,
     color: theme.colors.text.secondary,
-    marginTop: 3,
+    marginTop: 2,
   },
   photoGrid: {
     flexDirection: 'row',
@@ -810,10 +781,12 @@ const styles = StyleSheet.create({
   photoGridItem: {
     width: itemSize,
     height: itemSize,
-    borderRadius: theme.borderRadius.sm,
+    borderRadius: theme.borderRadius.xs,
     overflow: 'hidden',
     position: 'relative',
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.colors.surface.secondary,
+    borderWidth: 1,
+    borderColor: theme.colors.borderSubtle,
   },
   photoThumbnail: {
     width: '100%',
