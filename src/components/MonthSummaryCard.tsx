@@ -15,7 +15,7 @@ export const MonthSummaryCard: React.FC<MonthSummaryCardProps> = ({ title, memor
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.title}>{title} Highlights</Text>
+        <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>
           {totalCount} {totalCount === 1 ? 'memory' : 'memories'}
         </Text>
@@ -46,7 +46,7 @@ export const MonthSummaryCard: React.FC<MonthSummaryCardProps> = ({ title, memor
             )}
           </View>
           <View style={styles.cardFooter}>
-             <Text style={styles.cardFooterText}>Memories of {title.split(' ')[0]}</Text>
+            <Text style={styles.cardFooterText}>Curated Highlights · {title}</Text>
           </View>
         </View>
       )}
@@ -64,31 +64,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'baseline',
     marginBottom: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.xs,
+    paddingHorizontal: 2,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '600',
     color: theme.colors.text.primary,
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: theme.colors.text.secondary,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontWeight: '400',
   },
   card: {
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.sm,
     overflow: 'hidden',
-    ...theme.shadows.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   collage: {
-    height: 200,
+    height: 190,
     width: '100%',
-    backgroundColor: theme.colors.border,
+    backgroundColor: theme.colors.surface.secondary,
   },
   fullImage: {
     width: '100%',
@@ -122,13 +121,16 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   cardFooter: {
-    padding: theme.spacing.sm,
+    paddingVertical: 10,
+    paddingHorizontal: theme.spacing.md,
     backgroundColor: theme.colors.card,
-    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.borderSubtle,
   },
   cardFooterText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: theme.colors.primary,
-  }
+    fontSize: 12,
+    fontWeight: '500',
+    color: theme.colors.text.secondary,
+    letterSpacing: -0.2,
+  },
 });
