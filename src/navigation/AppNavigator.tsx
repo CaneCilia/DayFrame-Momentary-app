@@ -19,6 +19,7 @@ import { StorageScreen } from '../screens/StorageScreen';
 import { YearlyRecapScreen } from '../screens/YearlyRecapScreen';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
 import { GalleryScreen } from '../screens/GalleryScreen';
+import { theme } from '../utils/theme';
 
 // Define navigation types
 export type RootStackParamList = {
@@ -32,7 +33,7 @@ export type RootStackParamList = {
   Timeline: undefined;
   Calendar: undefined;
   Gallery: undefined;
-  MemoryDetail: { memoryId: string }; // Example parameter
+  MemoryDetail: { memoryId: string };
   Auth: undefined;
   Search: undefined;
   Privacy: undefined;
@@ -46,91 +47,84 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Welcome">
+      <Stack.Navigator 
+        initialRouteName="Welcome"
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: theme.colors.background },
+          animation: 'fade',
+        }}
+      >
         <Stack.Screen 
           name="Welcome" 
           component={WelcomeScreen} 
-          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="HowItWorks" 
           component={HowItWorksScreen} 
-          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="ReminderSetup" 
           component={ReminderSetupScreen} 
-          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="SetupComplete" 
           component={SetupCompleteScreen} 
-          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="Settings" 
           component={SettingsScreen} 
-          options={{ title: 'Settings' }}
         />
         <Stack.Screen 
           name="Home" 
           component={HomeScreen} 
-          options={{ title: 'Today' }}
         />
         <Stack.Screen 
           name="Capture" 
           component={CaptureScreen} 
-          options={{ title: 'Capture Moment', presentation: 'modal' }}
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
         <Stack.Screen 
           name="Timeline" 
           component={TimelineScreen} 
-          options={{ title: 'Your Journey' }}
         />
         <Stack.Screen 
           name="Calendar" 
           component={CalendarScreen} 
-          options={{ title: 'Calendar' }}
         />
         <Stack.Screen 
           name="Gallery" 
           component={GalleryScreen} 
-          options={{ title: 'Gallery', headerShown: false }}
         />
         <Stack.Screen 
           name="MemoryDetail" 
           component={MemoryDetailScreen} 
-          options={{ title: 'Memory' }}
         />
         <Stack.Screen 
           name="Auth" 
           component={AuthScreen} 
-          options={{ title: 'Cloud Sync', presentation: 'modal' }}
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
         <Stack.Screen 
           name="Search" 
           component={SearchScreen} 
-          options={{ title: 'Search Memories' }}
         />
         <Stack.Screen 
           name="Privacy" 
           component={PrivacyScreen} 
-          options={{ title: 'Privacy Hub' }}
         />
         <Stack.Screen 
           name="Storage" 
           component={StorageScreen} 
-          options={{ title: 'Storage & Data' }}
         />
         <Stack.Screen 
           name="YearlyRecap" 
           component={YearlyRecapScreen} 
-          options={{ headerShown: false, presentation: 'fullScreenModal' }}
+          options={{ presentation: 'fullScreenModal', animation: 'fade' }}
         />
         <Stack.Screen 
           name="Favorites" 
           component={FavoritesScreen} 
-          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>
