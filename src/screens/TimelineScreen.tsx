@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
 import { MonthSummaryCard } from '../components/MonthSummaryCard';
+import { BottomNavBar } from '../components/BottomNavBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 
@@ -54,7 +55,7 @@ export const TimelineScreen = () => {
       if (currentGroup.length > 0) {
         const rows: MemoryRow[] = [];
         
-        // Inject Month Summary Card as the first row
+        // Inject Month Summary Card as the first item of each month
         rows.push({
           id: `summary-${currentMonth}`,
           isSummary: true,
@@ -73,10 +74,8 @@ export const TimelineScreen = () => {
     };
 
     memories.forEach(m => {
-      // Extract YYYY and MM from YYYY-MM-DD
       const [yearStr, monthStr] = m.date.split('-');
       const dateObj = new Date(parseInt(yearStr), parseInt(monthStr) - 1, 1);
-      
       const monthYear = dateObj.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
       if (monthYear !== currentMonth) {
@@ -104,7 +103,7 @@ export const TimelineScreen = () => {
             key={memory.id}
             style={styles.itemContainer} 
             onPress={() => navigation.navigate('MemoryDetail', { memoryId: memory.id })}
-            activeOpacity={0.8}
+            activeOpacity={0.88}
           >
             <Image source={{ uri: memory.photoUri }} style={styles.thumbnail} />
             <LinearGradient
@@ -157,21 +156,25 @@ export const TimelineScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.headerRow}>
-          <Text style={styles.pageTitle}>Timeline</Text>
+          <View>
+            <Text style={styles.pageTitle}>Memories</Text>
+            <Text style={styles.pageSubtitle}>Complete chronological visual archive</Text>
+          </View>
           <TouchableOpacity 
             style={styles.recapButton}
             onPress={() => navigation.navigate('YearlyRecap')}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
           >
-            <Feather name="play-circle" size={16} color={theme.colors.text.inverse} style={{ marginRight: 6 }} />
-            <Text style={styles.recapButtonText}>2026 Recap</Text>
+            <Feather name="play" size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+            <Text style={styles.recapButtonText}>Year in Review</Text>
           </TouchableOpacity>
         </View>
+
         {memories.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Feather name="grid" size={48} color={theme.colors.border} style={{ marginBottom: 16 }} />
-            <Text style={styles.emptyText}>Your timeline is empty</Text>
-            <Text style={styles.emptySubText}>Capture today's moment to start your journey.</Text>
+            <Feather name="grid" size={40} color={theme.colors.border} style={{ marginBottom: 16 }} />
+            <Text style={styles.emptyText}>No memories recorded yet</Text>
+            <Text style={styles.emptySubText}>Save today's moment on the home screen to begin your visual diary.</Text>
           </View>
         ) : (
           <View style={styles.listWrapper}>
@@ -188,7 +191,7 @@ export const TimelineScreen = () => {
             {years.length > 1 && (
               <View style={styles.scrubberContainer}>
                 {years.map(year => (
-                  <TouchableOpacity key={year} onPress={() => scrollToYear(year)}>
+                  <TouchableOpacity key={year} onPress={() => scrollToYear(year)} style={styles.scrubberItem}>
                     <Text style={styles.scrubberText}>{year}</Text>
                   </TouchableOpacity>
                 ))}
@@ -197,47 +200,15 @@ export const TimelineScreen = () => {
           </View>
         )}
 
-        {/* Bottom Navigation Bar */}
-        <View style={styles.navBar}>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Home')}
-            activeOpacity={0.8}
-          >
-            <Feather name="home" size={22} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Home</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Calendar')}
-            activeOpacity={0.8}
-          >
-            <Feather name="calendar" size={22} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Calendar</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Gallery')}
-            activeOpacity={0.8}
-          >
-            <Feather name="image" size={22} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Gallery</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.navItem} activeOpacity={0.8}>
-            <Feather name="grid" size={22} color={theme.colors.primary} />
-            <Text style={[styles.navText, { color: theme.colors.primary }]}>Memories</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Unified Editorial Bottom Navigation */}
+        <BottomNavBar currentTab="Timeline" />
       </View>
     </SafeAreaView>
   );
 };
 
 const windowWidth = Dimensions.get('window').width;
-const itemSize = (windowWidth - theme.spacing.md * 2 - theme.spacing.sm * 2) / 3;
+const itemSize = (windowWidth - theme.spacing.lg * 2 - theme.spacing.xs * 2) / 3;
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -252,151 +223,131 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingRight: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
     paddingBottom: theme.spacing.sm,
   },
   pageTitle: {
-    fontSize: 32,
-    fontWeight: '800',
+    fontSize: 22,
+    fontWeight: '600',
     color: theme.colors.text.primary,
-    letterSpacing: -0.5,
-    paddingHorizontal: theme.spacing.lg,
+    letterSpacing: -0.4,
+  },
+  pageSubtitle: {
+    fontSize: 13,
+    color: theme.colors.text.secondary,
+    marginTop: 2,
   },
   recapButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: theme.borderRadius.pill,
-    ...theme.shadows.md,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: theme.borderRadius.xs,
   },
   recapButtonText: {
     color: theme.colors.text.inverse,
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: -0.2,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 100,
+    paddingHorizontal: theme.spacing.xl,
+    paddingBottom: 80,
   },
   emptyText: { 
     textAlign: 'center', 
     color: theme.colors.text.primary, 
-    fontSize: 20, 
-    fontWeight: '700',
-    marginBottom: theme.spacing.xs,
+    fontSize: 17, 
+    fontWeight: '600',
+    marginBottom: 6,
+    letterSpacing: -0.3,
   },
   emptySubText: {
     textAlign: 'center', 
     color: theme.colors.text.secondary, 
-    fontSize: 16, 
+    fontSize: 13,
+    lineHeight: 18,
+    maxWidth: 260,
+  },
+  listWrapper: {
+    flex: 1,
   },
   listContent: { 
-    padding: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.xxl,
   },
   sectionHeader: {
-    backgroundColor: 'rgba(249, 249, 251, 0.95)',
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.xs,
-    marginBottom: theme.spacing.xs,
-    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background,
+    paddingVertical: 10,
+    marginTop: theme.spacing.sm,
   },
   sectionHeaderText: {
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '600',
     color: theme.colors.text.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: -0.2,
   },
   rowContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.xs,
   },
   itemContainer: {
     width: itemSize,
-    height: itemSize * 1.33,
-    margin: theme.spacing.xs,
-    position: 'relative',
-    borderRadius: theme.borderRadius.md,
+    height: itemSize,
+    borderRadius: theme.borderRadius.xs,
     overflow: 'hidden',
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.colors.surface.secondary,
+    position: 'relative',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
-    ...theme.shadows.sm,
+    borderColor: theme.colors.borderSubtle,
   },
   emptyItem: {
     backgroundColor: 'transparent',
-    elevation: 0,
-    shadowOpacity: 0,
     borderWidth: 0,
   },
   thumbnail: {
     width: '100%',
     height: '100%',
-    backgroundColor: theme.colors.border,
+    resizeMode: 'cover',
   },
   gradientOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: '50%',
+    height: 36,
   },
   dateText: {
     position: 'absolute',
-    bottom: theme.spacing.sm,
-    left: theme.spacing.sm,
+    bottom: 4,
+    left: 6,
+    fontSize: 10,
+    fontWeight: '500',
     color: theme.colors.text.inverse,
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  listWrapper: {
-    flex: 1,
-    flexDirection: 'row',
   },
   scrubberContainer: {
     position: 'absolute',
-    right: theme.spacing.md,
-    top: '30%',
-    justifyContent: 'center',
+    right: 8,
+    top: 60,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    paddingVertical: 6,
     paddingHorizontal: 8,
-    paddingVertical: theme.spacing.md,
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.pill,
+    borderRadius: theme.borderRadius.xs,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
-    ...theme.shadows.sm,
+    borderColor: theme.colors.border,
+  },
+  scrubberItem: {
+    paddingVertical: 4,
   },
   scrubberText: {
     fontSize: 11,
-    fontWeight: '800',
-    color: theme.colors.text.secondary,
-    marginVertical: theme.spacing.sm,
-    textAlign: 'center',
-  },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    paddingVertical: theme.spacing.sm,
-    backgroundColor: theme.colors.card,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.sm,
-  },
-  navText: {
-    fontSize: 10,
-    fontWeight: '700',
-    marginTop: 4,
-    color: theme.colors.text.secondary,
+    fontWeight: '600',
+    color: theme.colors.accent,
   },
 });
