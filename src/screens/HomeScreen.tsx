@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, ScrollView, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, SafeAreaView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { getMemoryByDate, getOnThisDayMemories, getCurrentStreak, Memory } from '../database/memories';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
 import { SyncIndicator } from '../components/SyncIndicator';
 import { ContributionGraph } from '../components/ContributionGraph';
+import { BottomNavBar } from '../components/BottomNavBar';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -69,147 +70,166 @@ export const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+        {/* Editorial Top Bar */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greetingText}>Today</Text>
-            <Text style={styles.dateText}>{todayStr}</Text>
+            <Text style={styles.dateHeading}>{todayStr}</Text>
+            <Text style={styles.streakCaption}>
+              {streak > 0 ? `${streak} ${streak === 1 ? 'day' : 'days'} recorded in sequence` : 'Daily Visual Journal'}
+            </Text>
           </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity onPress={() => navigation.navigate('Search')} style={{ marginRight: 12 }}>
-              <Feather name="search" size={24} color={theme.colors.text.primary} />
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('Search')} 
+              style={styles.iconButton}
+              accessibilityLabel="Search memories"
+            >
+              <Feather name="search" size={20} color={theme.colors.text.primary} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Favorites')} style={{ marginRight: 12 }}>
-              <Feather name="heart" size={24} color={theme.colors.text.primary} />
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('Favorites')} 
+              style={styles.iconButton}
+              accessibilityLabel="Favorited memories"
+            >
+              <Feather name="heart" size={20} color={theme.colors.text.primary} />
             </TouchableOpacity>
-            <View style={{ alignItems: 'flex-end' }}>
+            <View style={styles.syncWrap}>
               <SyncIndicator />
-              {streak > 0 && (
-                <View style={styles.streakBadge}>
-                  <Feather name="zap" size={14} color={theme.colors.accent} />
-                  <Text style={styles.streakText}>{streak} Days</Text>
-                </View>
-              )}
             </View>
           </View>
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-          
           {loading ? (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading memory...</Text>
+              <Text style={styles.loadingText}>Opening today's page...</Text>
             </View>
           ) : todayMemory ? (
-            <View style={styles.memoryContainer}>
-              <View style={styles.imageWrapper}>
+            /* Completed Today Memory: Museum Gallery Presentation */
+            <View style={styles.memorySection}>
+              <TouchableOpacity 
+                style={styles.imageFrame}
+                activeOpacity={0.95}
+                onPress={() => navigation.navigate('MemoryDetail', { memoryId: todayMemory.id })}
+              >
                 <Image source={{ uri: todayMemory.photoUri }} style={styles.memoryImage} />
                 <LinearGradient
                   colors={theme.gradients.scrimDark}
-                  style={styles.imageOverlay}
+                  style={styles.imageScrim}
                 >
-                  <View style={styles.memoryStatus}>
-                    <Feather name="check-circle" size={16} color={theme.colors.success} />
-                    <Text style={styles.completedText}>Memory Secured</Text>
+                  <View style={styles.memoryBadge}>
+                    <View style={styles.blueDot} />
+                    <Text style={styles.badgeText}>Recorded Today</Text>
                   </View>
                 </LinearGradient>
-              </View>
-              {todayMemory.caption && (
+              </TouchableOpacity>
+              
+              {todayMemory.caption ? (
                 <Text style={styles.captionText}>{todayMemory.caption}</Text>
+              ) : (
+                <Text style={styles.emptyCaptionText}>A quiet moment captured today.</Text>
               )}
             </View>
           ) : (
-            <View style={styles.captureSection}>
-              <Text style={styles.sectionHeading}>Daily Moment</Text>
-              <Text style={styles.sectionSubheading}>Record today's highlight before midnight.</Text>
-              
-              <View style={styles.captureActionRow}>
-                <TouchableOpacity style={styles.actionCard} onPress={handleCapturePress} activeOpacity={0.8}>
-                  <View style={styles.iconCircle}>
-                    <Feather name="camera" size={24} color={theme.colors.text.primary} />
-                  </View>
-                  <Text style={styles.actionText}>Take Photo</Text>
+            /* Empty Frame: Understated Invitation to Capture One Photo */
+            <View style={styles.emptyFrameContainer}>
+              <View style={styles.emptyFrame}>
+                <View style={styles.viewfinderMarkTopLeft} />
+                <View style={styles.viewfinderMarkTopRight} />
+                <View style={styles.viewfinderMarkBottomLeft} />
+                <View style={styles.viewfinderMarkBottomRight} />
+
+                <Feather name="camera" size={32} color={theme.colors.text.secondary} style={styles.emptyFrameIcon} />
+                <Text style={styles.emptyFrameTitle}>Today's Moment</Text>
+                <Text style={styles.emptyFrameSubtitle}>
+                  Capture one photograph that defines today before midnight.
+                </Text>
+
+                <TouchableOpacity 
+                  style={styles.capturePrimaryButton}
+                  onPress={handleCapturePress}
+                  activeOpacity={0.85}
+                >
+                  <Feather name="camera" size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.capturePrimaryText}>Record Today's Moment</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionCard} onPress={handleCapturePress} activeOpacity={0.8}>
-                  <View style={styles.iconCircle}>
-                    <Feather name="video" size={24} color={theme.colors.text.primary} />
-                  </View>
-                  <Text style={styles.actionText}>Record Video</Text>
+
+                <TouchableOpacity 
+                  style={styles.gallerySecondaryButton}
+                  onPress={() => navigation.navigate('Gallery')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.gallerySecondaryText}>Select from Camera Roll</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
 
-          <View style={styles.contributionSection}>
-            <Text style={styles.sectionHeading}>Habit & Consistency</Text>
-            <Text style={styles.sectionSubheading}>Daily memory activity across the past 14 weeks.</Text>
-            <TouchableOpacity 
-              style={styles.contributeButton} 
-              onPress={() => navigation.navigate('Timeline')}
-              activeOpacity={0.8}
-            >
-              <Feather name="grid" size={18} color={theme.colors.text.inverse} style={{ marginRight: 8 }} />
-              <Text style={styles.contributeButtonText}>Explore Full Timeline</Text>
-            </TouchableOpacity>
-            <ContributionGraph />
+          {/* Activity & Consistency Section */}
+          <View style={styles.sectionBlock}>
+            <View style={styles.sectionHeaderRow}>
+              <View>
+                <Text style={styles.sectionTitle}>Activity</Text>
+                <Text style={styles.sectionSubtitle}>Journal entries recorded across recent weeks</Text>
+              </View>
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('Timeline')}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={styles.sectionLinkText}>All Memories</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.graphContainer}>
+              <ContributionGraph />
+            </View>
           </View>
 
+          {/* On This Day / Retrospective Section */}
           {onThisDayMemories.length > 0 && !loading ? (
-            <View style={styles.onThisDayContainer}>
-              <Text style={styles.sectionHeading}>On This Day</Text>
-              <Text style={styles.sectionSubheading}>Rediscover past years on this exact date.</Text>
+            <View style={styles.sectionBlock}>
+              <Text style={styles.sectionTitle}>On This Day</Text>
+              <Text style={styles.sectionSubtitle}>Anniversary moments from past years</Text>
               {onThisDayMemories.map((mem) => {
-                const yearsAgo = parseInt(getTodayDateString().split('-')[0]) - parseInt(mem.date.split('-')[0]);
+                const currentYear = parseInt(getTodayDateString().split('-')[0], 10);
+                const memoryYear = parseInt(mem.date.split('-')[0], 10);
+                const yearsAgo = currentYear - memoryYear;
                 return (
                   <TouchableOpacity 
                     key={mem.id} 
                     style={styles.onThisDayCard}
                     onPress={() => navigation.navigate('MemoryDetail', { memoryId: mem.id })}
-                    activeOpacity={0.9}
+                    activeOpacity={0.92}
                   >
                     <Image source={{ uri: mem.photoUri }} style={styles.onThisDayImage} />
                     <LinearGradient
                       colors={theme.gradients.scrimDark}
                       style={styles.onThisDayOverlay}
                     >
-                      <Text style={styles.onThisDayYears}>{yearsAgo} {yearsAgo === 1 ? 'Year' : 'Years'} Ago Today</Text>
+                      <Text style={styles.onThisDayYears}>
+                        {yearsAgo === 1 ? 'One Year Ago Today' : `${yearsAgo} Years Ago Today`}
+                      </Text>
+                      {mem.caption && (
+                        <Text style={styles.onThisDayCaption} numberOfLines={1}>
+                          {mem.caption}
+                        </Text>
+                      )}
                     </LinearGradient>
                   </TouchableOpacity>
                 );
               })}
             </View>
           ) : !loading && (
-            <View style={styles.capsuleCard}>
-              <View style={styles.capsuleIconWrap}>
-                <Feather name="clock" size={22} color={theme.colors.primary} />
-              </View>
-              <View style={styles.capsuleTextWrap}>
-                <Text style={styles.capsuleTitle}>Time Capsule Flashbacks</Text>
-                <Text style={styles.capsuleDesc}>
-                  As you capture moments each day, past years' memories will automatically resurface here on their anniversary.
-                </Text>
-              </View>
+            <View style={styles.timeCapsuleNote}>
+              <Text style={styles.capsuleHeading}>Annual Reflections</Text>
+              <Text style={styles.capsuleBody}>
+                Memories saved on this day will resurface here on their yearly anniversary.
+              </Text>
             </View>
           )}
         </ScrollView>
 
-        <View style={styles.navBar}>
-          <TouchableOpacity style={styles.navItem} onPress={() => {}} activeOpacity={0.8}>
-            <Feather name="home" size={24} color={theme.colors.primary} />
-            <Text style={[styles.navText, { color: theme.colors.primary }]}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Calendar')} activeOpacity={0.8}>
-            <Feather name="calendar" size={24} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Calendar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Gallery')} activeOpacity={0.8}>
-            <Feather name="image" size={24} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Gallery</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Timeline')} activeOpacity={0.8}>
-            <Feather name="grid" size={24} color={theme.colors.text.secondary} />
-            <Text style={styles.navText}>Memories</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Unified Editorial Bottom Navigation */}
+        <BottomNavBar currentTab="Home" />
       </View>
     </SafeAreaView>
   );
@@ -222,293 +242,309 @@ const styles = StyleSheet.create({
   },
   container: { 
     flex: 1, 
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
-  },
-  scrollView: {
-    flex: 1,
-    width: '100%',
+    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    paddingTop: theme.spacing.lg,
-    marginBottom: theme.spacing.xl,
+    alignItems: 'flex-start',
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  greetingText: {
-    fontSize: 13,
-    color: theme.colors.text.secondary,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    marginBottom: 4,
-  },
-  dateText: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: theme.colors.text.primary,
-    letterSpacing: -0.5,
-  },
-  streakBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    backgroundColor: 'rgba(255, 75, 75, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: theme.borderRadius.pill,
-  },
-  streakText: {
-    color: theme.colors.accent,
-    fontWeight: '800',
-    fontSize: 12,
-    marginLeft: 6,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    minHeight: 200,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: theme.colors.text.secondary,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  captureSection: {
-    width: '100%',
-    marginBottom: theme.spacing.xl,
-  },
-  contributionSection: {
-    width: '100%',
-    marginBottom: theme.spacing.xl,
-  },
-  sectionHeading: {
+  dateHeading: {
     fontSize: 22,
-    fontWeight: '800',
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing.xs,
-    letterSpacing: -0.5,
-  },
-  sectionSubheading: {
-    fontSize: 15,
-    color: theme.colors.text.secondary,
-    marginBottom: theme.spacing.lg,
-    fontWeight: '400',
-  },
-  captureActionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.sm,
-  },
-  actionCard: {
-    flex: 1,
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
-    marginHorizontal: theme.spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...theme.shadows.sm,
-    aspectRatio: 1,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.02)',
-  },
-  iconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: theme.colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
-  },
-  actionText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.text.primary,
-  },
-  actionCardSmall: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    marginHorizontal: theme.spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...theme.shadows.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.02)',
-  },
-  smallIcon: {
-    marginRight: 8,
-  },
-  actionTextSmall: {
-    fontSize: 14,
     fontWeight: '600',
     color: theme.colors.text.primary,
+    letterSpacing: -0.4,
   },
-  contributeButton: {
+  streakCaption: {
+    fontSize: 13,
+    color: theme.colors.text.secondary,
+    marginTop: 2,
+    fontWeight: '400',
+  },
+  headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingTop: 2,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.primary,
-    paddingVertical: theme.spacing.md,
+    marginLeft: 4,
+  },
+  syncWrap: {
+    marginLeft: 6,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     paddingHorizontal: theme.spacing.lg,
-    borderRadius: theme.borderRadius.pill,
-    marginBottom: theme.spacing.lg,
-    ...theme.shadows.md,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
   },
-  contributeButtonText: {
-    color: theme.colors.text.inverse,
-    fontSize: 15,
-    fontWeight: '700',
+  loadingContainer: {
+    paddingVertical: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  memoryContainer: {
-    width: '100%',
+  loadingText: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+  },
+
+  /* Completed Memory Presentation */
+  memorySection: {
     marginBottom: theme.spacing.xl,
   },
-  imageWrapper: {
+  imageFrame: {
     width: '100%',
-    aspectRatio: 3 / 4,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: theme.colors.border,
+    aspectRatio: 4 / 5,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.surface.secondary,
     overflow: 'hidden',
-    ...theme.shadows.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   memoryImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
   },
-  imageOverlay: {
+  imageScrim: {
     position: 'absolute',
     bottom: 0,
-    width: '100%',
+    left: 0,
+    right: 0,
     padding: theme.spacing.md,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
   },
-  memoryStatus: {
+  memoryBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: theme.borderRadius.pill,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(15, 20, 28, 0.75)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: theme.borderRadius.xs,
   },
-  completedText: {
-    fontSize: 13,
-    color: theme.colors.success,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginLeft: 6,
+  blueDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: theme.colors.accent,
+    marginRight: 6,
+  },
+  badgeText: {
+    color: theme.colors.text.inverse,
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: -0.2,
   },
   captionText: {
-    fontSize: 16,
+    fontSize: 15,
     color: theme.colors.text.primary,
-    fontWeight: '500',
+    fontWeight: '400',
     marginTop: theme.spacing.md,
-    lineHeight: 24,
-    paddingHorizontal: theme.spacing.xs,
+    lineHeight: 22,
   },
-  scrollContent: {
-    width: '100%',
-    paddingBottom: theme.spacing.xxl,
+  emptyCaptionText: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
+    fontStyle: 'italic',
+    marginTop: theme.spacing.md,
   },
-  onThisDayContainer: {
+
+  /* Empty Frame: Photographic Viewfinder */
+  emptyFrameContainer: {
     marginBottom: theme.spacing.xl,
-    width: '100%',
   },
+  emptyFrame: {
+    position: 'relative',
+    backgroundColor: theme.colors.card,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.sm,
+    paddingVertical: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 280,
+  },
+  viewfinderMarkTopLeft: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    width: 14,
+    height: 14,
+    borderTopWidth: 1.5,
+    borderLeftWidth: 1.5,
+    borderColor: theme.colors.border,
+  },
+  viewfinderMarkTopRight: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 14,
+    height: 14,
+    borderTopWidth: 1.5,
+    borderRightWidth: 1.5,
+    borderColor: theme.colors.border,
+  },
+  viewfinderMarkBottomLeft: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    width: 14,
+    height: 14,
+    borderBottomWidth: 1.5,
+    borderLeftWidth: 1.5,
+    borderColor: theme.colors.border,
+  },
+  viewfinderMarkBottomRight: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    width: 14,
+    height: 14,
+    borderBottomWidth: 1.5,
+    borderRightWidth: 1.5,
+    borderColor: theme.colors.border,
+  },
+  emptyFrameIcon: {
+    marginBottom: theme.spacing.md,
+  },
+  emptyFrameTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    marginBottom: 6,
+    letterSpacing: -0.3,
+  },
+  emptyFrameSubtitle: {
+    fontSize: 13,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 18,
+    maxWidth: 240,
+    marginBottom: theme.spacing.lg,
+  },
+  capturePrimaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 22,
+    borderRadius: theme.borderRadius.xs,
+    width: '100%',
+    maxWidth: 240,
+  },
+  capturePrimaryText: {
+    color: theme.colors.text.inverse,
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: -0.2,
+  },
+  gallerySecondaryButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginTop: 8,
+  },
+  gallerySecondaryText: {
+    fontSize: 13,
+    color: theme.colors.accent,
+    fontWeight: '500',
+  },
+
+  /* Section Structure */
+  sectionBlock: {
+    marginBottom: theme.spacing.xl,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: theme.spacing.md,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
+    letterSpacing: -0.3,
+  },
+  sectionSubtitle: {
+    fontSize: 12,
+    color: theme.colors.text.secondary,
+    marginTop: 2,
+  },
+  sectionLinkText: {
+    fontSize: 12,
+    color: theme.colors.accent,
+    fontWeight: '500',
+  },
+  graphContainer: {
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.md,
+  },
+
+  /* On This Day */
   onThisDayCard: {
     width: '100%',
-    aspectRatio: 3 / 4,
-    borderRadius: theme.borderRadius.lg,
+    aspectRatio: 16 / 9,
+    borderRadius: theme.borderRadius.sm,
     overflow: 'hidden',
-    marginBottom: theme.spacing.md,
-    ...theme.shadows.md,
+    backgroundColor: theme.colors.surface.secondary,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginTop: theme.spacing.sm,
   },
   onThisDayImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: theme.colors.border,
+    resizeMode: 'cover',
   },
   onThisDayOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: theme.spacing.lg,
+    padding: theme.spacing.md,
   },
   onThisDayYears: {
     color: theme.colors.text.inverse,
-    fontSize: 18,
-    fontWeight: '800',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    paddingVertical: theme.spacing.sm,
-    paddingBottom: theme.spacing.sm,
-    backgroundColor: theme.colors.card,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.sm,
-  },
-  navText: {
-    fontSize: 10,
-    fontWeight: '700',
-    marginTop: 4,
-    color: theme.colors.text.secondary,
-  },
-  capsuleCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.card,
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    marginBottom: theme.spacing.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.04)',
-    ...theme.shadows.sm,
-  },
-  capsuleIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.04)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 14,
-  },
-  capsuleTextWrap: {
-    flex: 1,
-  },
-  capsuleTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: -0.2,
+  },
+  onThisDayCaption: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  timeCapsuleNote: {
+    padding: theme.spacing.md,
+    backgroundColor: theme.colors.surface.subtle,
+    borderRadius: theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  capsuleHeading: {
+    fontSize: 13,
+    fontWeight: '600',
     color: theme.colors.text.primary,
     marginBottom: 4,
   },
-  capsuleDesc: {
-    fontSize: 13,
+  capsuleBody: {
+    fontSize: 12,
     color: theme.colors.text.secondary,
-    lineHeight: 18,
+    lineHeight: 17,
   },
 });
