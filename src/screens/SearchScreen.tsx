@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Memory, searchMemories, getAllMemories } from '../database/memories';
@@ -11,11 +11,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 type SearchScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Search'>;
 
+const FILTER_TAGS = ['All', 'Favorites', 'Recent', 'Reflections'];
+
 export const SearchScreen = () => {
   const db = useSQLiteContext();
   const navigation = useNavigation<SearchScreenNavigationProp>();
   const isFocused = useIsFocused();
   const [query, setQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('All');
   const [results, setResults] = useState<Memory[]>([]);
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -24,7 +27,7 @@ export const SearchScreen = () => {
     const fetchRecent = async () => {
       try {
         const all = await getAllMemories(db);
-        setRecentMemories(all.slice(0, 5)); // Get top 5 most recent
+        setRecentMemories(all.slice(0, 6));
       } catch (e) {}
     };
     if (isFocused) fetchRecent();
@@ -49,13 +52,21 @@ export const SearchScreen = () => {
 
     const delayDebounceFn = setTimeout(() => {
       performSearch();
-    }, 300);
+    }, 250);
 
     return () => clearTimeout(delayDebounceFn);
   }, [query, db]);
 
+  // Apply quick filter if search query is empty
+  const displayedRecent = useMemo(() => {
+    if (activeFilter === 'Favorites') {
+      return recentMemories.filter(m => !!m.is_favorite);
+    }
+    return recentMemories;
+  }, [recentMemories, activeFilter]);
+
   const renderHighlightedText = (text: string | undefined | null) => {
-    if (!text) return <Text style={styles.captionText}>No caption</Text>;
+    if (!text) return <Text style={styles.captionText}>A moment without caption.</Text>;
     
     const parts = text.split(/(<b>.*?<\/b>)/g);
     
@@ -64,7 +75,7 @@ export const SearchScreen = () => {
         {parts.map((part, index) => {
           if (part.startsWith('<b>') && part.endsWith('</b>')) {
             return (
-              <Text key={index} style={{ fontWeight: '800', color: theme.colors.primary }}>
+              <Text key={index} style={{ fontWeight: '600', color: theme.colors.accent }}>
                 {part.replace(/<\/?b>/g, '')}
               </Text>
             );
@@ -80,16 +91,21 @@ export const SearchScreen = () => {
       <TouchableOpacity 
         style={styles.itemContainer} 
         onPress={() => navigation.navigate('MemoryDetail', { memoryId: item.id })}
-        activeOpacity={0.9}
+        activeOpacity={0.88}
       >
         <Image source={{ uri: item.photoUri }} style={styles.thumbnail} />
         <View style={styles.textContainer}>
           <Text style={styles.dateText}>
-            {new Date(item.date + 'T12:00:00Z').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
+            {new Date(item.date + 'T12:00:00Z').toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              timeZone: 'UTC',
+            })}
           </Text>
           {renderHighlightedText(item.highlighted_caption || item.caption)}
         </View>
-        <Feather name="chevron-right" size={20} color={theme.colors.border} style={styles.chevron} />
+        <Feather name="chevron-right" size={16} color={theme.colors.text.tertiary} style={styles.chevron} />
       </TouchableOpacity>
     );
   };
@@ -97,65 +113,102 @@ export const SearchScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+        {/* Editorial Top Bar */}
         <View style={styles.header}>
-          <Text style={styles.pageTitle}>Explore</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Feather name="arrow-left" size={20} color={theme.colors.text.primary} />
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.pageTitle}>Search Archive</Text>
+            <Text style={styles.pageSubtitle}>Search daily diary captions and memories</Text>
+          </View>
         </View>
         
+        {/* Search Input */}
         <View style={styles.searchBarContainer}>
           <View style={styles.searchInputWrapper}>
-            <Feather name="search" size={20} color={theme.colors.text.secondary} style={styles.searchIcon} />
+            <Feather name="search" size={16} color={theme.colors.text.secondary} style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search memories by caption..."
+              placeholder="Search by caption or keyword..."
               placeholderTextColor={theme.colors.text.secondary}
               value={query}
               onChangeText={setQuery}
+              autoFocus={false}
             />
             {query.length > 0 && (
               <TouchableOpacity onPress={() => setQuery('')} style={styles.clearBtn}>
-                <Feather name="x-circle" size={18} color={theme.colors.text.secondary} />
+                <Feather name="x" size={16} color={theme.colors.text.secondary} />
               </TouchableOpacity>
             )}
+          </View>
+
+          {/* Quick Filter Tags */}
+          <View style={styles.filterRow}>
+            {FILTER_TAGS.map((tag) => {
+              const isActive = activeFilter === tag;
+              return (
+                <TouchableOpacity
+                  key={tag}
+                  style={[styles.filterChip, isActive && styles.filterChipActive]}
+                  onPress={() => setActiveFilter(tag)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
+                    {tag}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
         
         {query.trim().length === 0 ? (
           <ScrollView style={styles.v3Container} showsVerticalScrollIndicator={false}>
-            {recentMemories.length > 0 && (
+            {displayedRecent.length > 0 ? (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Recent Highlights</Text>
+                <Text style={styles.sectionTitle}>Recent Diary Highlights</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
-                  {recentMemories.map((item) => (
+                  {displayedRecent.map((item) => (
                     <TouchableOpacity 
                       key={item.id} 
-                      style={styles.templateCard}
-                      activeOpacity={0.9}
+                      style={styles.highlightCard}
+                      activeOpacity={0.92}
                       onPress={() => navigation.navigate('MemoryDetail', { memoryId: item.id })}
                     >
-                      <View style={styles.templateThumbWrapper}>
-                        <Image source={{ uri: item.photoUri }} style={styles.templateThumb} />
-                        <LinearGradient
-                          colors={theme.gradients.scrimDark}
-                          style={styles.templateGradient}
-                        />
-                      </View>
-                      <View style={styles.templateInfo}>
-                        <Text style={styles.templateName} numberOfLines={1}>{item.caption || "A moment to remember"}</Text>
-                        <Text style={styles.templateMeta}>
-                          {new Date(item.date + 'T12:00:00Z').toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                      <Image source={{ uri: item.photoUri }} style={styles.highlightThumb} />
+                      <LinearGradient
+                        colors={theme.gradients.scrimDark}
+                        style={styles.highlightGradient}
+                      >
+                        <Text style={styles.highlightCaption} numberOfLines={1}>
+                          {item.caption || 'Daily moment'}
                         </Text>
-                      </View>
+                        <Text style={styles.highlightMeta}>
+                          {new Date(item.date + 'T12:00:00Z').toLocaleDateString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                            timeZone: 'UTC',
+                          })}
+                        </Text>
+                      </LinearGradient>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
+              </View>
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Feather name="search" size={32} color={theme.colors.border} style={{ marginBottom: 12 }} />
+                <Text style={styles.emptyText}>Find any past memory</Text>
+                <Text style={styles.emptySubText}>Type words you used in your past daily journal captions.</Text>
               </View>
             )}
           </ScrollView>
         ) : query.trim().length > 0 && results.length === 0 && !isSearching ? (
           <View style={styles.emptyContainer}>
-            <Feather name="search" size={48} color={theme.colors.border} style={{ marginBottom: 16 }} />
-            <Text style={styles.emptyText}>No moments found</Text>
-            <Text style={styles.emptySubText}>Try a different keyword.</Text>
+            <Feather name="search" size={32} color={theme.colors.border} style={{ marginBottom: 12 }} />
+            <Text style={styles.emptyText}>No matching memories found</Text>
+            <Text style={styles.emptySubText}>Try searching with a broader keyword or date fragment.</Text>
           </View>
         ) : (
           <FlatList
@@ -181,164 +234,194 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background 
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.sm,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xs,
+  },
+  backButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+    marginLeft: -8,
   },
   pageTitle: {
-    fontSize: 32,
-    fontWeight: '800',
+    fontSize: 22,
+    fontWeight: '600',
     color: theme.colors.text.primary,
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
+  },
+  pageSubtitle: {
+    fontSize: 13,
+    color: theme.colors.text.secondary,
+    marginTop: 2,
   },
   searchBarContainer: {
     paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.md,
+    paddingTop: theme.spacing.sm,
+    paddingBottom: theme.spacing.sm,
   },
   searchInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.xs,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-    ...theme.shadows.sm,
+    borderColor: theme.colors.border,
   },
   searchIcon: {
-    paddingLeft: theme.spacing.md,
+    paddingLeft: 12,
   },
   searchInput: {
     flex: 1,
-    padding: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     color: theme.colors.text.primary,
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 13,
   },
   clearBtn: {
-    padding: theme.spacing.md,
+    padding: 10,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    marginTop: 10,
+    gap: 6,
+  },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: theme.borderRadius.xs,
+    backgroundColor: theme.colors.surface.subtle,
+    borderWidth: 1,
+    borderColor: theme.colors.borderSubtle,
+  },
+  filterChipActive: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  filterText: {
+    fontSize: 11,
+    color: theme.colors.text.secondary,
+    fontWeight: '500',
+  },
+  filterTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 100,
+    paddingHorizontal: theme.spacing.xl,
+    paddingTop: 80,
   },
   emptyText: { 
     textAlign: 'center', 
     color: theme.colors.text.primary, 
-    fontSize: 20, 
-    fontWeight: '700',
-    marginBottom: theme.spacing.xs,
+    fontSize: 15, 
+    fontWeight: '600',
+    marginBottom: 4,
+    letterSpacing: -0.2,
   },
   emptySubText: {
     textAlign: 'center', 
     color: theme.colors.text.secondary, 
-    fontSize: 16, 
+    fontSize: 12, 
+    lineHeight: 18,
+    maxWidth: 240,
   },
   listContent: { 
-    padding: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.sm,
+    paddingBottom: theme.spacing.xxl,
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
     backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xs,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
-    ...theme.shadows.sm,
+    borderColor: theme.colors.border,
   },
   thumbnail: {
-    width: 90,
-    height: 90,
-    backgroundColor: theme.colors.border,
+    width: 64,
+    height: 64,
+    backgroundColor: theme.colors.surface.secondary,
   },
   textContainer: {
     flex: 1,
-    padding: theme.spacing.md,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     justifyContent: 'center',
   },
   chevron: {
-    paddingRight: theme.spacing.md,
+    paddingRight: 12,
   },
   dateText: {
     color: theme.colors.text.secondary,
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontSize: 11,
+    fontWeight: '500',
+    marginBottom: 2,
   },
   captionText: {
     color: theme.colors.text.primary,
-    fontSize: 16,
-    lineHeight: 22,
-    fontWeight: '500',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '400',
   },
   v3Container: {
     flex: 1,
   },
   section: {
-    marginTop: theme.spacing.lg,
+    marginTop: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
     marginBottom: theme.spacing.xl,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '600',
     color: theme.colors.text.primary,
-    marginBottom: theme.spacing.md,
-    letterSpacing: -0.5,
+    marginBottom: theme.spacing.sm,
+    letterSpacing: -0.2,
   },
   horizontalScroll: {
-    paddingBottom: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
+    gap: 10,
   },
-  templateCard: {
-    width: 240,
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    marginRight: theme.spacing.md,
+  highlightCard: {
+    width: 170,
+    height: 220,
+    backgroundColor: theme.colors.surface.secondary,
+    borderRadius: theme.borderRadius.xs,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
-    ...theme.shadows.sm,
-  },
-  templateThumbWrapper: {
-    width: '100%',
-    height: 300,
+    borderColor: theme.colors.border,
     position: 'relative',
   },
-  templateThumb: {
+  highlightThumb: {
     width: '100%',
     height: '100%',
-    backgroundColor: theme.colors.border,
   },
-  templateGradient: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    height: '50%',
-  },
-  templateInfo: {
+  highlightGradient: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: theme.spacing.md,
+    padding: 10,
   },
-  templateName: {
-    fontSize: 18,
-    fontWeight: '800',
+  highlightCaption: {
+    fontSize: 12,
+    fontWeight: '600',
     color: '#FFFFFF',
     marginBottom: 2,
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
-  templateMeta: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.8)',
-  }
+  highlightMeta: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.75)',
+  },
 });
