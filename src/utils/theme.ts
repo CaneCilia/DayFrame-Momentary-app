@@ -35,10 +35,10 @@ export const theme = {
     // Core Brand & Architectural Blue Accent
     primary: '#0F141C',         // Deep obsidian ink
     primaryLight: '#1E293B',    // Slate charcoal
-    accent: '#2563EB',          // Architectural sapphire blue
-    accentSoft: '#EFF6FF',      // 5% subtle blue tint
-    accentTrack: '#DBEAFE',     // Soft blue border/track
-    accentInk: '#1E40AF',       // Deep blue text
+    accent: '#1E4FD9',          // Architectural bespoke cobalt
+    accentSoft: '#EFF4FE',      // Subtle cobalt tint
+    accentTrack: '#DBE6FC',     // Soft cobalt track
+    accentInk: '#163BA8',       // Deep cobalt text
     
     // Hairline Rules & Dividers
     border: '#E2E8F0',
@@ -51,7 +51,7 @@ export const theme = {
     // Item Types & Timeline Markers (Cohesive graphite, slate, blue, and stone tones)
     itemTypes: {
       memory: '#0F141C',    // Deep obsidian
-      photo: '#2563EB',     // Architectural blue
+      photo: '#1E4FD9',     // Architectural cobalt
       event: '#334155',     // Slate graphite
       note: '#475569',      // Muted slate
       milestone: '#1E293B', // Dark charcoal
