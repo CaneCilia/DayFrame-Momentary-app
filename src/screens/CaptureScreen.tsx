@@ -21,13 +21,29 @@ import * as Crypto from 'expo-crypto';
 import { saveImageToLocal } from '../utils/fileSystem';
 import { insertMemory, getMemoryByDate } from '../database/memories';
 import { enqueueSyncOperation } from '../database/syncQueue';
-import { Video, ResizeMode } from 'expo-av';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { theme } from '../utils/theme';
 import { Feather } from '@expo/vector-icons';
 import { CameraSettingsModal, CameraSettingsState } from '../components/CameraSettingsModal';
 
 type CaptureScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Capture'>;
 type FlashState = 'off' | 'on' | 'auto';
+
+const VideoPreview = ({ uri, style }: { uri: string; style: any }) => {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = true;
+    p.play();
+  });
+
+  return (
+    <VideoView
+      player={player}
+      style={style}
+      contentFit="contain"
+      nativeControls
+    />
+  );
+};
 
 export const CaptureScreen = () => {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
@@ -320,14 +336,7 @@ export const CaptureScreen = () => {
     return (
       <View style={styles.previewContainer}>
         {mediaType === 'video' ? (
-          <Video
-            source={{ uri: mediaUri }}
-            style={styles.previewMedia}
-            useNativeControls
-            resizeMode={ResizeMode.CONTAIN}
-            isLooping
-            shouldPlay
-          />
+          <VideoPreview uri={mediaUri} style={styles.previewMedia} />
         ) : (
           <Image source={{ uri: mediaUri }} style={styles.previewMedia} resizeMode="contain" />
         )}

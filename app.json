@@ -53,7 +53,8 @@
         {
           "photosPermission": "DayFrame needs access to your photo library to save and select memories."
         }
-      ]
+      ],
+      "expo-video"
     ],
     "extra": {
       "eas": {
