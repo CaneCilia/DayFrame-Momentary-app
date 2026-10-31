@@ -5,12 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  SafeAreaView,
   ScrollView,
   Switch,
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../lib/auth';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
