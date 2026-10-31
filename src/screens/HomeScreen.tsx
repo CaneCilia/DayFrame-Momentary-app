@@ -93,6 +93,13 @@ export const HomeScreen = () => {
             >
               <Feather name="heart" size={20} color={theme.colors.text.primary} />
             </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('Profile')} 
+              style={styles.iconButton}
+              accessibilityLabel="Profile space and settings"
+            >
+              <Feather name="user" size={20} color={theme.colors.text.primary} />
+            </TouchableOpacity>
             <View style={styles.syncWrap}>
               <SyncIndicator />
             </View>
