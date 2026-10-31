@@ -17,6 +17,7 @@ import { getMemoryById, Memory, toggleFavorite } from '../database/memories';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { theme } from '../utils/theme';
 import { Feather } from '@expo/vector-icons';
+import { SocialSharingService } from '../services/socialSharingService';
 
 type MemoryDetailScreenRouteProp = RouteProp<RootStackParamList, 'MemoryDetail'>;
 
@@ -26,6 +27,12 @@ export const MemoryDetailScreen = () => {
   const db = useSQLiteContext();
   const [memory, setMemory] = useState<Memory | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Declare all hooks unconditionally at top level to satisfy Rules of Hooks
+  const polaroidRef = React.useRef<any>(null);
+  const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const loadMemory = async () => {
@@ -51,40 +58,6 @@ export const MemoryDetailScreen = () => {
       console.error('Failed to toggle favorite:', error);
     }
   };
-
-  if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.loadingText}>Opening memory...</Text>
-      </View>
-    );
-  }
-
-  if (!memory) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>Memory not found.</Text>
-      </View>
-    );
-  }
-
-  // Use local time when formatting string to avoid UTC shift issues
-  const dateParts = memory.date.split('-');
-  const formattedDate = new Date(
-    parseInt(dateParts[0]), 
-    parseInt(dateParts[1]) - 1, 
-    parseInt(dateParts[2])
-  ).toLocaleDateString(undefined, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
-  const polaroidRef = React.useRef<any>(null);
-  const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
-  const [shareModalVisible, setShareModalVisible] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleShare = async () => {
     try {
@@ -119,6 +92,66 @@ export const MemoryDetailScreen = () => {
       Alert.alert('Failed to share memory', error.message || 'An error occurred.');
     }
   };
+
+  const handleShareToInstagram = async () => {
+    if (!previewImageUri) return;
+    try {
+      await SocialSharingService.shareToInstagram(previewImageUri);
+      setShareModalVisible(false);
+    } catch (e: any) {
+      Alert.alert('Instagram Export', e.message || 'Could not export to Instagram');
+    }
+  };
+
+  const handleShareToSnapchat = async () => {
+    if (!previewImageUri) return;
+    try {
+      await SocialSharingService.shareToSnapchat(previewImageUri);
+      setShareModalVisible(false);
+    } catch (e: any) {
+      Alert.alert('Snapchat Export', e.message || 'Could not export to Snapchat');
+    }
+  };
+
+  const handleShareToPinterest = async () => {
+    if (!previewImageUri) return;
+    try {
+      await SocialSharingService.shareToPinterest(previewImageUri, memory?.caption || 'DayFrame Journal Entry');
+      setShareModalVisible(false);
+    } catch (e: any) {
+      Alert.alert('Pinterest Export', e.message || 'Could not pin to Pinterest');
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="small" color={theme.colors.primary} />
+        <Text style={[styles.loadingText, { marginTop: 10 }]}>Opening memory...</Text>
+      </View>
+    );
+  }
+
+  if (!memory) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Memory not found.</Text>
+      </View>
+    );
+  }
+
+  // Use local time when formatting string to avoid UTC shift issues
+  const dateParts = memory.date.split('-');
+  const formattedDate = new Date(
+    parseInt(dateParts[0]), 
+    parseInt(dateParts[1]) - 1, 
+    parseInt(dateParts[2])
+  ).toLocaleDateString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -204,13 +237,52 @@ export const MemoryDetailScreen = () => {
               </View>
             )}
 
+            {/* Quick Export to Social Channels */}
+            <View style={styles.socialExportSection}>
+              <Text style={styles.socialExportTitle}>Direct Channel Export</Text>
+              <View style={styles.socialButtonsRow}>
+                <TouchableOpacity 
+                  style={styles.socialShareBtn} 
+                  onPress={handleShareToInstagram}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.socialIconCircle, { backgroundColor: '#E1306C' }]}>
+                    <Feather name="instagram" size={14} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.socialBtnText}>Instagram</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.socialShareBtn} 
+                  onPress={handleShareToSnapchat}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.socialIconCircle, { backgroundColor: '#FEE500' }]}>
+                    <Feather name="camera" size={14} color="#000000" />
+                  </View>
+                  <Text style={styles.socialBtnText}>Snapchat</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.socialShareBtn} 
+                  onPress={handleShareToPinterest}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.socialIconCircle, { backgroundColor: '#BD081C' }]}>
+                    <Feather name="bookmark" size={14} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.socialBtnText}>Pinterest</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <View style={styles.modalActions}>
               <TouchableOpacity 
                 style={styles.cancelButton} 
                 onPress={() => setShareModalVisible(false)}
                 activeOpacity={0.7}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>Close</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
@@ -218,7 +290,8 @@ export const MemoryDetailScreen = () => {
                 onPress={confirmShare}
                 activeOpacity={0.85}
               >
-                <Text style={styles.confirmShareText}>Share Polaroid</Text>
+                <Feather name="share-2" size={13} color={theme.colors.text.inverse} style={{ marginRight: 6 }} />
+                <Text style={styles.confirmShareText}>Share Image</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -441,6 +514,46 @@ const styles = StyleSheet.create({
   previewImage: {
     width: '100%',
     height: '100%',
+  },
+  socialExportSection: {
+    marginBottom: theme.spacing.md,
+  },
+  socialExportTitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.colors.text.secondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  socialButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    gap: 8,
+  },
+  socialShareBtn: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderRadius: theme.borderRadius.xs,
+    backgroundColor: theme.colors.surface.subtle,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  socialIconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  socialBtnText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: theme.colors.text.primary,
   },
   modalActions: {
     flexDirection: 'row',
