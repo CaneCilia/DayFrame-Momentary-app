@@ -11,6 +11,7 @@ import { HowItWorksScreen } from '../screens/HowItWorksScreen';
 import { ReminderSetupScreen } from '../screens/ReminderSetupScreen';
 import { SetupCompleteScreen } from '../screens/SetupCompleteScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 import { CaptureScreen } from '../screens/CaptureScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { SearchScreen } from '../screens/SearchScreen';
@@ -28,6 +29,7 @@ export type RootStackParamList = {
   ReminderSetup: undefined;
   SetupComplete: undefined;
   Settings: undefined;
+  Profile: undefined;
   Home: undefined;
   Capture: undefined;
   Timeline: undefined;
@@ -74,6 +76,10 @@ export const AppNavigator = () => {
         <Stack.Screen 
           name="Settings" 
           component={SettingsScreen} 
+        />
+        <Stack.Screen 
+          name="Profile" 
+          component={ProfileScreen} 
         />
         <Stack.Screen 
           name="Home" 
